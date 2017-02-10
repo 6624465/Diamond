@@ -1,6 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
+//test
 namespace NetStock
 {
     public class BundleConfig
