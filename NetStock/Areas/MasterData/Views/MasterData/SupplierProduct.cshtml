@@ -1,0 +1,306 @@
+﻿@model NetStock.Contract.Customer
+
+@{
+    ViewBag.Title = "Supplier";
+}
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+
+@*@using (Html.BeginForm("SupplierProduct", "MasterDataController", FormMethod.Post))
+    {*@
+@using (Ajax.BeginForm("SaveSupplierProduct", "MasterData", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSaveSuccess", OnFailure = "OnSaveFailure" }, new { enctype = "multipart/form-data", id = "myForm" }))
+{
+
+    <div class="box box-solid box-default">
+        <!-- Title -->
+        <div class="box-header with-border">
+            <h3 class="box-title">Supplier Products</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-2 control-label input-sm">Supplier Code</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.CustomerCode, new {@id="txtCustomerCode", @class = "form-control input-sm", @readonly = "readonly" })
+                        </div>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-2 control-label input-sm">Supplier Name</label>
+                        <div class="col-md-10">
+                            @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control input-sm", @readonly = "readonly" })
+                        </div>
+
+                    </div>
+                </div>
+
+            </fieldset>
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="tbDetails" data-toggle="tab">Supplier Product List</a>
+                    </li>
+                    <li class="pull-right">
+                        <div class="btn-group btn-primary">
+                            @Html.ActionLink("Add Product", "EditSupplierProduct", "MasterData", new { area = "MasterData" }, new { data_modal = "", id = "btnCreate", @class = "btn btn-small btn-primary" })
+                        </div>
+                    </li>
+                </ul>
+
+
+                <!-- Display List Section -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tbDetails">
+                        <!-- Display List Section -->
+                        <table id="tblList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                            <thead style="background-color:steelblue;color:white;font-size:12px;">
+                                <tr>
+                                    <th class="hidden">รหัสลูกค้า</th>
+                                    <th>Product Code</th>
+                                    <th class="hidden">Match Product Code</th>
+                                    <th>Match Product </th>
+                                    <th>Bar Code</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model != null)
+                                {
+                                    for (int itr = 0; itr < Model.CustomerProducts.Count; itr++)
+                                    {
+                                        <tr id="tr_@itr">
+                                            <td class="hidden" name="CustomerCode">
+                                                @Html.HiddenFor(p => p.CustomerProducts[itr].CustomerCode)
+                                            </td>
+                                            <td>
+                                                @Html.HiddenFor(p => p.CustomerProducts[itr].ProductCode)
+                                                @Html.DisplayFor(m => m.CustomerProducts[itr].ProductCode)
+                                            </td>
+                                            <td class="hidden" name="MatchProductCode">
+                                                @Html.HiddenFor(p => p.CustomerProducts[itr].MatchProductCode)
+                                                @Html.DisplayFor(m => m.CustomerProducts[itr].MatchProductCode)
+                                            </td>
+                                            <td>
+                                                @Html.HiddenFor(p => p.CustomerProducts[itr].MatchProductName)
+                                                @Html.DisplayFor(m => m.CustomerProducts[itr].MatchProductName)
+                                            </td>
+                                            
+                                            <td>
+                                                @Html.HiddenFor(p => p.CustomerProducts[itr].BarCode)
+                                                @Html.DisplayFor(m => m.CustomerProducts[itr].BarCode)
+                                            </td>
+                                            @*<td>
+                                                @Html.HiddenFor(p => p.CustomerProducts[itr].CostPrice)
+                                                @Html.DisplayFor(m => m.CustomerProducts[itr].CostPrice)
+                                            </td>*@
+
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">
+
+                    <button type="submit" id="btnSave" class="btn btn-social btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    
+                    <a href="#" id="btnDelete" onclick="DeleteCustomerProducts('@Model.CustomerCode')" class="btn btn-social btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+
+
+                    <a href="@Url.Action("Suppliers", "MasterData", new { area = "MasterData"}, null)"  class="btn btn-social btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/dataTable")
+    @Scripts.Render("~/bundles/modalform")
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript">
+    var supplierCode;
+    var isEditLocal = false;
+
+
+
+    function DeleteCustomerProducts() {
+
+        var customerCode = $("#txtCustomerCode").val();
+
+        if (!confirm("Do you want to delete all the products of the customer -  [" + customerCode + "] ?")) {
+            return false;
+        }
+
+        var rooturl = "@Url.Action("DeleteSupplierProducts", "MasterData", new { area = "MasterData" })"
+        var url = rooturl + "?supplierCode=" + customerCode;
+
+        var urlList = "@Url.Action("Suppliers", "MasterData", new { area = "MasterData" })"
+
+            $.ajax({
+                url: url, type: "POST", dataType: "json",
+                data: { SupplierCode: supplierCode },
+                async: true,
+                success: function (response) {
+                    if (response.result) {
+                        ModalShow(response.Message, "Success", "Delete");
+                        //$("#txtCustomerCode").addClass("StrikeOut")
+                        //$("#btnSave").attr("disabled", " disabled")
+                        //$("#btnDelete").attr("disabled", " disabled")
+
+
+                    } else {
+                        ModalShow(response.Message, "Failure", "Delete");
+                    }
+                    location.href = urlList;
+                }
+            })
+        }
+
+
+
+        function OnSaveFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+            //debugger;
+            ModalShow(result.Message, "Success", "Save");
+
+            supplierCode = result.supplierData.CustomerCode;
+        }
+
+
+        function BtnOK() {
+            var urlList = "@Url.Action("Suppliers", "MasterData", new { area = "MasterData" })"
+            if (ActionType == "Save") {
+                location.href = urlList;
+            }
+        }
+
+        function EditProductDetails(t, rowCount, qno, elocal) {
+            rowdetails = t;
+            if (elocal == "1") {
+                isEditLocal = true;
+            }
+            if (qno == 0) {
+                var row = $(t).closest("tr").get(0);
+                var oTable = $('#tblList').DataTable();
+                var ids = $.map(oTable.rows(row).data(), function (item) {
+                    var c = new Array();
+                    //debugger;
+                    c = [item[0].substr(item[0].indexOf(">") + 1, 20), item[1].substr(item[1].indexOf(">") + 1, 20), item[2].substr(item[2].indexOf(">") + 1, 20)];
+                    return c
+                });
+
+                if (ids[0] == "") {
+                    setTimeout(function () {
+                        $("#CustomerCode").val(ids[0])
+                        $("#ProductCode").val(ids[1])
+                        $("#MatchProductCode").val(ids[2])
+
+                    }, 100)
+                    return false;
+                }
+            }
+        }
+
+        function DeleteProductDetails(t, ProductCode, customerCode) {
+            if (!confirm("Do you want to delete Selected Product?")) {
+                return false;
+            }
+            var row = $(t).closest("tr").get(0);
+            var oTable = $('#tblItem').dataTable(); // JQuery dataTable function to delete the row from the table
+            oTable.fnDeleteRow(oTable.fnGetPosition(row));
+        }
+
+        $('#tblItem tbody').on('click', 'tr', function () {
+            var table = $('#tblItem').DataTable();
+            //alert('Row index: ' + table.row(this).index());
+        });
+
+
+        function linkClicked(li) {
+            linkedIndex = li;
+        }
+
+
+        function AddDataToTable() {
+            //debugger;
+            var tblData = new Array();
+            var productCode = $("#hdnProductCode").val();
+            //tblData = [{ ServiceType: $("#ServiceType").val(), ChargeCode: $("#ChargeCode").val(), ChargeType: $("#ChargeType").val(), From: $("#From").val(), To: $("#To").val(), SellRate: $("#SellRate").val() }];
+
+            var rowCount = 0;
+            if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                rowCount = $('#tblList tr').length - 1;;
+            }
+            var rowData = [
+                " <input id='CustomerProducts[" + rowCount + "].CustomerCode' type='hidden' value= ' ' name='CustomerProducts[" + rowCount + "].CustomerCode'>"
+               , "<input id='CustomerProducts[" + rowCount + "].ProductCode' type='hidden' value=" + this.ProductCode.value + " name='CustomerProducts[" + rowCount + "].ProductCode'>" + this.ProductCode.value
+               , "<input id='CustomerProducts[" + rowCount + "].MatchProductCode' type='hidden' value=" + this.ddlProductCode.value + " name='CustomerProducts[" + rowCount + "].MatchProductCode'>" + this.ddlProductCode.value
+                , "<input id='CustomerProducts[" + rowCount + "].MatchProductName' type='hidden' value=" + this.ddlProductCode.options[ddlProductCode.selectedIndex].text + " name='CustomerProducts[" + rowCount + "].MatchProductName'>" + this.ddlProductCode.options[ddlProductCode.selectedIndex].text
+               , "<input id='CustomerProducts[" + rowCount + "].BarCode' type='hidden' value=" + this.BarCode.value + " name='CustomerProducts[" + rowCount + "].BarCode'>" + this.BarCode.value
+               , "<a id='CBReceiptDetails[" + rowCount + "]' href='/AP/AddAPInvoiceItem?itemNo=" + rowCount + "' class='anchor-image' data-modal=''  onclick='EditCBReceiptDetails(this," + rowCount + ",0,1)'>" +
+               "</a> <img src='/Images/fa-trash-o_22.png' onclick='DeleteCBReceiptDetails(this," + rowCount + ",0)' class='img-class'>"];
+
+            //if ((productCode != null && productCode != "") || isEditLocal) {
+            //    $('#tblList').dataTable().fnUpdate(rowData, 0);
+            //    $('#myModal').modal('hide');
+            //    linkedIndex = null;
+            //}
+            //else {
+
+            var row = "";
+            $('#tblList').dataTable().fnAddData(rowData);
+            $('tr td:nth-child(1)').hide()
+            $('tr td:nth-child(3)').hide()
+
+            //}
+            var table = $('#tblList').DataTable();
+            var baseamt = 0;
+
+            //$.each(table.column(6).data(), function (key, value) {
+            //    var baseamtlocal = Number(value.substr(value.indexOf(">") + 1, 20));
+            //    baseamt = baseamt + baseamtlocal;
+            //})
+            $('#myModal').modal('hide');// $('#myModalContent').modal('hide');
+            $("a[data-modal]").on("click", function (e) {
+                return OpenModalPopup(this, e);
+            });
+        }
+
+    </script>
+
+
+}
+

@@ -1,0 +1,156 @@
+﻿@using MvcReportViewer
+<style>
+    .modal-dialog, .modal-content {
+        width: 1100px;
+    }
+
+    #ReportViewerContent .modal-header {
+        background-color: #00a7d0 !important;
+    }
+
+        #ReportViewerContent .modal-header h4 {
+            color: white;
+        }
+</style>
+
+@{
+    var settings = new ControlSettings { ShowToolBar = true, ShowParameterPrompts = false };
+    string url = Convert.ToString(ViewBag.Url);
+    string DNo = Convert.ToString(ViewBag.DocumentId);
+    string CustomerCode = Convert.ToString(ViewBag.CustomerCode);
+    string DateFrom = Convert.ToString(ViewBag.DateFrom).Replace("-","/");
+    string DateTo = Convert.ToString(ViewBag.DateTo).Replace("-", "/");
+    string reportsource = Convert.ToString(ViewBag.ReportSource);
+    string invoiceNo = Convert.ToString(ViewBag.InvoiceNo);
+    string documentNo = Convert.ToString(ViewBag.DocumentNo);
+    string BranchID = Convert.ToString(ViewBag.BranchID);
+    
+
+    DateTime df = DateTime.ParseExact(DateFrom, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+    DateTime dt = DateTime.ParseExact(DateTo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);  
+}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="lblHeader">Report Details</h4>
+
+</div>
+@{
+    if (reportsource == "DailySalesReport")
+    {
+    
+    @Html.MvcReportViewer(
+        url,new { CustomerCode = CustomerCode, DateFrom = df.ToString("dd/MM/yyyy"), DateTo = dt.ToString("dd/MM/yyyy") },
+            new { Height = 600, Width = 900, style = "border: none" }).ControlSettings(settings)
+    }
+    else if (reportsource == "ProfitAndLossReport")
+    {
+        @Html.MvcReportViewer(
+        url,new { DateFrom = df.ToString("dd/MM/yyyy"), DateTo = dt.ToString("dd/MM/yyyy") },
+            new { Height = 600, Width = 900, style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if(reportsource == "InvoiceReport")
+    {
+        @Html.MvcReportViewer(
+            url,new { InvoiceNo = invoiceNo },
+                     new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "ProductStockHistory")
+    {
+        @Html.MvcReportViewer(
+            url,new { ProductCode = invoiceNo },
+                     new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "ShipmentIndentList")
+    {
+        @Html.MvcReportViewer(
+                 url, new { DocumentNo = documentNo, DateFrom = df.ToString("dd/MM/yyyy"), DateTo = dt.ToString("dd/MM/yyyy") },
+                     new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "ShipmentScheduleList")
+    {
+        @Html.MvcReportViewer(
+                 url, new { DocumentNo = documentNo, DateFrom = df.ToString("dd/MM/yyyy"), DateTo = dt.ToString("dd/MM/yyyy") },
+                     new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+
+    else if (reportsource == "StockPlan")
+    {
+        @Html.MvcReportViewer(
+                 url, new { DateFrom = df.ToString("dd/MM/yyyy"), DateTo = dt.ToString("dd/MM/yyyy") },
+                     new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "GoodsReceiveDomesticDetails")
+    {
+        @Html.MvcReportViewer(
+            url,new { DocumentNo = documentNo },
+                new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "GoodsReceiveOverseasDetails")
+    {
+        @Html.MvcReportViewer(
+            url, new { DocumentNo = documentNo },
+                new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "InspectionDomestic")
+    {
+        @Html.MvcReportViewer(
+            url, new { DocumentNo = documentNo },
+                new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "InspectionOverseas")
+    {
+        @Html.MvcReportViewer(
+            url, new { DocumentNo = documentNo },
+                new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "PurchaseOrderReport")
+    {
+        @Html.MvcReportViewer(
+                 url, new { PONo = documentNo, BranchID = BranchID },
+                new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+    else if (reportsource == "QuotationReport")
+    {
+        @Html.MvcReportViewer(
+                 url, new { QuotationNo = documentNo, BranchID = Utility.SsnBranch },
+                new { Height = 600, Width = "100%", style = "border: none" }).ControlSettings(settings)
+
+    }
+
+
+
+
+    /*
+    if (DNo != "")
+    {
+        @Html.MvcReportViewer(
+    url,
+         new { DocumentNo = DNo, },
+    new { Height = 900, Width = 900, style = "border: none" }).ControlSettings(settings)
+
+    }
+    else
+    {
+        @Html.MvcReportViewer(
+    url,
+    new { Height = 900, Width = 900, style = "border: none" }).ControlSettings(settings)
+
+    }*/
+}
+
+
+<div class="modal-footer">
+    <button class="btn" data-dismiss="modal">Ok</button>
+</div>

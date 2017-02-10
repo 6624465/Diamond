@@ -1,0 +1,140 @@
+﻿@using NetStock.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+    Layout = null;
+}
+
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<link href="@Url.Content("~/Content/font-awesome-4.5.0/css/font-awesome.min.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/bootstrap.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/AdminLTE.css")" rel="stylesheet" />
+<style type="text/css">
+        input[type=text].error, input[type=password].error, textarea.error, select.error {
+            border: 1px solid red;
+        }
+
+        label.error {
+            display: none !important;
+        }
+
+        html, body {
+          min-height: 60%;
+        }
+
+        @@font-face {
+            font-family: 'proximanovalight';
+            src: url('../fonts/proximanovalight.eot');
+            src: local('proximanovalight'), url('../fonts/proximanovalight.woff') format('woff'), url('../fonts/proximanovalight.ttf') format('truetype');
+        }
+
+        body {
+            font-family: 'proximanovalight';
+        }
+
+        .fontsforweb_fontid_12950 {
+            font-family: 'proximanovalight' !important;
+        }
+    </style>
+<body class="login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="../../index2.html"><b>NET</b>STOCK</a>
+        </div>
+        <div class="login-box-body">
+            <p class="login-box-msg">Sign in to start your session</p>
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { id = "frmLogin", name = "frmLogin", @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group has-feedback">
+                    @Html.DropDownListFor(m => m.CompanyCode, Model.CompaniesList, "Select Company", new { @class = "form-control input-sm" })
+                </div>
+                <div class="form-group has-feedback">
+                    @if (Model.BranchList != null)
+                    {
+                        @Html.DropDownListFor(m => m.BranchID, Model.BranchList, "Select Branch", new { @class = "form-control input-sm", onchange = "OnBranchChanged(this);" });
+                    }
+                    else
+                    {
+                        <select id="BranchID" name="BranchID" class="form-control input-sm" disabled="disabled">
+                            <option value="">Select Branch
+                            </option>
+                        </select>
+                    }                    
+                </div>
+                <div class="form-group has-feedback">
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control input-sm", @placeholder = "User ID" })
+                </div>
+                <div class="form-group has-feedback">
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control passwordErr input-sm", @placeholder = "Password" })
+                </div>
+                <div class="form-group has-feedback">
+                    <button type="button" class="btn btn-primary btn-block btn-sm" onclick="btnLoginClick();"><i class="fa fa-sign-in" aria-hidden="true"></i>&nbsp;Sign In</button>
+                </div>                  
+                <input type="hidden" name="hdnBranchSelected" id="hdnBranchSelected" />             
+            }
+        </div>
+    </div>
+</body>
+
+<script src="@Url.Content("~/Scripts/jquery-1.10.2.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.js")"></script>
+<script src="@Url.Content("~/Scripts/bootstrap.js")"></script>
+
+<script>
+    function OnBranchChanged(el) {        
+        $('#hdnBranchSelected').val($('#BranchID option:selected').text());
+    }
+
+    $(function () {
+        $('#CompanyCode').on('change', function () {
+            var compCode = $('#CompanyCode').val();
+            sessionStorage.setItem('SsnLoginID', $('#Email').val());
+            sessionStorage.setItem('SsnPassword', $('#Password').val());
+            $('#frmLogin').attr('action', '@Url.Content("~/Account/Login?companyCode=")' + compCode)
+            $('#frmLogin').submit();            
+        });
+
+        
+    });
+
+    function LoginFrmValidation() {
+        $('#frmLogin').validate({
+            rules: {
+                CompanyCode: {
+                    required: true
+                },
+                BranchID: {
+                    required: true
+                },
+                Email: {
+                    required: true
+                },
+                Password: {
+                    required: true
+                }
+            },
+            messages: {
+                CompanyCode: {
+                    required: 'Company Code is required'
+                },
+                BranchID: {
+                    required: 'BranchID is required'
+                },
+                Email: {
+                    required: 'Username is required'
+                },
+                Password: {
+                    required: 'Password is required'
+                }
+            }
+        });
+    }
+
+    function btnLoginClick() {
+        LoginFrmValidation();
+        if ($('#frmLogin').valid()) {
+            $('#frmLogin').submit();
+        }
+    }
+</script>

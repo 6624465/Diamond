@@ -1,0 +1,41 @@
+﻿@model NetStock.Contract.Currency
+
+@using (Html.BeginForm("EditCurrency", "MasterData", FormMethod.Post, new { id = "frmCurrency", name = "frmCurrency", @area = "MasterData" }))
+{
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="lblHeader">Add/Edit Currency </h4>
+    </div>
+    <div class="modal-body form-horizontal">       
+        <div class="form-group">
+            <div>
+                <label class="col-md-4 control-label input-sm">Currency Code</label>
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.CurrencyCode, new { @id = "txtCode", @class = "form-control input-sm" })                     
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                <label class="col-md-4 control-label input-sm">Description</label>
+                <div class="col-md-8">
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control input-sm" })                     
+                </div>
+            </div>
+        </div>
+          <div class="form-group">
+            <div>
+                <label class="col-md-4 control-label input-sm">Description 1</label>
+                <div class="col-md-8">
+                    @Html.TextAreaFor(m => m.Description1, new { @class = "form-control input-sm "})                     
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-sm" data-dismiss="modal"><i class="fa fa-undo" aria-hidden="true"></i>&nbsp;Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="btnSaveCurrency();"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>
+    </div>
+}
+

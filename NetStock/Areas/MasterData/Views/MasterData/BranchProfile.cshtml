@@ -1,0 +1,179 @@
+﻿@model NetStock.Contract.Branch
+
+@{
+    ViewBag.Title = "BranchProfile";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        @{ Html.RenderAction("GetCompanies", "MasterData"); }
+    </div>
+    <div class="col-md-8">
+        @using (Html.BeginForm("SaveBranchProfile", "MasterData", FormMethod.Post, new { @id = "frmBranchProfile", name = "frmBranchProfile" }))
+        {
+
+            <div class="box box-solid box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Branch Profile</h3>
+                </div>
+                <div class="box-body">
+                    <fieldset class="form-horizontal">
+                        <div class="form-group">
+                            <div>
+                                <label for="BranchCode" class="col-md-2 control-label input-sm">Branch Code</label>
+                                <div class="col-md-2">
+                                    @Html.HiddenFor(m => m.BranchID)
+                                    @Html.TextBoxFor(m => m.BranchCode, new { @class = "form-control input-sm" })
+                                </div>
+                                <label for="RegNo" class="col-md-2 control-label input-sm">Registration No.</label>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.RegNo, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Branch Name</label>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.BranchName, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div>
+                                <label for="txtCompany" class="col-md-2 control-label input-sm">Company Code</label>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.CompanyCode, new { @class = "form-control  input-sm", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="form-group">
+                            <div>
+                                <label for="txtCompany" class="col-md-2 control-label input-sm">Company Code</label>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.CompanyCode, new { @class = "form-control  input-sm",@readonly="readonly" })
+                                </div>
+                            </div>
+                        </div>*@
+                    </fieldset>
+                    <fieldset class="form-horizontal">
+                        <legend>Address</legend>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Address 1</label>
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(m => m.BranchAddress.Address1, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Address 2</label>
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(m => m.BranchAddress.Address2, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">City</label>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.BranchAddress.CityName, new { @class = "form-control input-sm" })
+                                </div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">State</label>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.BranchAddress.StateName, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">ZIP Code</label>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.BranchAddress.ZipCode, new { @class = "form-control input-sm" })
+                                </div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Country</label>
+                                <div class="col-md-4">
+                                    
+                                    @Html.DropDownListFor(m => m.BranchAddress.CountryCode, Model.CountryList, "Select Country", new { @placeholder = "Country Code", @class = "form-control chosen-select input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Phone No.</label>
+                                <div class="col-md-2">
+                                    @Html.TextBoxFor(m => m.BranchAddress.TelNo, new { @class = "form-control input-sm" })
+                                </div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Fax</label>
+                                <div class="col-md-4">
+                                    @Html.TextBoxFor(m => m.BranchAddress.FaxNo, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Email</label>
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(m => m.BranchAddress.Email, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Web Site</label>
+                                <div class="col-md-8">
+                                    @Html.TextBoxFor(m => m.BranchAddress.WebSite, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+            <button type="button" onclick="btnSaveClick()" id="btnSave" class="btn btn-primary btn-sm" ><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>
+            <button type="button" class="btn btn-sm btn-warning" onclick="btnClear()"><i class="fa fa-eraser" aria-hidden="true"></i>&nbsp;Clear</button>
+            <button class="btn btn-info btn-sm" type="button" onclick="location.href = '@Url.Content("~/Dashboard/Index")'"><i class="fa fa-undo" aria-hidden="true"></i>&nbsp;Back</button>           
+        }
+    </div>
+</div>
+
+@section Scripts {
+
+   <script type="text/javascript">
+    function btnClear() {
+        var companyCode = $("#CompanyCode").val();
+        $('input[type=text], select').val('');
+        $("#CompanyCode").val(companyCode);
+        $("#BranchID").val('0');
+    }
+    function btnDelete() {
+
+    }
+
+    function btnSaveClick() {
+        if ($('#frmBranchProfile').valid()) {
+            $('#btnSave').attr('disabled', 'disabled');
+            $('#frmBranchProfile').submit();
+        }        
+    }
+
+    $(function () {
+        $('#frmBranchProfile').validate({
+            rules: {
+                BranchCode: {
+                    required: true
+                },
+                RegNo: {
+                    required: true
+                },
+                BranchName: {
+                    required: true
+                },
+                'BranchAddress.Address1': {
+                    required: true
+                }
+            }
+        });        
+    });
+    
+</script>
+    }

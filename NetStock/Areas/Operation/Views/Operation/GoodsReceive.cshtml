@@ -1,0 +1,1772 @@
+﻿@model NetStock.Contract.GoodsReceiveHeader
+
+@{
+    ViewBag.Title = "Stock In Entry";
+
+    //var obj = new NetStock.Contract.GoodsReceiveDetail();
+    //obj.IsClean = true;
+    //obj.IsHumidity = true;
+    //obj.IsSorted = true;
+    //obj.ProductCode = "abc";
+    //obj.Qty = 10.00M;
+    //obj.IsCovered = true;
+    //obj.DocumentNo = "12345ABC";
+
+    //Model.GoodsReceiveDetails.Add(obj);
+
+    var isObj = new NetStock.Contract.InspectionOverseas();
+    isObj.SupplierType = "0";
+    isObj.IsRequireLabour = false;
+    isObj.IsGetAllItem = false;
+
+
+    //Model.InspectionOverSeasList.Add(isObj);
+
+
+
+}
+<link href="@Url.Content("~/ThemeAdminLTE-2.2.0/plugins/select2/select2.min.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/fileupload/style.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/fileupload/jquery.fileupload.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/fileupload/jquery.fileupload-ui.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+<link href="@Url.Content("~/Content/bootstrapValidator.css")" rel="stylesheet" />
+
+<style>
+    .modal-body {
+        max-height: calc(100vh - 210px);
+        overflow-y: auto;
+    }
+</style>
+
+<!--Modal Window Placeholder-->
+@*<div class="modal fade in" id="coaModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">*@
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+
+@*@using (Html.BeginForm("SaveCompanyProfile", "MasterDataController", FormMethod.Post))
+    {*@
+@*
+    @using (Ajax.BeginForm("SaveGoodsReceiveHeader", "Operation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSaveSuccess", OnFailure = "OnSaveFailure" }, new { enctype = "multipart/form-data", id = "myForm" }))
+    {
+*@
+<div class="box box-solid box-default">
+
+    <!-- Header Title -->
+    <div class="box-header with-border">
+        <h3 class="box-title">Stock-In Entry</h3>
+    </div>
+
+    <!-- Body -->
+    <div class="box-body">
+        <fieldset class="form-horizontal">
+
+            <div class="form-group">
+                <div>
+                    <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Branch</label>
+                    <div class="col-md-6">
+                        @*@Html.TextBoxFor(m => m.PONo, new { @class = "form-control input-sm", @id = "txtPONo" })*@
+                        @Html.DropDownListFor(m => m.BranchID, Model.BranchList, new { @class = "form-control input-sm" })
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div>
+                    <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Document No. / เลขที่ใบสั่งซื้อ</label>
+                    <div class="col-sm-2">
+                        @Html.TextBoxFor(m => m.DocumentNo, new { @class = "form-control input-sm", @readonly = "readonly", @maxlength = "50" })
+                    </div>
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Date</label>
+                    <div class="col-sm-2">
+                        @Html.TextBoxFor(m => m.DocumentDate, new { @Value = Model.DocumentDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm datepicker" })
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div>
+                    <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Supplier/รหัสซัพพลายเออร์</label>
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.SupplierCode, Model.SuppliersList, new { @class = "form-control input-sm" })
+                    </div>
+
+                </div>
+            </div>
+
+
+            @*<div class="form-group">
+                    <div>
+                        @Html.ActionLink("Add Item", "EditStockItem", "Operation", null, new { data_modal = "", @class = "btn btn-small btn-primary col-md-1", @id = "lnkEditStock" })
+                        @Html.Hidden("SelectedCustomer")
+                        <div class="col-md-2">
+                            @Html.TextBox("txtSearchProduct", "", new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>*@
+        </fieldset>
+        <fieldset class="form-horizontal">
+            <legend>Add Details</legend>
+            <div class="form-group">
+                <div>
+                    <label class="col-md-3 control-label input-sm">Receive Qty / จำนวนสินค้าที่รับ :</label>
+                    <div class="col-md-1">
+                        @Html.TextBox("txtReceiveQty", "", new { @class = "form-control input-sm" })
+                    </div>
+                    <label class="col-md-2 control-label input-sm">Product / รหัสสินค้า :</label>
+                    <div class="col-md-3">
+                        @Html.Hidden("SelectedCustomer")
+                        @Html.TextBox("txtSearchProduct", "", new { @id = "txtSearchProduct", @class = "form-control input-sm", @placeholder = "Enter Bar-Code or Product Description." })
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-sm btn-success" onclick="btnAddNewRecord()" data-toggle="modal" data-target="#goodsReveiveModal">Add</button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="form-horizontal">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#tbDetails" data-toggle="tab">Supplier Product List</a>
+                    </li>
+                    <li>
+                        <a href="#tabImages" data-toggle="tab">Upload Images</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tbDetails">
+                        <table id="tblGoodsReceivedList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                            <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Convered ?</th>
+                                    <th>Sorting ?</th>
+                                    <th>Hummidity ? </th>
+                                    <th>Photo ? </th>
+                                    <th>Clean/Torn</th>
+                                    <th>Compressed ? </th>
+                                    <th>Same Weight ? </th>
+                                    <th>#Action</th>
+
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 12px;">
+                                @if (Model != null)
+                                {
+                                    for (var i = 0; i < Model.GoodsReceiveDetails.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>
+
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].ProductCode)
+                                                <span id="GoodsReceiveDetails_@(i)__ProductCode_span">@Model.GoodsReceiveDetails[i].ProductCode</span>
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__Qty_span">@Model.GoodsReceiveDetails[i].Qty</span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].Qty)
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__IsCovered_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsCovered ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsCovered)
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__IsSorted_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsSorted ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsSorted)
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__IsHumidity_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsHumidity ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsHumidity)
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__IsSameAsPhoto_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsSameAsPhoto ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsSameAsPhoto)
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__IsClean_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsClean ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsClean)
+                                            </td>
+                                            <td>
+
+                                                <span id="GoodsReceiveDetails_@(i)__IsCompressed_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsCompressed ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsCompressed)
+                                            </td>
+                                            <td>
+                                                <span id="GoodsReceiveDetails_@(i)__IsCorrectWeight_span" class="class_checkbox @(Model.GoodsReceiveDetails[i].IsCorrectWeight ? "checked" : "")"></span>
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].IsCorrectWeight)
+                                                @Html.HiddenFor(x => Model.GoodsReceiveDetails[i].Status)
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                        Action
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                        <li><a class="cursorCss" id="Edit_@i" onclick="EditGoodsReceiveDetails('@(i)')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>
+                                                        <li><a class="cursorCss" onclick="DeleteGoodsReceiveDetails('@(i)')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="tabImages" class="tab-pane">
+                        <form id="fileupload" name="fileupload" method="POST" action="@Url.Action("UploadFiles", "Operation", new { area = "Operation" })" enctype="multipart/form-data">
+                            <!-- Redirect browsers with JavaScript disabled to the origin page -->
+                            <noscript>
+                                <input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/">
+                            </noscript>
+                            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+                            <div class="row fileupload-buttonbar">
+                                <div class="col-lg-7">
+                                    <!-- The fileinput-button span is used to style the file input field as button -->
+                                    <span class="btn btn-success fileinput-button">
+                                        <i class="glyphicon glyphicon-plus"></i>
+                                        <span>Add files...</span>
+                                        <input type="file" name="files" multiple>
+                                    </span>
+                                    <button type="submit" class="btn btn-primary start" id="btnStartUpload" style="display: none;">
+                                        <i class="glyphicon glyphicon-upload"></i>
+                                        <span>Start upload</span>
+                                    </button>
+                                    <button type="reset" class="btn btn-warning cancel">
+                                        <i class="glyphicon glyphicon-ban-circle"></i>
+                                        <span>Cancel upload</span>
+                                    </button>
+                                    <button type="button" class="btn btn-danger delete">
+                                        <i class="glyphicon glyphicon-trash"></i>
+                                        <span>Delete</span>
+                                    </button>
+                                    <input type="checkbox" class="toggle">
+                                    <!-- The global file processing state -->
+                                    <span class="fileupload-process"></span>
+                                </div>
+                                <!-- The global progress state -->
+                                <div class="col-lg-5 fileupload-progress fade">
+                                    <!-- The global progress bar -->
+                                    <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar progress-bar-success" style="width: 0%;"></div>
+                                    </div>
+                                    <!-- The extended global progress state -->
+                                    <div class="progress-extended">&nbsp;</div>
+                                </div>
+                            </div>
+                            <!-- The table listing the files available for upload/download -->
+                            <table role="presentation" class="table table-striped">
+                                <tbody class="files"></tbody>
+                            </table>
+                            <input type="hidden" name="hdnDocumentNo" id="hdnDocumentNo" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div id="InspectionOverseasArea">
+    </div>
+    <!-- Footer -->
+    <div class="box-footer">
+        <div class="row">
+            <div class="pull-right col-xs-4">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Total Amount / ยอดรวม</label>
+                        <div class="col-sm-8">
+                            @*@Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control input-sm-red", @id = "txtGrandTotalAmount" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="pull-right col-xs-4">
+                <div class="form-group">
+
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">VAT %</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    @*@Html.CheckBoxFor(m => m.IsVAT, new { @class = "checkbox", @id = "chkVAT" })*@
+                                </span>
+                                @*@Html.TextBoxFor(m => m.VATAmount, new { @class = "form-control input-sm-red", @id = "txtVATAmount" })*@
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="pull-right col-xs-4">
+                <div class="form-group">
+
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Net Amt</label>
+                        <div class="col-sm-8">
+                            @*@Html.TextBoxFor(m => m.NetAmount, new { @class = "form-control input-sm-green", @id = "txtNetAmount", @align = "right" })*@
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row  no-print">
+            <div class="col-xs-12">
+
+                <button type="type" id="btnSave" class="btn btn-social btn-success" onclick="btnSaveClick()">
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+
+                <a href="@Url.Action("StockInLedger", "Operation", new { area = "Operation", documentNo = "NEW" }, null)" class="btn btn-social btn-default">
+                    <i class="fa fa-close"></i>
+                    Clear
+                </a>
+                <a href="#" id="btnDelete" onclick="DeleteStockEntry('@Model.DocumentNo')" class="btn btn-social btn-danger">
+                    <i class="fa fa-times-circle"></i>
+                    Delete
+                </a>
+
+
+                <a href="@Url.Action("StockInLedgerList", "Operation", new { area = "Operation" }, null)" class="btn btn-social btn-info pull-right">
+                    <i class="fa fa-arrow-circle-o-left"></i>
+                    ย้อนกลับ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="inspectionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-lg">
+            @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frmGoodsReceiveModal", @class = "form-horizontal" }))
+            {
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Incoming Inspection</h4>
+                </div>
+                <div class="modal-body" id="inspectionModalBody">
+                    <div class=" form-group row">
+                        <div class="col-md-4">
+                            <label for="receivedDt" class="control-label">Received Date</label>
+                            @Html.TextBoxFor(x => isObj.ReceivedDate, new { @class = "form-control input-sm datepicker", @required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="supplierName" class="control-label">Supplier Name</label>
+                            @Html.TextBoxFor(x => isObj.SupplierName, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="chemicalName" class="control-label">Chemical Name</label>
+                            @Html.TextBoxFor(x => isObj.ChemicalName, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <label for="inspectionDt" class="control-label">Inspection Date</label>
+                            @Html.TextBoxFor(x => isObj.InspectionDate, new { @class = "form-control input-sm datepicker", @required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="traderType" class="control-label">Trader/Manufacturer</label>
+                            @{
+                var SUPPLIERTYPE = new List<SelectListItem>() {
+                                        new SelectListItem { Value = "0", Text = "NONE" },
+                                        new SelectListItem { Value = "1", Text = "SUPPLIER" },
+                                        new SelectListItem { Value = "2", Text = "MANUFACTURER" }
+                                    };
+                            }
+                            @Html.DropDownListFor(x => isObj.SupplierType, new SelectList(SUPPLIERTYPE, "Value", "Text"), new { @class = "form-control input-sm" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="piNo" class="control-label">PI No.</label>
+                            @Html.TextBoxFor(x => isObj.PINo, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <label for="receivedTime" class="control-label">Received Time</label>
+                            @Html.TextBoxFor(x => isObj.ReceivedTime, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="labourReq" class="control-label">Labour Required ?</label>
+                            @{
+                var LABOURREQUIRED = new List<SelectListItem>() {
+                                        new SelectListItem { Value = "false", Text = "NOT REQUIRED" },
+                                        new SelectListItem { Value = "true", Text = "REQUIRED" }
+                                    };
+                            }
+                            @Html.DropDownListFor(x => isObj.IsRequireLabour, new SelectList(LABOURREQUIRED, "Value", "Text"), new { @class = "form-control input-sm" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="receivedQty" class="control-label">Received Quantity</label>
+                            @Html.TextBoxFor(x => isObj.ReceivedQty, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <label for="inspectionQty" class="control-label">Inspection Qty</label>
+                            @Html.TextBoxFor(x => isObj.InspectionQty, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="invoiceNo" class="control-label">Invoice No</label>
+                            @Html.TextBoxFor(x => isObj.InvoiceNo, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                        <div class="col-md-4">
+                            <label for="poNo" class="control-label">P/O No</label>
+                            @Html.TextBoxFor(x => isObj.PONo, new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group row" style="padding-top: 10px;">
+                        <div class="col-md-12">
+                            <div class="nav-tabs-custom">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tabPurchasing" data-toggle="tab">By Purchasing</a></li>
+                                    <li><a href="#tabManufacturer" data-toggle="tab">Manufacturer</a></li>
+                                    <li><a href="#tabStore" data-toggle="tab">By Store</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="tabPurchasing">
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label">Item No</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Details</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="qtyReceived" class="control-label">Q'ty Received</label>
+                                            @Html.TextBoxFor(x => isObj.ReceivedQty, new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Supplier</label>
+                                            @Html.TextBoxFor(x => isObj.COASupplier, new { @class = "form-control input-sm" })
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="coaBy" class="control-label">COA By ?</label>
+                                            @{
+                var COABY = new List<SelectListItem>() {
+                                                            new SelectListItem { Value = "0", Text = "NOT GET" },
+                                                            new SelectListItem { Value = "1", Text = "SUPPLIER" },
+                                                            new SelectListItem { Value = "2", Text = "GET" }
+                                                        };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.IsRequireLabour, new SelectList(COABY, "Value", "Text"), new { @class = "form-control input-sm" })
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">GET ALL ITEM</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="getallItem" class="control-label">GET ALL ITEM ?</label>
+                                            @{
+                var YESNO = new List<SelectListItem>() {
+                                                            new SelectListItem { Value = "0", Text = "NO" },
+                                                            new SelectListItem { Value = "1", Text = "YES" }
+                                                        };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.IsGetAllItem, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">SPECIFY BATCH NO</label>
+                                            @Html.TextBoxFor(x => isObj.BatchNo, new { @class = "form-control input-sm" })
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">SPECIFY BATCH NO</label>
+                                            @Html.DropDownListFor(x => isObj.IsSpecifyBatchNo, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Specify Manufacturing Date</label>
+                                            @Html.TextBoxFor(x => isObj.ManufacturerDate, new { @class = "form-control input-sm" })
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Specify Manufacturing Date</label>
+                                            @Html.DropDownListFor(x => isObj.IsCOAManufactureDate, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Specify Expiry Date</label>
+                                            @Html.TextBoxFor(x => isObj.ExpiryDate, new { @class = "form-control input-sm" })
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Specify Expiry Date</label>
+                                            @Html.DropDownListFor(x => isObj.IsCOAExpiryDate, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Test Result</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Test Result</label>
+                                            @{
+                var TESTRESULT = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "PASS" },
+                                                    new SelectListItem { Value = "0", Text = "NOT PASS" }
+                                                };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.TestResult, new SelectList(TESTRESULT, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Inspection Result</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Inspection Result</label>
+                                            @{
+                var INSPECTIONRESULT = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "OK" },
+                                                    new SelectListItem { Value = "0", Text = "NOT OK" }
+                                                };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.InspectionResult, new SelectList(INSPECTIONRESULT, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="tabManufacturer">
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label">Item No</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Manufacturer </label>
+                                            @Html.TextBoxFor(x => isObj.Manufacturer, new { @class = "form-control input-sm" })
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="containerNo" class="control-label">Container No</label>
+                                            @Html.TextBoxFor(x => isObj.ContainerNo, new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5"></div>
+                                        <div class="col-md-5">
+                                            <label for="containerType" class="control-label">Container Type</label>
+                                            @{
+                var CONTAINERTYPE = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "20SD", Text = "20 SD" },
+                                                    new SelectListItem { Value = "40HQ", Text = "40 HQ" }
+                                                };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.ContainerType, new SelectList(CONTAINERTYPE, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="tabStore">
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="qtyBatchNo" class="control-label">Quantity Batch No</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="BatchNo" class="control-label">Batch No</label>
+                                            @Html.TextBoxFor(x => isObj.StoreQtyBatchNo, new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="BatchNo" class="control-label">Homogeneous</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="homogeneous" class="control-label">Homogeneous</label>
+                                            @{
+                var HOMOGENIOUS = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "OK" },
+                                                    new SelectListItem { Value = "0", Text = "NOT OK" },
+                                                    new SelectListItem { Value = "2", Text = "NA" }
+                                                };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.Homogenious, new SelectList(HOMOGENIOUS, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Package & label in good condition</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="plGoodCondition" class="control-label">P & L Good Condition</label>
+                                            @Html.DropDownListFor(x => isObj.IsGoodCondition, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Chemical Product Same as Sample Product</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Same as sample Product</label>
+                                            @Html.DropDownListFor(x => isObj.IsSameAsSampleProduct, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Wet, Clumping</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Wet, Clumping</label>
+                                            @Html.DropDownListFor(x => isObj.IsWet, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Chemical Pill Condition</label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Chemical Pill Condition</label>
+                                            @{
+                var CHEMICALPILLCONDITION = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "Dust" },
+                                                    new SelectListItem { Value = "2", Text = "Flaky" },
+                                                    new SelectListItem { Value = "3", Text = "Needle" },
+                                                    new SelectListItem { Value = "0", Text = "Other" }
+                                                };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.ChemicalCondition, new SelectList(CHEMICALPILLCONDITION, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Get Contaminant Or not</label>
+                                            @Html.TextAreaFor(X => isObj.ContaminationRemarks, new { @class = "form-control input-sm" })
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Result</label>
+                                            @{
+                var ACCEPTSTATUS = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "Accept" },
+                                                    new SelectListItem { Value = "0", Text = "Reject" },
+                                                    new SelectListItem { Value = "2", Text = "Accept Under Condition" }
+                                                };
+                                            }
+                                            @Html.DropDownListFor(x => isObj.AcceptStatus, new SelectList(ACCEPTSTATUS, "Value", "Text"), new { @class = "form-control input-sm" })
+                                            <label class="control-label">Note</label>
+                                            @Html.TextAreaFor(X => isObj.AcceptRemarks, new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-2">
+                                            <label class="control-label"></label>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="control-label">Weight Of Each Bag</label>
+                                            @{
+                var BAGCONDITION = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "0", Text = "Bag Feature" },
+                                                    new SelectListItem { Value = "1", Text = "Different" },
+                                                    new SelectListItem { Value = "2", Text = "Similar" }
+                                                };
+                                            }
+                                            @Html.TextBoxFor(x => isObj.BagWeight, new { @class = "form-control input-sm" })
+                                            <label class="control-label">Bag Condition</label>
+                                            @Html.DropDownListFor(x => isObj.BagCondition, new SelectList(BAGCONDITION, "Value", "Text"), new { @class = "form-control input-sm" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="btnAddInspection()">Save changes</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="goodsReveiveModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-lg ">
+
+            @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frmgoodsReveiveModal", @class = "form-horizontal" }))
+            {
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Product Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        @{  var modalObj = new NetStock.Contract.GoodsReceiveDetail();  }
+                        <label class="col-md-1 control-label input-sm">ชื่อสินค้า</label>
+                        <div class="col-md-5">
+                            @*@Html.TextBoxFor(x => modalObj.ProductCode, new { @class = "form-control input-sm", placeholder = "Product Code" ,@required="required"})*@
+                            @Html.DropDownListFor(x => modalObj.ProductCode, Model.ProductsList, "Select Procuct Code", new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                        <label class="col-md-1 control-label input-sm">Qty</label>
+                        <div class="col-md-5">
+                            @Html.TextBoxFor(x => modalObj.Qty, new { @class = "form-control input-sm", placeholder = "Qty" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsCovered" class="rdoCss isCoveredCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsCovered" class="control-label input-sm lblCss">Is Covered ?</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotCovered" class="rdoCss isCoveredCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotCovered" class="control-label input-sm lblCss">Is Not Covered ?</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsSorted" class="rdoCss isSortedCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsSorted" class="control-label input-sm lblCss">Sorting ? / เรียบร้อย</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotSorted" class="rdoCss isSortedCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotSorted" class="control-label input-sm lblCss">Not Sorted ? ไม่เรียบร้อย</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsHumidity" class="rdoCss isHumidityCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsHumidity" class="control-label input-sm lblCss">Is Humidity ?</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotHumidity" class="rdoCss isHumidityCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotHumidity" class="control-label input-sm lblCss">Is Not Humidity ?</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsPhoto" class="rdoCss isSameAsPhotoCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsPhoto" class="control-label input-sm lblCss">Is Same as Photo ? / ตรงตามรูป</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotPhoto" class="rdoCss isSameAsPhotoCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotPhoto" class="control-label input-sm lblCss">Is Not As Photo ? / ไม่ตรงตามรูป(ถ่ายรูป และห้ามลงสินค้า ให้แจ้งหัวหน้างาน </label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsClean" class="rdoCss isCleanCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsClean" class="control-label input-sm lblCss">Is Clean/Torn ?</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotClean" class="rdoCss isCleanCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotClean" class="control-label input-sm lblCss">Is Not Clean/Torn ?</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsCompressed" class="rdoCss isCompressedCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsCompressed" class="control-label input-sm lblCss">Is Compressed ?</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotCompressed" class="rdoCss isCompressedCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotCompressed" class="control-label input-sm lblCss">Is Not Compressed ?</label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <span id="IsCorrect" class="rdoCss isCorrectWeightCss" data-value="true" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsCorrect" class="control-label input-sm lblCss">Is Correct Weight ?</label>
+                        </div>
+                        <div class="col-md-4">
+                            <span id="IsNotCorrect" class="rdoCss isCorrectWeightCss checked" data-value="false" onclick="toggleCheckBox(this)"></span>
+                            <label for="IsNotCorrect" class="control-label input-sm lblCss">Is Not Correct Weight ?</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="btnAddDetails()">Save changes</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="hdnFlag" name="hdnFlag" value="-1" />
+<input type="hidden" id="hdnInsFlag" name="hdnInsFlag" value="-1" />
+@section scripts{
+    @Scripts.Render("~/bundles/modalform")
+    @Scripts.Render("~/bundles/dataTable")
+    @*<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>*@
+    @*<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>*@>
+    <script src="@Url.Content("~/ThemeAdminLTE-2.2.0/plugins/select2/select2.min.js")"></script>
+
+    <!-- File Upload Scripts -->
+    <script src="@Url.Content("~/Scripts/jquery.ui.widget.js")"></script>
+    <script src="//blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+    <script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/jquery.iframe-transport.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/jquery.fileupload.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/jquery.fileupload-process.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/jquery.fileupload-image.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/jquery.fileupload-validate.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrapValidator.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/jquery.fileupload-ui.js")"></script>
+    <script src="@Url.Content("~/Scripts/fileupload/main.js")"></script>
+    <script src="@Url.Content("~/Scripts/js/GoodsReceive.js")"></script>
+    <!-- File Upload Scripts -->
+    <script id="template-upload" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+        <tr class="template-upload fade">
+            <td>
+                <span class="preview"></span>
+            </td>
+            <td>
+                <p class="name">{%=file.name%}</p>
+                <strong class="error text-danger"></strong>
+            </td>
+            <td>
+                <p class="size">Processing...</p>
+                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+            </td>
+            <td>
+                @*{% if (!i && !o.options.autoUpload) { %}
+                    <button class="btn btn-primary start" disabled>
+                        <i class="glyphicon glyphicon-upload"></i>
+                        <span>Start</span>
+                    </button>
+                    {% } %}*@
+                {% if (!i) { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+                {% } %}
+            </td>
+        </tr>
+        {% } %}
+    </script>
+    <!-- The template to display files available for download -->
+    <script id="template-download" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+        <tr class="template-download fade">
+            <td>
+                <span class="preview">
+                    {% if (file.thumbnailUrl) { %}
+                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img height="100" widht="100" src="{%=file.thumbnailUrl%}"></a>
+                    {% } %}
+                </span>
+            </td>
+            <td>
+                <p class="name">
+                    {% if (file.url) { %}
+                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                    {% } else { %}
+                    <span>{%=file.name%}</span>
+                    {% } %}
+                </p>
+                {% if (file.error) { %}
+                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+                {% } %}
+            </td>
+            <td>
+                <span class="size">{%=o.formatFileSize(file.size)%}</span>
+            </td>
+            <td>
+                {% if (file.deleteUrl) { %}
+                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}" {% if (file.deletewithcredentials) { %} data-xhr-fields='{"withCredentials":true}' {% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+                <input type="checkbox" name="delete" value="1" class="toggle">
+                {% } else { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+                {% } %}
+            </td>
+        </tr>
+        {% } %}
+    </script>
+    <script type="text/javascript">
+        var uploadUrl = '@Url.Content("~/Operation/UploadFiles/")';
+    </script>
+    <script type="text/javascript">
+        $("#ddlCustomerCode").select2();
+        function toggleCheckBox(el) {
+            $('.' + el.classList[1]).removeClass('checked');
+            $(el).addClass('checked')
+        }
+
+        function checkBoxClick(el) {
+            var id = el.id;
+            $(el).toggleClass('checked');
+
+            var isChecked = $(el).hasClass('checked');
+            var hdnId = id.split('_')[0];
+            $('#' + hdnId).val(isChecked);
+        }
+
+        function QuantityChanged(tis, ByingPriceId, POQty, Idnumber) {
+            debugger;
+            var ByingPrice = $("#" + ByingPriceId).val();
+            var RQty = Number($(tis).val());
+            var c = Number(POQty) - RQty;
+
+            $("#txtPendingQty_" + Idnumber).val(c);
+
+            var amt = ByingPrice * RQty;
+
+            $("#txtBuyingAmount_" + Idnumber).val(amt);
+
+            SummaryCalculation();
+        }
+
+        function BuyingPriceChanged(ths, quantityID, Idnumber) {
+
+            debugger;
+            var Receivequantity = $("#" + quantityID).val();
+            var BuyingPrice = Number($(ths).val());
+            var c = Receivequantity * BuyingPrice;
+
+            $("#txtBuyingAmount_" + Idnumber).val(c);
+
+            SummaryCalculation();
+        }
+
+        $(document).ready(function () {
+            $("#txtReceiveQty").val('');
+            $("#txtReceiveQty").focus();
+
+
+            if ('@Model.Status' == 'False') {
+                $("#txtDocumentNo").addClass("StrikeOut")
+                $("#btnSave").attr("disabled", " disabled")
+                $("#btnDelete").attr("disabled", " disabled")
+
+            }
+
+            $("#tblGoodsReceivedList").DataTable({
+                'bFilter': false,
+                'bPaginate': false,
+                'bInfo': false,
+                'bSortable': true,
+                'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+                    //nRow.className = "gradeX odd";
+                    nRow.id = 'GoodsReceive_' + iDisplayIndex;
+                    nRow.className = 'GoodsReceiveCss';
+                    return nRow;
+                }
+            });
+            var dateNow = new Date();
+
+            //$("#isObj_ReceivedDate").datetimepicker({
+            //    format: "DD/MM/YYYY",
+            //});
+
+
+            $('.datepicker').datetimepicker({
+                useCurrent: false,
+                maxDate: moment('@DateTime.Now.ToString("MM/dd/yyyy")'),
+                format: 'MM/DD/YYYY',
+                inline: false
+            });
+
+            //$('#DocumentDate').datetimepicker({
+            //    format: "DD/MM/YYYY"
+            //});
+            //$('#dtpDocumentDate').datepicker({
+            //    dateFormat: 'dd/mm/yy'
+            //});
+
+            //$('#dtpDocumentDate').datetimepicker({
+            //    dateFormat: 'dd/mm/yy'
+            //});
+
+
+            $('.lblCss').on('click', function () {
+                var className = $(this).prev()[0].classList[1];
+                $('.' + className).removeClass('checked');
+                $(this).prev().addClass('checked');
+
+            });
+        });
+
+        function btnAddNewRecord() {
+            $('#hdnFlag').val('-1');
+            $('#modalObj_ProductCode, #modalObj_Qty').val('');
+            $('.isCoveredCss, .isSortedCss, .isHumidityCss, .isSameAsPhotoCss, .isCleanCss, .isCompressedCss, .isCorrectWeightCss').removeClass('checked');
+            $('.isCoveredCss[data-value="false"], .isSortedCss[data-value="false"], .isHumidityCss[data-value="false"], .isSameAsPhotoCss[data-value="false"], .isCleanCss[data-value="false"], .isCompressedCss[data-value="false"], .isCorrectWeightCss[data-value="false"]').addClass('checked');
+
+        }
+
+        function btnAddDetails() {
+            var validator = $('#frmgoodsReveiveModal').data('bootstrapValidator');
+            validator.validate();
+            if (validator.isValid()) {
+
+
+                var hdnFlag = $('#hdnFlag').val();
+                if (hdnFlag == '-1') {
+                    var _index = $('.GoodsReceiveCss').length;
+                    var obj = {
+                        index: _index,
+                        ProductCode: $('#modalObj_ProductCode').val(),
+                        Qty: $('#modalObj_Qty').val(),
+                        IsCovered: $('.isCoveredCss.checked').data('value'),
+                        IsSorted: $('.isSortedCss.checked').data('value'),
+                        IsHumidity: $('.isHumidityCss.checked').data('value'),
+                        IsSameAsPhoto: $('.isSameAsPhotoCss.checked').data('value'),
+                        IsClean: $('.isCleanCss.checked').data('value'),
+                        IsCompressed: $('.isCompressedCss.checked').data('value'),
+                        IsCorrectWeight: $('.isCorrectWeightCss.checked').data('value'),
+
+
+                        IsCovered_span: $('.isCoveredCss.checked').data('value') ? 'checked' : '',
+                        IsSorted_span: $('.isSortedCss.checked').data('value') ? 'checked' : '',
+                        IsHumidity_span: $('.isHumidityCss.checked').data('value') ? 'checked' : '',
+                        IsSameAsPhoto_span: $('.isSameAsPhotoCss.checked').data('value') ? 'checked' : '',
+                        IsClean_span: $('.isCleanCss.checked').data('value') ? 'checked' : '',
+                        IsCompressed_span: $('.isCompressedCss.checked').data('value') ? 'checked' : '',
+                        IsCorrectWeight_span: $('.isCorrectWeightCss.checked').data('value') ? 'checked' : ''
+
+
+                    };
+                    var rowData = [
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__ProductCode" name="GoodsReceiveDetails[' + obj.index + '].ProductCode" type="hidden" value="' + obj.ProductCode + '">' +
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__ProductCode_span">' + obj.ProductCode + '</span>',
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__Qty_span">' + obj.Qty + '</span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__Qty" name="GoodsReceiveDetails[' + obj.index + '].Qty" type="hidden" value="' + obj.Qty + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsCovered_span" class="class_checkbox ' + obj.IsCovered_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsCovered" name="GoodsReceiveDetails[' + obj.index + '].IsCovered" type="hidden" value="' + obj.IsCovered + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsSorted_span" class="class_checkbox ' + obj.IsSorted_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsSorted" name="GoodsReceiveDetails[' + obj.index + '].IsSorted" type="hidden" value="' + obj.IsSorted + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsHumidity_span" class="class_checkbox ' + obj.IsHumidity_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsHumidity" name="GoodsReceiveDetails[' + obj.index + '].IsHumidity" type="hidden" value="' + obj.IsHumidity + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsSameAsPhoto_span" class="class_checkbox ' + obj.IsSameAsPhoto_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsSameAsPhoto" name="GoodsReceiveDetails[' + obj.index + '].IsSameAsPhoto" type="hidden" value="' + obj.IsSameAsPhoto + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsClean_span" class="class_checkbox ' + obj.IsClean_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsClean" name="GoodsReceiveDetails[' + obj.index + '].IsClean" type="hidden" value="' + obj.IsClean + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsCompressed_span" class="class_checkbox ' + obj.IsCompressed_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsCompressed" name="GoodsReceiveDetails[' + obj.index + '].IsCompressed" type="hidden" value="' + obj.IsCompressed + '">',
+
+                            '<span id="GoodsReceiveDetails_' + obj.index + '__IsCorrectWeight_span" class="class_checkbox ' + obj.IsCorrectWeight_span + '"></span>' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__IsCorrectWeight" name="GoodsReceiveDetails[' + obj.index + '].IsCorrectWeight" type="hidden" value="' + obj.IsCorrectWeight + '">' +
+                            '<input id="GoodsReceiveDetails_' + obj.index + '__Status" name="GoodsReceiveDetails[' + obj.index + '].Status" type="hidden" value="true">',
+
+                            '<div class="dropdown">' +
+                            '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Action<span class="caret"></span></button>' +
+                            '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">' +
+                                '<li><a class="cursorCss" id="Edit_' + obj.index + '" onclick="EditGoodsReceiveDetails(' + obj.index + ')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>' +
+                                '<li><a class="cursorCss" onclick="DeleteGoodsReceiveDetails(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>' +
+                                '<li><a data-target="#inspectionModal" data-toggle="modal" class="cursorCss" onclick="EditInspectionOverseas(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Inspection</a></li>' +
+                            '</ul></div>'
+
+                    ];
+                    $('#tblGoodsReceivedList').dataTable().fnAddData(rowData);
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__ProductCode').val($('#modalObj_ProductCode').val());
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__ProductCode_span').text($('#modalObj_ProductCode').val());
+
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__Qty').val($('#modalObj_Qty').val());
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__Qty_span').text($('#modalObj_Qty').val());
+
+                    if ($('.isCoveredCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered_span').removeClass('checked');
+                    }
+
+                    if ($('.isSortedCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted_span').removeClass('checked');
+                    }
+
+                    if ($('.isHumidityCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity_span').removeClass('checked');
+                    }
+
+                    if ($('.isSameAsPhotoCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto_span').removeClass('checked');
+                    }
+
+                    if ($('.isCleanCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean_span').removeClass('checked');
+                    }
+
+                    if ($('.isCompressedCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed_span').removeClass('checked');
+                    }
+
+                    if ($('.isCorrectWeightCss.checked').data('value')) {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight').val('true');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight_span').addClass('checked');
+                    }
+                    else {
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight').val('false');
+                        $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight_span').removeClass('checked');
+                    }
+
+                }
+                $('#hdnFlag').val('-1');
+                $('#goodsReveiveModal').modal('hide');
+            }
+        }
+
+        function EditGoodsReceiveDetails(index) {
+            $('#modalObj_ProductCode').val($('#GoodsReceiveDetails_' + index + '__ProductCode').val());
+            $('#modalObj_Qty').val($('#GoodsReceiveDetails_' + index + '__Qty').val());
+
+            $('.isCoveredCss').removeClass('checked');
+            $('.isCoveredCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsCovered').val() + '"]').addClass('checked');
+
+            $('.isSortedCss').removeClass('checked');
+            $('.isSortedCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsSorted').val() + '"]').addClass('checked');
+
+            $('.isHumidityCss').removeClass('checked');
+            $('.isHumidityCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsHumidity').val() + '"]').addClass('checked');
+
+            $('.isSameAsPhotoCss').removeClass('checked');
+            $('.isSameAsPhotoCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsSameAsPhoto').val() + '"]').addClass('checked');
+
+            $('.isCleanCss').removeClass('checked');
+            $('.isCleanCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsClean').val() + '"]').addClass('checked');
+
+            $('.isCompressedCss').removeClass('checked');
+            $('.isCompressedCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsCompressed').val() + '"]').addClass('checked');
+
+            $('.isCorrectWeightCss').removeClass('checked');
+            $('.isCorrectWeightCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsCorrectWeight').val() + '"]').addClass('checked');
+
+            $('#goodsReveiveModal').modal('show');
+            $('#hdnFlag').val(index);
+
+        }
+
+        function DeleteGoodsReceiveDetails(index) {
+            $('#GoodsReceiveDetails_' + index + '__Status').val(false);
+            $('#GoodsReceive_' + index).css({
+                'color': 'red',
+                'text-decoration': 'line-through',
+                'font-style': 'italic'
+            });
+        }
+
+        function DeleteStockEntry() {
+
+            var documentNo = $("#txtDocumentNo").val();
+
+            if (documentNo == "NEW") {
+                alert('Please choose a valid Document No. to Proceed!');
+                return false;
+            }
+
+
+            if (!confirm("Do you want to delete Selected Document No. [" + documentNo + "] ?")) {
+                return false;
+            }
+            var rooturl = "@Url.Action("DeleteStockEntry", "Operation", new { area = "Operation" })"
+            var url = rooturl + "?documentNo=" + documentNo;
+
+
+            var urlList = "@Url.Action("StockInLedgerList", "Operation", new { area = "Operation" })"
+
+            //url: "/Operation/DeleteStockEntry", type: "POST", dataType: "json",
+            $.ajax({
+
+                url: url, type: "POST", dataType: "json",
+                data: { documentNo: documentNo },
+                async: true,
+                success: function (response) {
+                    if (response.result) {
+                        ModalShow(response.Message, "Success", "Delete");
+                        $("#txtDocumentNo").addClass("StrikeOut")
+                        $("#btnSave").attr("disabled", " disabled")
+                        $("#btnDelete").attr("disabled", " disabled")
+
+                    } else {
+                        ModalShow(response.Message, "Failure", "Delete");
+                    }
+                    location.href = urlList;
+                }
+            })
+        }
+
+        $('#ddlCustomerCode').on("select2:select", function (e) {
+            var customerCode = $('#ddlCustomerCode').val();
+            var url = "/Operation/GetCustomerPOList?customerCode=" + customerCode;
+            $.post(url, null, function (data) {
+                //alert(data.d);
+                //// if the data is NOT NULL, then i want to add this to ddlPOList.
+                //debugger;
+                $("#ddlPOList").select2();
+                $("#ddlPOList").select2('data', null);
+                $("#ddlPOList").select2('val', '');
+                $("#ddlPOList").select2('data', { id: null, text: null })
+                var myData = [];
+                if (data.POList.length > 0) {
+                    for (var i = 0 ; i < data.POList.length; i++) {
+                        var obj = {
+                            id: data.POList[i].PONo,
+                            text: data.POList[i].PONo
+                        };
+                        myData.push(obj);
+                        //sampleArray += "{" +id:  ", text: " +  + " },";
+                    }
+
+                }
+
+                //$.each(function (d) {
+                //    sampleArray += "{ id:" + d.PONo + ", text: " + d.PONo + " },";
+                //})
+                //sampleArray =[ sampleArray  ];
+                //var sampleArray = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }
+                //  , { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }
+                //  , { id: 4, text: 'wontfix' }];
+
+                $("#ddlPOList").select2({ data: myData });
+
+
+            });
+
+        });
+
+
+        $('#ddlPOList').on("select2:select", function (e) {
+            var poNo = $('#ddlPOList').val();
+
+            var rooturl = '@Url.Action("GetPOListForStockIn", "Operation", new { area = "Operation" })';
+            var url = rooturl + "?poNo=" + poNo;
+
+            //var url = "/Operation/GetPOListForStockIn?poNo=" + poNo;
+            $.post(url, null, function (data) {
+                //debugger;
+                // i have to add the list of items from the PO to the table. in the stock in header.
+                $('#tblList').DataTable().clear();
+
+                for (var i = 0; i < data.stockDt.length; i++) {
+
+                    var rowData = [
+                  " <input id='StockInDetails[" + i + "].ItemNo' type='hidden' value= '" + data.stockDt[i].ItemNo + " ' name='StockInDetails[" + i + "].ItemNo'>"
+                  , " <input id='StockInDetails[" + i + "].DocumentNo' type='hidden' value= '" + data.stockDt[i].DocumentNo + " ' name='StockInDetails[" + i + "].DocumentNo'>"
+                  , " <input id='StockInDetails[" + i + "].ProductCode' type='hidden' value= '" + data.stockDt[i].ProductCode + " ' name='StockInDetails[" + i + "].ProductCode'>"
+                 //, "<input id='StockInDetails[" + i + "].ProductDescription' type='hidden' value=" + data.stockDt[i].ProductDescription + " name='StockInDetails[" + i + "].ProductDescription'>" + data.stockDt[i].ProductDescription
+
+                  , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + data.stockDt[i].ProductCode + "'>" + data.stockDt[i].ProductDescription + "</a>"
+                 , "<input id='StockInDetails[" + i + "].Location' type='hidden' value='" + data.stockDt[i].Location + "' name='StockInDetails[" + i + "].Location'>" + data.stockDt[i].LocationDescription
+                 , "<input id='StockInDetails[" + i + "].POQty' type='hidden' value='" + data.stockDt[i].POQty + "' name='StockInDetails[" + i + "].Quantity'>" + data.stockDt[i].POQty
+                 , "<input id='StockInDetails[" + i + "].BuyingPrice' type='text' value=" + data.stockDt[i].BuyingPrice + " class = 'form-control input-sm' name='StockInDetails[" + i + "].BuyingPrice'  onchange = 'BuyingPriceChanged(this," + data.stockDt[i].Quantity + "," + i + ")'  >"
+
+                 , "<input id='StockInDetails[" + i + "].Quantity' type='text' value=" + data.stockDt[i].Quantity + " class = 'form-control input-sm' name='StockInDetails[" + i + "].Quantity'  onchange = 'QuantityChanged(this," + data.stockDt[i].BuyingPrice + "," + data.stockDt[i].POQty + "," + i + ")' >" // + this.Quantity.value
+
+
+                 , "<input id='txtPendingQty_" + i + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + i + "].PendingQty'>"
+                 , "<input id='txtBuyingAmount_" + i + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + i + "].BuyingAmount'>"
+                    ];
+
+
+                    var row = "";
+                    $('#tblList').dataTable().fnAddData(rowData);
+                    $('tr td:nth-child(1)').hide()
+                    $('tr td:nth-child(2)').hide()
+                    $('tr td:nth-child(3)').hide()
+
+
+                    SummaryCalculation();
+
+                }
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+
+
+
+            });
+            $("#txtReceiveQty").val('');
+            $("#txtReceiveQty").focus();
+
+        });
+
+
+        function SummaryCalculation() {
+            debugger;
+
+            var table = $('#tblList').DataTable();
+            var price = 0;
+            var qty = 0;
+            var totalAmount = 0;
+
+
+
+            table.column(9).data()
+                .each(function (value, index) {
+                    var id = "#" + $(value).attr("id");
+                    totalAmount += Number($(id).val());
+                });
+
+
+
+            $("#txtGrandTotalAmount").val(totalAmount);
+
+            if ($("#chkVAT").is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+        }
+
+        function CalculateVAT(isVAT) {
+            var taxableAmount = Number($("#txtGrandTotalAmount").val());
+            var taxAmount = 0;
+
+            if (isVAT == true) {
+
+                taxAmount = (taxableAmount * 7) / 100;
+            }
+            else {
+                taxAmount = 0;
+            }
+
+            $("#txtVATAmount").val(taxAmount);
+            $("#txtNetAmount").val(taxableAmount + taxAmount);
+        }
+
+
+        $("#chkVAT").click(function () {
+            if ($(this).is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+        });
+
+        $("input").focus(function () {
+            console.log("fired");
+        });
+
+
+        var documentNo;
+        var isEditLocal = false;
+
+
+        function OnSaveFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+
+            ModalShow(result.Message, "Success", "Save");
+
+            documentNo = result.POData.DocumentNo;
+        }
+
+
+        function BtnOK() {
+            if (ActionType == "Save") {
+                location.href = "../Operation/StockInLedgerList";
+            }
+        }
+
+
+        function EditProductDetails(t, rowCount, qno, elocal) {
+            rowdetails = t;
+            if (elocal == "1") {
+                isEditLocal = true;
+            }
+            if (qno == 0) {
+                var row = $(t).closest("tr").get(0);
+                var oTable = $('#tblList').DataTable();
+                var ids = $.map(oTable.rows(row).data(), function (item) {
+                    var c = new Array();
+                    debugger;
+                    c = [item[0].substr(item[0].indexOf(">") + 1, 20), item[1].substr(item[1].indexOf(">") + 1, 20), item[2].substr(item[2].indexOf(">") + 1, 20)];
+                    return c
+                });
+
+                if (ids[0] == "") {
+                    setTimeout(function () {
+                        $("#ProductCode").val(ids[1])
+                        $("#Quantity").val(ids[2])
+
+                    }, 100)
+                    return false;
+                }
+            }
+        }
+
+        function DeleteProductDetails(t, ProductCode, customerCode) {
+            if (!confirm("Do you want to delete Selected Product?")) {
+                return false;
+            }
+            var row = $(t).closest("tr").get(0);
+            var oTable = $('#tblList').dataTable(); // JQuery dataTable function to delete the row from the table
+            oTable.fnDeleteRow(oTable.fnGetPosition(row));
+        }
+
+        $('#tblList tbody').on('click', 'tr', function () {
+            var table = $('#tblList').DataTable();
+            //alert('Row index: ' + table.row(this).index());
+        });
+
+
+        function linkClicked(li) {
+            linkedIndex = li;
+        }
+
+
+        function AddDataToTable() {
+
+            var tblData = new Array();
+            var productCode = $("#hdnProductCode").val();
+            //tblData = [{ ServiceType: $("#ServiceType").val(), ChargeCode: $("#ChargeCode").val(), ChargeType: $("#ChargeType").val(), From: $("#From").val(), To: $("#To").val(), SellRate: $("#SellRate").val() }];
+
+
+            var rowCount = 0;
+            if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                rowCount = $('#tblList tr').length;// - 1;;
+            }
+            debugger;
+            var rowData = [
+                " <input id='StockInDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ItemNo'>"
+                , " <input id='StockInDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].DocumentNo'>"
+                , " <input id='StockInDetails[" + rowCount + "].ProductCode' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ProductCode'>"
+               //, "<input id='StockInDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + this.ProductDescription.value + " name='StockInDetails[" + rowCount + "].ProductDescription'>" + this.ProductDescription.value
+               , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + this.ProductCode.value + "'>" + this.ProductDescription.value + "</a>"
+               , "<input id='StockInDetails[" + rowCount + "].Location' type='hidden' value='" + this.Location.value + "' name='StockInDetails[" + rowCount + "].Location'>" + this.LocationDescripton.value
+               , "<input id='StockInDetails[" + rowCount + "].POQty' type='hidden' value='" + this.Quantity.value + "' name='StockInDetails[" + rowCount + "].Quantity'>" + this.Quantity.value
+               , "<input id='StockInDetails[" + rowCount + "].BuyingPrice' type='text' value='0' class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].BuyingPrice' onchange = 'BuyingPriceChanged(this," + data.stockDt[i].BuyingPrice + "," + i + ")' >"
+
+              , "<input id='StockInDetails[" + rowCount + "].Quantity' type='text' value=" + this.Quantity.value + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].Quantity'  onchange = 'QuantityChanged(this," + this.Quantity.value + "," + rowCount + ")' >" // + this.Quantity.value
+
+
+             , "<input id='txtPendingQty_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].PendingQty'>"
+                , "<input id='txtBuyingAmount_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].BuyingAmount'>"
+            ];
+
+            //if ((productCode != null && productCode != "") || isEditLocal) {
+            //    $('#tblList').dataTable().fnUpdate(rowData, 0);
+            //    $('#myModal').modal('hide');
+            //    linkedIndex = null;
+            //}
+            //else {
+
+            var row = "";
+            $('#tblList').dataTable().fnAddData(rowData);
+            $('tr td:nth-child(1)').hide()
+            $('tr td:nth-child(2)').hide()
+            $('tr td:nth-child(3)').hide()
+
+
+            SummaryCalculation();
+            //}
+            var table = $('#tblList').DataTable();
+            var baseamt = 0;
+
+            //$.each(table.column(6).data(), function (key, value) {
+            //    var baseamtlocal = Number(value.substr(value.indexOf(">") + 1, 20));
+            //    baseamt = baseamt + baseamtlocal;
+            //})
+            $('#myModal').modal('hide');// $('#myModalContent').modal('hide');
+            $("a[data-modal]").on("click", function (e) {
+                return OpenModalPopup(this, e);
+            });
+        }
+
+        $("#txtPONo").keypress(function (evt) {
+            if (evt.keyCode == 13) {
+                var textValue = $("#txtPONo").val();
+                var customerCode = $("#ddlCustomerCode").val();
+                if (evt.keyCode == 13) {
+
+                    //var url = '@Url.Action("AddProductToGrid", "Operation", new { area = "Operation" })';
+                    var url = "/Operation/AddProductToGrid?CustomerCode=" + customerCode + "&barCode=" + textValue;
+                    var rowCount = 0;
+
+                    //"EditOrderItem", "Operation", new { area = "Operation" }
+                    $.post(url, null, function (data) {
+                        debugger;
+                        var totalamt = (data.OrderDetail.SellRate * data.OrderDetail.Quantity) - data.OrderDetail.DiscountAmount
+                        var rowData = [
+          "<input id='OrderDetail[" + rowCount + "].ItemNo' type='hidden' value=" + data.OrderDetail.ItemNo + " name='OrderDetail[" + rowCount + "].ItemNo'>" + data.OrderDetail.ItemNo
+          , "<input id='OrderDetail[" + rowCount + "].ProductCode' type='hidden' value=' ' name='OrderDetail[" + rowCount + "].ProductCode'>" + data.OrderDetail.ProductCode
+          , "<input id='OrderDetail[" + rowCount + "].SellRate' type='hidden' value=" + data.OrderDetail.SellRate + " name='OrderDetail[" + rowCount + "].AccountCode'>" + data.OrderDetail.SellRate
+          , "<input id='OrderDetail[" + rowCount + "].Quantity' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetail[" + rowCount + "].BaseAmount'>" + data.OrderDetail.Quantity
+          , "<input id='OrderDetail[" + rowCount + "].CurrencyCode' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetail[" + rowCount + "].CurrencyCode'>" + data.OrderDetail.Quantity
+          , "<input id='OrderDetail[" + rowCount + "].DiscountAmount' type='hidden' value=" + data.OrderDetail.DiscountAmount + " name='OrderDetail[" + rowCount + "].LocalAmount'>" + data.OrderDetail.DiscountAmount
+          , "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+          , "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+          , "<input id='OrderDetail[" + rowCount + "].SellPrice' type='hidden' value=" + totalamt + " name='OrderDetail[" + rowCount + "].SellPrice'>" + totalamt
+
+             //, "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+
+          , " <a id='OrderDetail[" + rowCount + "]' href='/AR/AddARInvoiceItem?itemNo=" + rowCount + "' class='anchor-image' data-modal=''  onclick='EditOrderDetail(this," + rowCount + ",0,1)'>" +
+          " </a> <img src='/Images/fa-trash-o_22.png' onclick='DeleteOrderDetail(this," + rowCount + ",0)' class='img-class'>"];
+
+                        $('#tblItem').dataTable().fnAddData(rowData);
+                        //$('tr td:nth-child(1)').hide()
+                    });
+                    return false;
+                }
+                $("#txtPONo").val = '';
+            }
+        });
+
+        //$('#ddlCustomerCode').on('change', function (a,b,c) {
+        //    debugger;
+        //    var supplierCode = $('#ddlCustomerCode').val();
+        //    var url = "Coontroller/Action?p1=" + supplierCode;
+        //    $.post(url, null, function (data, status, jqXHR) {
+        //        // how to attach the return value to the drop down?
+
+        //    })
+        //});
+
+
+        $("#txtSearchProduct").keypress(function (evt) {
+
+            if (evt.keyCode == 13) {
+
+
+                var barCode = $("#txtSearchProduct").val();
+                var supplierCode = $("#ddlCustomerCode").val();
+                var qty = $("#txtReceiveQty").val();
+
+                //alert(qty);
+
+                if (evt.keyCode == 13) {
+
+                    var rooturl = '@Url.Action("AddStockInProduct", "Operation", new { area = "Operation" })';
+                    var url = rooturl + "?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+
+
+                    //var url = "../Operation/AddStockInProduct?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+                    var rowCount = 0;
+                    if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                        rowCount = $('#tblList tr').length - 1;
+                    }
+                    //"EditOrderItem", "Operation", new { area = "Operation" }
+                    $.post(url, null, function (data) {
+
+                        if (data.StockInDetail.ProductCode == null) {
+                            alert("Invalid Product Code Or Bar-Code not found!, please refine your search!!");
+                            $("#txtSearchProduct").val('');
+                            return false;
+                        }
+                        var rowData = [
+                        " <input id='StockInDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ItemNo'>"
+                        , " <input id='StockInDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].DocumentNo'>"
+                        , " <input id='StockInDetails[" + rowCount + "].ProductCode' type='hidden' value=" + data.StockInDetail.ProductCode + " name='StockInDetails[" + rowCount + "].ProductCode'>"
+
+
+                       //, "<input id='StockInDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.StockInDetail.ProductDescription + " name='StockInDetails[" + rowCount + "].ProductDescription'>" + data.StockInDetail.ProductDescription
+
+                       , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + data.StockInDetail.ProductCode + "'>" + data.StockInDetail.ProductDescription + "</a>"
+                       , "<input id='StockInDetails[" + rowCount + "].Location' type='hidden' value='" + data.StockInDetail.Location + "' name='StockInDetails[" + rowCount + "].Location'>" + data.StockInDetail.LocationDescription
+
+                       , "<input id='StockInDetails[" + rowCount + "].POQty' type='hidden' value='" + data.StockInDetail.Quantity + "' name='StockInDetails[" + rowCount + "].Quantity'>" + data.StockInDetail.Quantity
+
+                         , "<input id='StockInDetails_" + rowCount + "BuyingPrice' type='text' value=" + data.StockInDetail.BuyingPrice + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].BuyingPrice'  onchange = 'BuyingPriceChanged(this,\"StockInDetails_" + rowCount + "Quantity\"," + rowCount + ")'  >"
+                         //,\"OrderDetails_" + rowCount + "DiscountAmount\",
+                         //,\"StockInDetails_" + rowCount + ".Quantity\","
+
+                        , "<input id='StockInDetails_" + rowCount + "Quantity' type='text' value=" + data.StockInDetail.Quantity + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].Quantity'  onchange = 'QuantityChanged(this,\"StockInDetails_" + rowCount + "BuyingPrice\"," + data.StockInDetail.Quantity + "," + rowCount + ")' >" // + this.Quantity.value
+
+                        , "<input id='txtPendingQty_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].PendingQty'>"
+
+
+                        , "<input id='txtBuyingAmount_" + rowCount + "' type='text' value=" + (data.StockInDetail.Quantity * data.StockInDetail.BuyingPrice) + " style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].BuyingAmount'>"
+                        ];
+
+                        $('#tblList').dataTable().fnAddData(rowData);
+                        $('tr td:nth-child(1)').hide()
+                        $('tr td:nth-child(2)').hide()
+                        $('tr td:nth-child(3)').hide()
+
+                        SummaryCalculation();
+
+                    });
+                    $("#txtSearchProduct").val('');
+
+                    $("#txtReceiveQty").val('');
+                    $("#txtReceiveQty").focus();
+                    return false;
+                }
+                $("#txtSearchProduct").val('');
+
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+            }
+        });
+
+        function btnSaveClick() {
+            var goodsReceiveHdrObj = {
+                BranchID: parseInt($('#BranchID').val()),
+                DocumentNo: 'NEW',
+                DocumentDate: $('#DocumentDate').val(),
+                SupplierCode: $('#SupplierCode').val(),
+                GoodsReceiveDetails: GetTableData(),
+                InspectionOverSeasList: GetInspectionData()
+            }
+            var promise = SaveFormData(goodsReceiveHdrObj);
+            $.when(promise).done(function (data) {
+                $('#tabImages').tab('show');
+                $('#hdnDocumentNo').val(data);
+                $('#btnStartUpload').click();
+            });
+        }
+
+        function GetInspectionData() {
+            var insCount = $('.insCss').length;
+            var insArray = new Array();
+            for (var i = 0; i < insCount; i++) {
+                var insItem = JSON.parse($('#InspectionOverSeasList_' + i).val());
+                insArray.push(insItem);
+                debugger;
+            }
+
+            return insArray;
+        }
+
+        function GetTableData() {
+            var iCount = $('.GoodsReceiveCss').length;
+
+            var detailsArr = new Array();
+            for (var i = 0; i < iCount; i++) {
+                var item = {
+                    ProductCode: $('#GoodsReceiveDetails_' + i + '__ProductCode').val(),
+                    Qty: $('#GoodsReceiveDetails_' + i + '__Qty').val() == 'true' ? true : false,
+                    IsCovered: $('#GoodsReceiveDetails_' + i + '__IsCovered').val() == 'true' ? true : false,
+                    IsSorted: $('#GoodsReceiveDetails_' + i + '__IsSorted').val() == 'true' ? true : false,
+                    IsHumidity: $('#GoodsReceiveDetails_' + i + '__IsHumidity').val() == 'true' ? true : false,
+                    IsSameAsPhoto: $('#GoodsReceiveDetails_' + i + '__IsSameAsPhoto').val() == 'true' ? true : false,
+                    IsClean: $('#GoodsReceiveDetails_' + i + '__IsClean').val() == 'true' ? true : false,
+                    IsCompressed: $('#GoodsReceiveDetails_' + i + '__IsCompressed').val() == 'true' ? true : false,
+                    IsCorrectWeight: $('#GoodsReceiveDetails_' + i + '__IsCorrectWeight').val() == 'true' ? true : false,
+                    Status: $('#GoodsReceiveDetails_' + i + '__Status').val() == 'true' ? true : false,
+                };
+
+                detailsArr.push(item);
+            }
+
+            return detailsArr;
+        }
+
+        function SaveFormData(obj) {
+            var def = $.Deferred();
+            $.ajax({
+                method: 'POST',
+                url: '@Url.Content("~/Operation/SaveOperation")',
+                data: JSON.stringify(obj),
+                contentType: 'application/json',
+                acceptType: 'JSON',
+                success: function (data) {
+                    def.resolve(data);
+                }
+            });
+            return def.promise();
+        }
+
+
+
+    </script>
+}
+
+
+@*
+    }*@

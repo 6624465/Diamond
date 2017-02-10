@@ -1,0 +1,248 @@
+﻿@model NetStock.Contract.GoodsReceiveDetail
+
+@using (Html.BeginForm("SaveGoodsreceiveform1", "Operation", FormMethod.Post, new { id = "frmGoodsReceiveForm1Modal", @class = "form-horizontal" }))
+{
+
+    <div class="box box-solid box-default">
+
+        <!-- Header Title -->
+        <div class="box-header with-border">
+            <h3 class="box-title center ">ใบงานสำหรับรับสินค้าในประเทศ</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="box-body">
+
+            <fieldset class="form-horizontal">
+                <div class="form-group row">
+                    <label class="col-md-1 control-label input-sm">ชื่อสินค้า</label>
+                    <div class="col-md-2" style="padding-top:8px">
+                        @Model.ProductDescription
+
+                    </div>
+                    
+                    <label class="col-md-1 control-label input-sm">ผู้ผลิต</label>
+                    <div class="col-md-2" style="padding-top:8px">
+                        @Request.QueryString["supplierName"]
+
+                    </div>
+                    <label class="col-md-1 control-label input-sm">จำนวน</label>
+                    <div class="col-md-2" style="padding-top:8px">
+                        @*@Html.TextBoxFor(x => Model.Qty, new { @class = "form-control input-sm", placeholder = "Qty", @required = "required" })*@
+                        @Model.Qty
+                    </div>
+                    <label class="col-md-1 control-label input-sm">ถุง</label>
+                    <div class="col-md-2" style="padding-top:8px">
+                        @Model.UOM
+                    </div>
+                </div>                
+                <div class="form-group row">
+                    <ul class="list-unstyled">
+                        <li>
+                            <label class="control-label input-sm lblCss">1. การรับสินค้า</label>
+                            <ul class="list-unstyled">
+                                <li>
+                                    <label class="control-label input-sm lblCss">1.1 ตรวจดูสภาพรถขนส่ง</label>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <label class="control-label input-sm lblCss">เนื่องจากสินค้าในประเทศไม่ได้มีการใส่ตู้คอนเทนเนอร์ ต้องสังเกตว่ามีผ้าคลุมสินค้ามิดชิดหรือไม่</label>
+                        </li>
+                        <li>
+                            <label class="control-label input-sm lblCss">(ถ่ายรูปรถขนส่งขณะที่มีสินค้าอยู่บนรถทั้ง 4 ด้าน)</label>
+                        </li>
+                    </ul>
+                    <div class="col-md-4">
+                        <span id="IsCovered1" class="rdoCss isCoveredCss @(Model.IsCovered ? "checked" : "")" data-value="true" data-name="IsCovered" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsCovered1" class="control-label input-sm lblCss">เรียบร้อย (คลุมผ้ามิดชิด)</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsNotCovered1" class="rdoCss isCoveredCss @(Model.IsCovered ? "" : "checked")" data-value="false" data-name="IsCovered" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotCovered1" class="control-label input-sm lblCss">ไม่เรียบร้อย (ไม่มีการคลุมผ้า)</label>
+                    </div>                    
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        @Html.TextAreaFor(x => Model.CoverRemarks, new { @class = "form-control input-sm", placeholder = "Remarks" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <ul class="list-unstyled">
+                        <li>
+                            <ul class="list-unstyled">
+                                <li>
+                                    <label class="control-label input-sm lblCss">1.2 การลงสินค้าต้องตรวจสอบลักษณะของสินค้าดังนี้</label>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <label class="control-label input-sm lblCss">สินค้าจัดเรียงเรียบร้อย (ถ่ายรูปเป็นหลักฐาน)</label>
+                        </li>
+
+                    </ul>
+                    <div class="col-md-4">
+                        <span id="IsSorted1" class="rdoCss isSortedCss @(Model.IsSorted ? "checked" : "")" data-value="true" data-name="IsSorted" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsSorted1" class="control-label input-sm lblCss">เรียบร้อย</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsNotSorted1" class="rdoCss isSortedCss @(Model.IsSorted ? "" : "checked")" data-value="false" data-name="IsSorted" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotSorted1" class="control-label input-sm lblCss">ไม่เรียบร้อย</label>
+                    </div>                    
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-6">
+                        @Html.TextAreaFor(x => Model.SortedRemarks, new { @class = "form-control input-sm", placeholder = "Remarks" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-4">
+                        <span id="IsNotHumidity1" class="rdoCss isHumidityCss @(Model.IsHumidity ? "checked" : "")" data-value="true" data-name="IsHumidity" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotHumidity1" class="control-label input-sm lblCss">ไม่ชื้น</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsHumidity1" class="rdoCss isHumidityCss @(Model.IsHumidity ? "" : "checked")" data-value="false" data-name="IsHumidity" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsHumidity1" class="control-label input-sm lblCss">ชี้น </label>
+                        <label class="control-label input-sm lblCss">(ถ่ายรูป และห้ามลงสินค้า ให้แจ้งหัวหน้างาน หรือฝ่ายจัดซื้อทันที)</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <ul class="list-unstyled">
+                        <li>
+                            <label class="control-label input-sm lblCss">ลักษณะของสินค้า</label>
+                        </li>
+                        <li>
+                            <label class="control-label input-sm lblCss">ลักษณะถุง และ ตัวหนังสือหน้าถุง เหมือนกับรูปถุงเดิม</label>
+                        </li>
+                    </ul>
+                    <div class="col-md-4">
+                        <span id="IsPhoto1" class="rdoCss isSameAsPhotoCss @(Model.IsSameAsPhoto ? "checked" : "")" data-value="true" data-name="IsSameAsPhoto" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsPhoto1" class="control-label input-sm lblCss">ตรงตามรูป</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsNotPhoto1" class="rdoCss isSameAsPhotoCss @(Model.IsSameAsPhoto ? "" : "checked")" data-value="false" data-name="IsSameAsPhoto" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotPhoto1" class="control-label input-sm lblCss">ไม่ตรงตามรูป</label>
+                        <label class="control-label input-sm lblCss">(ถ่ายรูป และห้ามลงสินค้า ให้แจ้งหัวหน้างาน หรือฝ่ายจัดซื้อทันที)</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <ul class="list-unstyled">
+                        <li>
+                            <label class="control-label input-sm lblCss">ความสะอาดเรียบร้อยของสินค้า/ลักษณะถุงไม่ฉีกขาด</label>
+                        </li>
+                    </ul>
+                    <div class="col-md-4">
+                        <span id="IsClean1" class="rdoCss isCleanCss @(Model.IsClean ? "checked" : "")" data-value="true" data-name="IsClean" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsClean1" class="control-label input-sm lblCss">สะอาด/เรียบร้อย ไม่ฉีกขาด</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsNotClean1" class="rdoCss isCleanCss @(Model.IsClean ? "" : "checked")" data-value="false" data-name="IsClean" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotClean1" class="control-label input-sm lblCss">ไม่สะอาด และถุงฉีกขาด</label>
+                    </div>
+                    <ul class="list-unstyled">
+                        <li>
+                            <label class="control-label input-sm lblCss">(ถ่ายรูปไว้และคัดแยกไว้ไม่รับสินค้าที่มีปัญหา แจ้งหัวหน้างาน หรือฝ่ายจัดซื้อ</label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="form-group row">
+                    <ul class="list-unstyled">
+                        <li>
+                            <label class="control-label input-sm lblCss">การจับตัวเป็นก้อนของสินค้า</label>
+                        </li>
+                    </ul>
+                    <div class="col-md-4">
+                        <span id="IsNotCompressed1" class="rdoCss isCompressedCss @(Model.IsCompressed ? "checked" : "")" data-value="true" data-name="IsCompressed" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotCompressed1" class="control-label input-sm lblCss">ไม่จับตัวเป็นก้อน</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsCompressed1" class="rdoCss isCompressedCss @(Model.IsCompressed ? "" : "checked")" data-value="false" data-name="IsCompressed" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsCompressed1" class="control-label input-sm lblCss">จับตัวเป็นก้อน</label>
+                        <label class="control-label input-sm lblCss">(ถ่ายรูปตอนชั่งให้เห็นน้ำหนักที่ตราชั่งด้วย นับจำนวนคัดแยก และแจ้งหัวหน้างานหรือฝ่ายจัดซื้อ)</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <ul class="list-unstyled">
+                        <li>
+                            <label class="control-label input-sm lblCss">น้ำหนักสินค้า (จากวิธีการสุ่มชั่งและระบุในใบตรวจรับสินค้าที่แนบ)</label>
+                        </li>
+                    </ul>
+                    <div class="col-md-4">
+                        <span id="IsCorrect1" class="rdoCss isCorrectWeightCss @(Model.IsCorrectWeight ? "checked" : "")" data-value="true" data-name="IsCorrectWeight" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsCorrect1" class="control-label input-sm lblCss">น้ำหนักครบ</label>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="IsNotCorrect1" class="rdoCss isCorrectWeightCss @(Model.IsCorrectWeight ? "" : "checked")" data-value="false" data-name="IsCorrectWeight" onclick="toggleCheckBox(this)"></span>
+                        <label for="IsNotCorrect1" class="control-label input-sm lblCss">น้ำหนักขาด </label>
+                        <label class="control-label input-sm lblCss">น้ำหนักขาด (ถ่ายรูปตอนชั่งให้เห็นน้ำหนักที่ตราชั่งด้วย นับจำนวนคัดแยก และแจ้งหัวหน้างานหรือฝ่ายจัดซื้อ)</label>
+                    </div>
+                </div>
+                <div class="form-group row">
+
+                    <label class="col-md-1 control-label input-sm">ชื่อสินค้า</label>
+                    <div class="col-md-3">
+                        @Html.TextBoxFor(x => Model.PalletQty, new { @class = "form-control input-sm numCss" })
+                    </div>
+                    <label class="col-md-1 control-label input-sm">ถุง</label>
+                    <div class="col-md-1">
+                        @*@Html.DropDownListFor(x => Model.PalletUOM, Model.ProductsList, "Select UOM", new { @class = "form-control input-sm" })*@
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <label class="control-label input-sm lblCss">ติดป้ายชื่อสินค้าทุกพาเลท โดยป้ายชื่อสินค้าได้มาจากเจ้าหน้าที่ฝ่ายจัดซื้อ</label>
+                    </div>
+                </div>
+                
+                <div class="form-group row" >
+                    
+                    <div class="col-md-10" style="border-top:1px solid black; border-bottom:1px solid black; margin-left:10px">
+                        <label class="control-label input-sm lblCss">หมายเหตุ: การรับสินค้าต้องตรงกับมาตรฐานที่ตั้งไว้ทุกครั้ง หากไม่ได้ตรงตามมาตรฐานต้องแจ้งหัวหน้างาน</label><br />
+                        <label class="control-label input-sm lblCss">หรือฝ่ายจัดซื้อทราบก่อนลงสินค้าทุกครั้ง มิฉะนั้น ผู้ตรวจรับสินค้าจะต้องเป็นผู้รับผิดชอบในการรับสินค้าครั้งนี้</label>
+                    </div>
+                    <div class="col-md-1"></div>
+                </div>
+                <hr />
+            </fieldset>
+        </div>
+
+        <div class="box-footer">
+            <div class="row  no-print">
+                 
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="backClick();"><i class="fa fa-undo" aria-hidden="true"></i>&nbsp; Back </button>
+                    </div>
+                 
+            </div>
+        </div>
+
+    </div>
+    @Html.HiddenFor(x => x.DocumentNo)
+    @Html.HiddenFor(x => x.PONo)
+    @Html.HiddenFor(x => x.ProductCode)
+    @Html.HiddenFor(x => x.UOM)
+
+    @Html.HiddenFor(x => x.IsCovered)
+    @Html.HiddenFor(x => x.IsSorted)
+    @Html.HiddenFor(x => x.IsHumidity)
+    @Html.HiddenFor(x => x.IsSameAsPhoto)
+    @Html.HiddenFor(x => x.IsClean)
+    @Html.HiddenFor(x => x.IsCompressed)
+    @Html.HiddenFor(x => x.IsCorrectWeight)
+    @Html.HiddenFor(x => x.IsSameAsPhoto)
+    @Html.Hidden("branchId", TempData["branchId"])
+
+}
+
+<script type="text/javascript">
+    function toggleCheckBox(el) {
+        $('.' + el.classList[1]).removeClass('checked');
+        $(el).addClass('checked')
+        $('#' + $(el).data('name')).val($(el).data('value'));
+    }
+
+    function backClick() {
+        location.href = '@Url.Content("~/Operation/GoodsReceiveDomestic")' + '?documentNo=' + '@Request.QueryString["documentNo"]' + '&branchID=' + '@Request.QueryString["branchId"]';
+    }
+</script>

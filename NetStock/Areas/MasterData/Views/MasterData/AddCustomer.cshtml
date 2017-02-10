@@ -1,0 +1,248 @@
+﻿@model NetStock.Contract.Customer
+
+@{
+    ViewBag.Title = "Customer";
+    string str = "";
+    if (Request["customerCode"] != "NEW" )
+    {
+        str = string.Format("Created By: {0} <br/> Created On: {1} <br/> Modified By: {2} <br/> Modified On: {3}", Model.CreatedBy, Model.CreatedOn, Model.ModifiedBy, Model.ModifiedBy.Length > 0 ? Model.ModifiedOn.ToString("dd/MM/yy HH:mm:ss") : "");
+    }
+}
+
+@using (Html.BeginForm("EditCustomer", "MasterData", FormMethod.Post, new { id = "frmCustomer" }))
+{
+    <div class="box box-solid box-default ">
+        <div class="box-header with-border">
+            <h3 class="box-title"></h3>
+            @if (Request["customerCode"] == "")
+            {
+                <h3 class="box-title">Add/Edit Customer</h3>
+            }
+            else
+            {
+                <h3 class="box-title">Add/Edit Customer&nbsp;&nbsp;<a class="anchPopOverCss" data-container="body" data-toggle="popover" data-placement="right" data-content="@str" data-original-title="" title=""><i class="fa fa-tv" aria-hidden="true"></i></a></h3>
+            }
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">รหัสลูกค้า</label>
+                        <div class="col-sm-2">
+                            @((Model.CustomerCode == null || Model.CustomerCode == "NEW" || Model.CustomerCode == "") ?
+                            @Html.TextBoxFor(m => m.CustomerCode, new { @id = "txtCustomerCode", @class = "form-control input-sm",@maxlength="50", @readonly = "readonly" }) :
+                            @Html.TextBoxFor(m => m.CustomerCode, new { @id = "txtCustomerCode", @class = "form-control input-sm", @readonly = "readonly" })
+
+                            )
+                           
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">เลขที่ลงทะเบียน</label>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.RegistrationNo, new {@id="txtRegistrationNo", @class = "form-control input-sm",@maxlength="100" })
+                            
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div>
+
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">ชื่อ</label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(m => m.CustomerName, new { @id = "txtCustomerName", @class = "form-control input-sm",@maxlength="255"})
+                           
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Credit Term</label>
+                        <div class="col-md-2">
+                            @Html.TextBoxFor(m => m.CreditTerm, new { @class = "form-control input-sm" })
+                        </div>
+
+                    </div>
+                </div>
+
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <legend>ที่อยู่</legend>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">ที่อยู่ 1 / ที่อยู่ 1</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(m => m.CustomerAddress.Address1, new { @class = "form-control input-sm", @maxlength = "100" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">ที่อยู่ 2 / ที่อยู่ 2</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(m => m.CustomerAddress.Address2, new { @class = "form-control input-sm", @maxlength = "100" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">City / อำเภอ/เขต</label>
+                        <div class="col-md-2">
+                            @Html.TextBoxFor(m => m.CustomerAddress.CityName, new { @class = "form-control input-sm", @maxlength = "40" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">State / จังหวัด</label>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.CustomerAddress.StateName, new { @class = "form-control input-sm", @maxlength = "40" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">ZIP Code / รหัสไปรษณีย์</label>
+                        <div class="col-md-2">
+                            @Html.TextBoxFor(m => m.CustomerAddress.ZipCode, new { @class = "form-control input-sm", @maxlength = "6" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Country / ประเทศ</label>
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(m => m.CustomerAddress.CountryCode, Model.CountryList, "Select Country", new { @class = "form-control  input-sm", @maxlength = "2" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Phone No. / เบอร์โทรศัพท์ </label>
+                        <div class="col-md-2">
+                            @Html.TextBoxFor(m => m.CustomerAddress.TelNo, new { @class = "form-control input-sm", @maxlength = "20" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Fax / เบอร์แฟ็กส์</label>
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.CustomerAddress.FaxNo, new { @class = "form-control input-sm", @maxlength = "20" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Email / อีเมลล์</label>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="fa fa-envelope"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.CustomerAddress.WebSite, new { @class = "form-control input-sm", @maxlength = "50" })
+                            </div>
+
+                            @Html.HiddenFor(m => m.CustomerAddress.AddressType)
+                            @Html.HiddenFor(m => m.CustomerAddress.AddressId)
+                        </div>
+                    </div>
+                </div>
+
+
+            </fieldset>
+        </div>
+
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">
+
+                    <button type="button" id="btnSave" onclick="btnSaveClick();" class="btn btn-sm btn-primary">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    <a class="btn btn-sm btn-info" href="@Url.Action("EditCustomer", "MasterData", new { area = "MasterData", customerCode = "" }, null)">
+                        <i class="fa fa-close"></i>
+                        Clear
+                    </a>
+                    <a href="#" id="btnDelete" onclick="DeleteCustomer('@Model.CustomerCode')" class="btn btn-sm btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+                                       
+                    <a href="@Url.Action("Customers", "MasterData", new { area = "MasterData"}, null)" class="btn btn-sm btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+}
+
+@section Scripts {
+<script type="text/javascript">
+
+    function btnSaveClick() {
+        if ($('#frmCustomer').valid()) {
+            $('#frmCustomer').submit();
+        }
+    }
+
+    $(document).ready(function () {
+        
+        $('[data-toggle="popover"]').popover({
+            trigger: 'hover',
+            html: true,
+        });
+
+
+        $("#txtCustomerCode").focus();
+
+
+        var code = $("#txtCustomerCode").val();
+
+        if (code == "NEW") {
+            $("#txtCustomerCode").val('');
+        }
+
+
+        @*if ('@Model.Status' == 'False') {
+            $("#txtCustomerName").addClass("StrikeOut")
+            $("#btnSave").attr("disabled", " disabled")
+            $("#btnDelete").attr("disabled", " disabled")
+
+        }*@
+
+        $('#frmCustomer').validate({
+            rules: {
+                CustomerName: {
+                    required: true
+                },
+                Address1: {
+                    required: true
+                }
+            }
+        });
+    });
+
+    function DeleteCustomer() {
+
+        var customerCode = $("#txtCustomerCode").val();
+        var customerName = $("#txtCustomerName").val();
+
+        if (customerCode == "NEW") {
+            ModalShowConfirm("Please choose a valid Customer to Proceed!");
+            return false;
+        }
+
+
+        if (!confirm("Do you want to delete Selected Customer -  [" + customerCode + "] ?")) {
+            return false;
+        }
+
+        var url = '@Url.Content("~/MasterData/DeleteCustomer?customerCode=")' + customerCode;
+        location.href = url;
+    }
+
+
+
+</script>
+}

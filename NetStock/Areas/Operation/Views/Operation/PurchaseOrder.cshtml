@@ -1,0 +1,802 @@
+﻿@model NetStock.Contract.PurchaseOrderHeader
+
+@{
+    ViewBag.Title = "P.O Entry";
+}
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+    <style type="text/css">
+        .mySelect2 .select2 {
+            width: 265px !important;
+        }
+    </style>
+}
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm("SavePurchaseOrder", "Operation", FormMethod.Post, new { id = "myForm" }))
+{ 
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Purchase Order</h3>
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">PO No.</label>
+                        <div class="col-sm-3">
+                            @Html.TextBoxFor(m => m.PONo, new { @class = "form-control input-sm", @readonly = "readonly", @maxlength = "50" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Date</label>
+                        <div class="col-sm-3">
+                            @Html.TextBoxFor(m => m.PODate, new { @Value = Model.PODate.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpPODate", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Branch</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.BranchID, Model.BranchList, null, new { @id = "ddlBranch", @class = "form-control input-sm", @maxlength = "50" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm"></label>
+                        <div class="col-md-3">
+                            @* @Html.DropDownListFor(m => m.SupplierCode, Model.SupplierList, null, new { @id = "ddlSupplier", @class = "form-control input-sm", @maxlength = "50" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Supplier</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.SupplierCode, Model.SupplierList, null, new { @id = "ddlSupplier", @class = "form-control input-sm", @maxlength = "50" })
+                        </div>  
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Contact Person</label>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(x => x.ContactPerson, new { @class = "form-control input-sm" })
+                        </div>                      
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Address</label>
+                        <div class="col-md-3 well well-sm" style="margin-left:15px" >
+                            <address class="" id="CustomerAddress" name="CustomerAddress">@ViewData["ViewDataaddress"]</address>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Shipment Date (ETD)</label>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(m => m.ShipmentDate, new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Inco Terms</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.IncoTerms, new SelectList(Model.IncoTermList, "Value", "Text", ""), null, new { @id = "ddlIncoTerms", @class = "form-control input-sm", @maxlength = "50" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Estimate Date</label>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(m => m.EstimateDate, new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Reference No</label>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(m => m.ReferenceNo, new { @class = "form-control input-sm " })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Payment Term</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.PaymentTerm, Model.PaymentTypeList, null, new { @id = "ddlPaymentType", @class = "form-control input-sm", @maxlength = "50" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">PR No.</label>
+                        <div class="col-md-3">
+                            @Html.TextBoxFor(m => m.PRNo, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Remarks</label>
+                    <div class="col-md-7">
+                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control input-sm" })
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="tbDetails" data-toggle="tab">Products List</a>
+                    </li>
+                    <li class="pull-right">
+                        <div class="btn-group btn-primary">
+
+                            <button class="btn btn-sm btn-success" type="button" onclick="btnAddNewRecord()"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add</button>
+
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tbDetails">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id="tblPurchaseOrderDetailsList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                                    <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                        <tr>
+                                            <th class="hidden">Document No.</th>
+                                            <th class="">Product</th>
+                                            <th>Quantity</th>
+                                            <th>UOM</th>
+                                            <th>Currency</th>
+                                            <th>Unit Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.PurchaseOrderDetails != null)
+                                        {
+                                            for (int itr = 0; itr < Model.PurchaseOrderDetails.Count; itr++)
+                                            {
+                                                <tr id="trPurchaseOrderDetails_@itr" class="PurchaseOrderDetailsCss">
+                                                    <td class="hidden" name="DocumentNo">
+                                                        @Html.HiddenFor(p => p.PurchaseOrderDetails[itr].PONo)
+                                                    </td>
+                                                    <td class="" name="ProductCode">
+                                                        @Html.HiddenFor(p => p.PurchaseOrderDetails[itr].ProductCode)
+                                                        <span id="PurchaseOrderDetails_@(itr)__ProductCode_span">@Model.PurchaseOrderDetails[itr].ProductDescription</span>
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.HiddenFor(p => p.PurchaseOrderDetails[itr].Quantity)
+                                                        <span id="PurchaseOrderDetails_@(itr)__Quantity_span">@Model.PurchaseOrderDetails[itr].Quantity</span>
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.HiddenFor(p => p.PurchaseOrderDetails[itr].UOM)
+                                                        <span id="PurchaseOrderDetails_@(itr)__UOM_span">@Model.PurchaseOrderDetails[itr].UOM</span>
+
+                                                    </td>
+                                                    <td>
+                                                        @Html.HiddenFor(p => p.PurchaseOrderDetails[itr].CurrencyCode)
+                                                        <span id="PurchaseOrderDetails_@(itr)__CurrencyCode_span">@Model.PurchaseOrderDetails[itr].CurrencyCode</span>
+
+                                                    </td>
+                                                    <td align="right">
+                                                        @Html.HiddenFor(p => p.PurchaseOrderDetails[itr].UnitPrice)
+                                                        <span id="PurchaseOrderDetails_@(itr)__UnitPrice_span">@Model.PurchaseOrderDetails[itr].UnitPrice</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                                Action
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                                <li><a class="cursorCss" id="Edit_@itr" onclick="EditPurchaseOrderDetails('@(itr)')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>
+                                                                <li><a class="cursorCss" onclick="DeletePurchaseOrderDetails('@(itr)')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box-footer">
+                    <div class="row">
+                        <div class="pull-right col-xs-4">
+                            <div class="form-group">
+                                <div>
+                                    <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Total Amount</label>
+                                    <div class="col-sm-8">
+                                        @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control input-sm-red", @id = "txtGrandTotalAmount", @readonly = "true" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="pull-right col-xs-4">
+                            <div class="form-group">
+                                <div>
+                                    <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Other Charges</label>
+                                    <div class="col-sm-8">
+                                        @Html.TextBoxFor(m => m.OtherCharges, new { @class = "form-control input-sm-green", align = "right", onkeyup = "OtherChargesKeyUp(this);" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="pull-right col-xs-4">
+                            <div class="form-group">
+                                <div>
+                                    <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">VAT 7%</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                @Html.CheckBoxFor(m => m.IsVAT, new { @class = "checkbox", @id = "chkVAT" })
+                                            </span>
+                                            @Html.TextBoxFor(m => m.VATAmount, new { @class = "form-control input-sm-red", @id = "txtVATAmount", @readonly = "true" })
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="pull-right col-xs-4">
+                            <div class="form-group">
+
+                                <div>
+                                    <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Net Amt</label>
+                                    <div class="col-sm-8">
+                                        @Html.TextBoxFor(m => m.NetAmount, new { @class = "form-control input-sm-green", @id = "txtNetAmount", @align = "right", @readonly = "true" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-xs-12">
+
+                            <button type="button" onclick="btnSaveClick();" id="btnSave" class="btn btn-sm btn-success">
+                                <i class="fa fa-save"></i>
+                                Save
+                            </button>
+
+                            <a href="@Url.Action("PurchaseOrder", "Operation", new { area = "Operation", poNo = "NEW" }, null)" class="btn btn-sm btn-default">
+                                <i class="fa fa-close"></i>
+                                Clear
+                            </a>
+                            <a href="#" id="btnDelete" onclick="DeleteStockEntry('@Model.PONo')" class="btn btn-sm btn-danger">
+                                <i class="fa fa-times-circle"></i>
+                                Delete
+                            </a>
+                            @Html.ActionLink(" Print", "PurchaseOrderReport", "Reports", new { area = "Reports", poNo = Model.PONo, URL = "/NetStockDiamondReports/Diamond.PurchaseOrder" }, new { data_modal = "test", id = "btnViewReport", onclick = "PrintClick()", @class = "btn btn-sm btn-primary fa fa-print" })
+
+
+
+                            <a href="@Url.Action("PurchaseOrderList", "Operation", new { area = "Operation" }, null)" class="btn btn-sm btn-info pull-right">
+                                <i class="fa fa-arrow-circle-o-left"></i>
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+
+        <!-- Footer onclick="btnSaveClick()" -->
+
+        <input type="hidden" id="hdnFlag" name="hdnFlag" value="-1" />
+    </div>
+}
+
+
+<div class="modal fade" id="ProductListModal" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-xs ">
+
+            @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frmshippmentIndentModal", name = "frmshippmentIndentModal", @class = "form-horizontal" }))
+            {
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Product Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        @{  var modalObj = new NetStock.Contract.SIDetail();  }
+                        <label class="col-md-2 control-label input-sm">Product Code</label>
+                        <div class="col-md-6 mySelect2">
+                            @Html.DropDownListFor(x => modalObj.ProductCode, Model.ProductsList, "Select Product Code", new { @class = "form-control input-sm", @required = "required", OnChange = "GetProductPrice(this)" })
+                        </div>                        
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label input-sm">Quantity</label>
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(x => modalObj.Quantity, new { @class = "form-control input-sm decimalCss", placeholder = "Quantity" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label input-sm">UOM</label>
+                        <div class="col-md-6">
+                            @Html.DropDownListFor(x => modalObj.UOM, Model.UOMList, "Select UOM", new { @class = "form-control input-sm", @required = "required" })
+                        </div>                       
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label input-sm">Unit Price</label>
+                        <div class="col-md-6">
+                            @*@Html.TextBoxFor(x => modalObj.UnitPrice, new { @class = "form-control input-sm decimalCss unitPriceCss", placeholder = "Unit Price", @required = "required" })*@
+                            <input class="form-control input-sm decimalCss unitPriceCss" 
+                                   id="modalObj_UnitPrice"
+                                   name="modalObj.UnitPrice"
+                                   placeholder="Unit Price"
+                                   required="required"
+                                   type="text">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label input-sm">Currency</label>
+                        <div class="col-md-6">
+                            @Html.DropDownListFor(x => modalObj.CurrencyCode, Model.CurrencyCodeList, "Select Currency", new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fa fa-undo" aria-hidden="true"></i>&nbsp;Close</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="btnAddDetails()"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save changes</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+        var documentNo;
+        var isEditLocal = false;
+
+        $("#ddlSupplier, #modalObj_ProductCode").select2();
+
+        $('#ddlSupplier').on("select2:select", function (e) {
+            var customerCode = $('#ddlSupplier').val();
+            var url = "/Operation/GetCustomerDetails?customerCode=" + customerCode;
+            $.post(url, null, function (data) {
+                var custAddr = "";                
+                if (data.CustomerData.CustomerAddress != null)
+                    $("#CustomerAddress").html(data.CustomerData.CustomerAddress.FullAddress);
+                else
+                    $("#CustomerAddress").html('');
+
+                $('#ContactPerson').val(data.CustomerData.ContactPerson);
+                $("#RegNo").val(data.CustomerData.RegistrationNo);
+            });            
+        });
+
+        function DeleteStockEntry(poNo) {
+            var r = confirm('Are you sure, you want to delete [' + poNo + '] ?');
+            if (r) {
+                var deleteUrl = '@Url.Content("~/Operation/DeletePO?PONo=")' + poNo;
+                location.href = deleteUrl;
+            }
+        }
+
+
+        function OtherChargesKeyUp(data) {
+            var OtherCharges = $('#OtherCharges').val();
+            var rowsCount = $('.PurchaseOrderDetailsCss').length;
+            if (rowsCount > 0) {
+                var amount = 0.00;
+                for (var x = 0; x < rowsCount; x++) {
+                    amount = amount + (parseFloat($('#PurchaseOrderDetails_' + x + '__Quantity').val()) * parseFloat($('#PurchaseOrderDetails_' + x + '__UnitPrice').val()));
+                }
+                amount = amount;
+                $('#txtGrandTotalAmount').val(amount.toFixed(2));
+                var netamount = amount + parseFloat(OtherCharges);
+                $('#txtNetAmount').val(netamount.toFixed(2));
+                if ($("#chkVAT").is(':checked')) {
+                    CalculateVAT(true);
+                }
+                else {
+                    CalculateVAT(false);
+                }
+            }
+        }
+
+        $(function () {
+            var dateNow = new Date();
+            $("#tblPurchaseOrderDetailsList").DataTable(
+                {
+                    'bFilter': false,
+                    'bPaginate': false,
+                    'bInfo': false,
+                    'bSortable': true,
+                    'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+                        //nRow.className = "gradeX odd";
+                        nRow.id = 'trPurchaseOrderDetails_' + iDisplayIndex;
+                        nRow.className = 'PurchaseOrderDetailsCss';
+                        return nRow;
+                    }
+                });
+
+            
+
+            $('.datepicker').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY ',
+                inline: false
+            });
+
+            $('#EstimateDate, #ShipmentDate').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY HH:mm:ss',
+                inline: false
+            });
+
+            if ($('#PONo').val() != 'NEW') {
+                return;
+            }           
+
+            $('#myForm').validate({
+                rules: {
+                    ShipmentDate: {
+                        required: true
+                    },
+                    EstimateDate: {
+                        required: true
+                    }
+                }
+            });
+
+        });
+        
+        var unitPriceFlag = false;
+        function GetProductPrice(el) {
+            if (true) {
+                var productCode = $(el).val();
+                var supplierCode = $('#ddlSupplier').val();
+                debugger;
+                $.ajax({
+                    url: '@Url.Content("~/Operation/GetProductCostPrice")' + '?productCode=' + productCode + '&supplierCode=' + supplierCode,
+                    method: 'GET',
+                    contentType: 'application/json',
+                    acceptType: 'json',
+                    success: function (result) {
+                        $('#modalObj_UnitPrice').val(result.UnitPrice);
+                    }
+                });
+            }            
+        }
+
+        function OnMethodFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+
+            ModalShow(result.Message, "Success", "Save");
+            //debugger;
+            DocumentNo = result.POData.PONo;
+        }
+
+        function BtnOK() {
+            if (ActionType == "Save") {
+
+                var rooturl = "@Url.Action("PurchaseOrderList", "Operation", new { area = "Operation" })"
+
+
+                //location.href = "/POS/SalesOrder?DocumentNo=" + DocumentNo;
+                location.href = rooturl;
+            }
+        }
+
+
+        $("#btnCreate").on("click", function () {
+
+
+            $("#btnCreate").attr("href", "/Operation/EditPOItem?supplierCode=" + $("#ddlSupplier").val());
+        })
+
+
+
+
+        function btnAddNewRecord() {
+
+            $('#hdnFlag').val('-1');
+            $('#modalObj_ProductCode, #modalObj_Quantity, #modalObj_UOM, #modalObj_UnitPrice, #modalObj_CurrencyCode').val('');
+
+            var tblRows = $('.PurchaseOrderDetailsCss').length;
+            
+            $("#modalObj_ProductCode > option").each(function () {
+                for (var i = 0; i < tblRows; i++) {
+                    var tblProductCode = $('#PurchaseOrderDetails_' + i + '__ProductCode').val();                    
+                    if (tblProductCode == this.value) {
+                        $(this).attr('disabled', 'disabled');
+                        break;
+                    }
+                }
+            });
+
+            $('#modalObj_ProductCode').select2();
+            $('#ProductListModal').modal('show');
+        }
+
+        function ProductDetailModalValidation() {
+            $('#frmshippmentIndentModal').validate({
+                rules: {
+                    'modalObj.ProductCode': {
+                        required: true
+                    },
+                    'modalObj.UOM': {
+                        required: true
+                    },
+                    'modalObj.Quantity': {
+                        required: true
+                    },
+                    'modalObj.UnitPrice': {
+                        required: true
+                    },
+                    'modalObj.CurrencyCode': {
+                        required: true
+                    }
+                },
+                messages: {
+                    'modalObj.ProductCode': {
+                        required: 'Product Code is required.'
+                    },
+                    'modalObj.UOM': {
+                        required: 'UOM is required.'
+                    },
+                    'modalObj.Quantity': {
+                        required: 'Quantity is required.'
+                    },
+                    'modalObj.UnitPrice': {
+                        required: 'Unit Price is required.'
+                    },
+                    'modalObj.CurrencyCode': {
+                        required: 'Currency Code is required.'
+                    }
+                }
+            });
+        }
+
+
+        function btnAddDetails() {
+            //var validator = $('#frmshippmentIndentModal').data('bootstrapValidator');
+            //validator.validate();
+            //if (validator.isValid()) {
+            ProductDetailModalValidation();
+            if (!$('#frmshippmentIndentModal').valid()) {
+                return;
+            }
+            var hdnFlag = $('#hdnFlag').val();
+            debugger;
+            if (hdnFlag == '-1') {
+                var _index = $('.PurchaseOrderDetailsCss').length;
+                var obj = {
+                    index: _index,
+                    ProductCode: $('#modalObj_ProductCode').val(),
+                    ProductCodeDesc: $('#modalObj_ProductCode option:selected').text(),
+                    Quantity: $('#modalObj_Quantity').val(),
+                    UOM: $('#modalObj_UOM').val(),
+                    CurrencyCode: $('#modalObj_CurrencyCode').val(),
+                    UnitPrice: parseFloat($('#modalObj_UnitPrice').val())
+                };
+
+                var rowData = [
+                     '<input id="PurchaseOrderDetails_' + obj.index + '__DocumentNo" name="PurchaseOrderDetails[' + obj.index + '].DocumentNo" type="hidden" value="' + obj.DocumentNo + '">',
+                            '<input id="PurchaseOrderDetails_' + obj.index + '__ProductCode" name="PurchaseOrderDetails[' + obj.index + '].ProductCode" type="hidden" value="' + obj.ProductCode + '">' +
+                            '<span id="PurchaseOrderDetails_' + obj.index + '__ProductCode_span">' + obj.ProductCodeDesc + '</span>',
+                            '<span id="PurchaseOrderDetails_' + obj.index + '__Quantity_span">' + obj.Quantity + '</span>' +
+                            '<input id="PurchaseOrderDetails_' + obj.index + '__Quantity" name="PurchaseOrderDetails[' + obj.index + '].Quantity" type="hidden" value="' + obj.Quantity + '">',
+                            '<span id="PurchaseOrderDetails_' + obj.index + '__UOM_span">' + obj.UOM + '</span>' +
+                            '<input id="PurchaseOrderDetails_' + obj.index + '__UOM" name="PurchaseOrderDetails[' + obj.index + '].UOM" type="hidden" value="' + obj.UOM + '">',
+                            '<span id="PurchaseOrderDetails_' + obj.index + '__CurrencyCode_span">' + obj.CurrencyCode + '</span>' +
+                            '<input id="PurchaseOrderDetails_' + obj.index + '__CurrencyCode" name="PurchaseOrderDetails[' + obj.index + '].CurrencyCode" type="hidden" value="' + obj.CurrencyCode + '">',
+                            '<span id="PurchaseOrderDetails_' + obj.index + '__UnitPrice_span">' + obj.UnitPrice.toFixed(2) + '</span>' +
+                            '<input id="PurchaseOrderDetails_' + obj.index + '__UnitPrice" name="PurchaseOrderDetails[' + obj.index + '].UnitPrice" type="hidden" value="' + obj.UnitPrice + '">',
+                            '<div class="dropdown">' +
+                            '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Action<span class="caret"></span></button>' +
+                            '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">' +
+                                '<li><a class="cursorCss" id="Edit_' + obj.index + '" onclick="EditPurchaseOrderDetails(' + obj.index + ')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>' +
+                                '<li><a class="cursorCss" onclick="DeletePurchaseOrderDetails(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>' +
+                            '</ul></div>'
+
+                ];
+                $('#tblPurchaseOrderDetailsList').dataTable().fnAddData(rowData);
+                $('tr td:nth-child(1)').hide();
+
+
+            }
+            else {
+                $('#PurchaseOrderDetails_' + hdnFlag + '__ProductCode').val($('#modalObj_ProductCode').val());
+                $('#PurchaseOrderDetails_' + hdnFlag + '__ProductCode_span').text($('#modalObj_ProductCode option:selected').text());
+
+                $('#PurchaseOrderDetails_' + hdnFlag + '__Quantity').val($('#modalObj_Quantity').val());
+                $('#PurchaseOrderDetails_' + hdnFlag + '__Quantity_span').text($('#modalObj_Quantity').val());
+
+                $('#PurchaseOrderDetails_' + hdnFlag + '__UOM').val($('#modalObj_UOM').val());
+                $('#PurchaseOrderDetails_' + hdnFlag + '__UOM_span').text($('#modalObj_UOM').val());
+
+                $('#PurchaseOrderDetails_' + hdnFlag + '__CurrencyCode').val($('#modalObj_CurrencyCode').val());
+                $('#PurchaseOrderDetails_' + hdnFlag + '__CurrencyCode_span').text($('#modalObj_CurrencyCode').val());
+
+                $('#PurchaseOrderDetails_' + hdnFlag + '__UnitPrice').val($('#modalObj_UnitPrice').val());
+                $('#PurchaseOrderDetails_' + hdnFlag + '__UnitPrice_span').text(parseFloat($('#modalObj_UnitPrice').val()).toFixed(4));
+
+
+                $('#hdnFlag').val('-1');
+                $('#ProductListModal').modal('hide');
+            }
+
+            var rowsCount = $('.PurchaseOrderDetailsCss').length;
+            var amount = 0.00;
+            for (var x = 0; x < rowsCount; x++) {
+
+                amount = amount + (parseFloat($('#PurchaseOrderDetails_' + x + '__Quantity').val()) * parseFloat($('#PurchaseOrderDetails_' + x + '__UnitPrice').val()));
+
+            }
+            //$('#txtGrandTotalAmount').val(commaSeparateNumber(amount.toFixed(2)));
+            amount = amount;// + parseFloat($('#OtherCharges').val());
+            $('#txtGrandTotalAmount').val(amount.toFixed(2));
+            $('#txtNetAmount').val(amount.toFixed(2));
+            if ($("#chkVAT").is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+
+            $('#ProductListModal').modal('hide');
+
+            ResetModal();
+        }
+
+        function EditPurchaseOrderDetails(index) {
+            unitPriceFlag = false;
+            $("#modalObj_ProductCode").select2('val', $('#PurchaseOrderDetails_' + index + '__ProductCode').val());           
+            $('#modalObj_Quantity').val($('#PurchaseOrderDetails_' + index + '__Quantity').val());
+            $('#modalObj_UOM').val($('#PurchaseOrderDetails_' + index + '__UOM').val());
+            $('#modalObj_UnitPrice').val($('#PurchaseOrderDetails_' + index + '__UnitPrice').val());
+            $('#modalObj_CurrencyCode').val($('#PurchaseOrderDetails_' + index + '__CurrencyCode').val());
+            $('#ProductListModal').modal('show');
+            $('#hdnFlag').val(index);
+            unitPriceFlag = true;
+        }
+
+        function DeletePurchaseOrderDetails(index) {
+
+            //$('#PurchaseOrderDetails_' + index + '__Status').val(false);
+            $('#trPurchaseOrderDetails_' + index).css({
+                'color': 'red',
+                'text-decoration': 'line-through',
+                'font-style': 'italic'
+            });
+
+            $('#PurchaseOrderDetails_' + index + '__ProductCode').addClass('deletedItem');
+
+            var rowsCount = $('.PurchaseOrderDetailsCss').length;
+            var amount = 0.00;
+            for (var x = 0; x < rowsCount; x++) {
+                if (!$('#PurchaseOrderDetails_' + x + '__ProductCode').hasClass('deletedItem')) {
+                    amount = amount + (parseFloat($('#PurchaseOrderDetails_' + x + '__Quantity').val()) * parseFloat($('#PurchaseOrderDetails_' + x + '__UnitPrice').val()));
+
+                }
+            }
+
+            amount = amount + parseFloat($('#OtherCharges').val());
+            $('#txtGrandTotalAmount').val(amount);
+            $('#txtNetAmount').val(amount);
+            if ($("#chkVAT").is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+        }
+
+        function onChangeTest() {
+
+        }
+
+        function ResetModal() {
+            $('#modalObj_ProductCode').val('');
+            $('#modalObj_Quantity').val('');
+            $('#modalObj_UOM').val('');
+            $('#modalObj_UnitPrice').val('');
+        }
+
+        function SummaryCalculation() {
+
+            var table = $('#tblPurchaseOrderDetailsList').DataTable();
+            var totalAmount = 0;
+            table.column(4).data()
+                .each(function (value, index) {
+                    UnitPrice += Number($(value).val());
+                });
+
+            //var currentAmount = Number( $("#txtGrandTotalAmount").val());
+
+            $("#txtGrandTotalAmount").val(totalAmount);
+
+            if ($("#chkVAT").is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+
+        }
+
+        function CalculateVAT(isVAT) {
+
+            var taxableAmount = Number($("#txtGrandTotalAmount").val());
+            var otherAmount = (parseFloat($("#OtherCharges").val()));
+            var taxAmount = 0;
+
+            if (isVAT == true) {
+
+                taxAmount = (taxableAmount * 7) / 100;
+            }
+            else {
+                taxAmount = 0;
+            }
+
+            $("#txtVATAmount").val(taxAmount.toFixed(2));
+            $("#txtNetAmount").val((taxableAmount + taxAmount + otherAmount).toFixed(2));
+        }
+
+        $("#chkVAT").click(function () {
+            if ($(this).is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+        });
+
+
+        function PrintClick() {
+            debugger;
+            var PONo = $("#PONo").val();
+            var branchID = $("#ddlBranch").val();
+            var ReportURL = ("/NetStockDiamondReports/Diamond.PurchaseOrder");
+            var rooturl = '@Url.Action("PurchaseOrderReport", "Reports", new { area = "Reports" })';
+            var url = rooturl + "?branchID=" + branchID + "&poNo=" + PONo + "&Url=" + ReportURL;
+            $("#btnViewReport").attr("href", url);
+        }
+
+        function btnSaveClick() {
+            var rowsCount = $('.PurchaseOrderDetailsCss').length;
+            if ($('#myForm').valid() && rowsCount > 0) {
+                $('#myForm').submit();
+            }
+            else {
+                if($('#myForm').valid())
+                    alert('Please add atleast one product.');
+            }
+        }
+
+    </script>
+
+
+}
+
+

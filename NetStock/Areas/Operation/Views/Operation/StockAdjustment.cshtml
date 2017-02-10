@@ -1,0 +1,447 @@
+﻿@model NetStock.Contract.StockAdjustmentHeader
+
+@{
+    ViewBag.Title = "Stock Adjustment Entry";
+}
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+<!--Modal Window Placeholder-->
+@*<div class="modal fade in" id="coaModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">*@
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+
+@*@using (Html.BeginForm("SaveCompanyProfile", "MasterDataController", FormMethod.Post))
+    {*@
+
+@using (Ajax.BeginForm("SaveStockAdjustment", "Operation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSaveSuccess", OnFailure = "OnSaveFailure" }, new { enctype = "multipart/form-data", id = "myForm" }))
+{
+
+    <div class="box box-solid box-default">
+
+        <!-- Header Title -->
+        <div class="box-header with-border">
+            <h3 class="box-title">Stock-Adjustment Entry</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Document No.</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.DocumentNo, new { @id = "txtDocumentNo", @class = "form-control input-sm", @readonly = "readonly", @maxlength = "50" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Date</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.DocumentDate, new { @class = "form-control input-sm", @id = "dtpDocumentDate" })
+
+                        </div>
+                    </div>
+                </div>
+
+
+                @*<div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Supplier</label>
+                        <div class="col-md-6">
+                            @Html.DropDownListFor(m => m.CustomerCode, Model.CustomersList, new { @class = "form-control input-sm", @id = "ddlCustomerCode" })
+                        </div>
+
+                    </div>
+                </div>*@
+
+
+
+            </fieldset>
+
+            <fieldset class="form-horizontal">
+                <legend>Add Item</legend>
+                <div class="form-group">
+                    <div>
+
+                        <div>
+                            <label class="col-md-1 control-label input-sm">Type :</label>
+                            <div class="col-md-2">
+
+                                @{var listItems = new List<System.Web.UI.WebControls.ListItem>
+                                    {
+                                            new System.Web.UI.WebControls.ListItem { Text = "ADD", Value="ADD" },
+                                            new System.Web.UI.WebControls.ListItem { Text = "REMOVE", Value="REMOVE" },
+
+                                    };
+                                }
+                                @Html.DropDownList("ddlStockType", new SelectList(listItems, "Value", "Text"))
+
+                            </div>
+                        </div>
+
+                        <label class="col-md-2 control-label input-sm">Qty :</label>
+                        <div class="col-md-1">
+                            @Html.TextBox("txtReceiveQty", "1", new { @id = "txtReceiveQty", @class = "form-control input-sm", data_a_sep = "", aPad = "false", data_a_sign = "" })
+                        </div>
+                        <label class="col-md-2 control-label input-sm">Product : / บาร์โค้ด</label>
+                        <div class="col-md-3">
+                            @Html.Hidden("SelectedCustomer")
+                            @Html.TextBox("txtSearchProductAdd", "", new { @id = "txtSearchProductAdd", @class = "form-control input-sm", @placeholder = "Enter barcode or Product Description" })
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="tbDetails" data-toggle="tab">Product List</a>
+                    </li>
+
+                    @*<li class="pull-right">
+                            <div class="btn-group btn-primary">
+                                @Html.ActionLink("Add Item", "EditStockItem", "Operation", null, new { data_modal = "", @class = "btn btn-small btn-primary col-md-1", @id = "lnkEditStock" })
+                            </div>
+                        </li>*@
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tbDetails">
+                        <table id="tblList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                            <thead style="background-color:steelblue;color:white;font-size:12px;">
+                                <tr>
+                                    <th class="hidden">Item No.</th>
+                                    <th class="hidden">Document No.</th>
+                                    <th class="hidden">Product Code</th>
+                                    <th>Product</th>
+                                    <th>BarCode</th>
+                                    <th>StockType</th>
+                                    <th>Receive Qty</th>
+
+                                </tr>
+                            </thead>
+                            <tbody style="font-size:12px;">
+                                @if (Model != null)
+                                {
+                                    int i = 0;
+
+                                    foreach (NetStock.Contract.StockAdjustmentDetail item in Model.StockAdjustmentDetails)
+                                    {
+                                        i++;
+                                        <tr id="tr_@i">
+                                            <td class="hidden" name="ItemNo">@Html.HiddenFor(m => @item.ItemNo)</td>
+                                            <td class="hidden" name="DocumentNo">@Html.HiddenFor(m => @item.DocumentNo)</td>
+                                            <td class="hidden" name="ProductCode">@Html.HiddenFor(m => @item.ProductCode)</td>
+                                            <td>
+                                                @*@Html.DisplayFor(m => @item.ProductCode)*@
+                                                @Html.TextBoxFor(m => @item.ProductDescription, new { @style = "border:none; background:transparent", @readonly = "readonly" })
+                                            </td>
+                                            <td>
+                                                @Html.HiddenFor(m => item.BarCode)
+                                                @item.BarCode
+                                            </td>
+                                            <td>
+                                                @Html.HiddenFor(m => item.StockType)
+                                                @item.StockType
+                                            </td>
+
+                                            <td>
+                                                @Html.HiddenFor(m => item.Quantity)
+                                                @item.Quantity
+                                            </td>
+
+                                        </tr>
+                                    }
+
+
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="box-footer">
+
+
+            <div class="row  no-print">
+                <div class="col-xs-12">
+
+                    <button type="submit" id="btnSave" class="btn btn-social btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    <a href="@Url.Action("StockAdjustment", "Operation", new { area = "Operation", documentNo = "NEW" },null)" class="btn btn-social btn-default">
+                        <i class="fa fa-close"></i>
+                        Clear
+                    </a>
+                    <a href="#" id="btnDelete" onclick="DeleteStockAdjustment('@Model.DocumentNo')" class="btn btn-social btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+
+
+                    <a href="@Url.Action("StockAdjustments", "Operation", new { area = "Operation" }, null)" class="btn btn-social btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+        <script type="text/javascript">
+            $("#ddlCustomerCode").select2();
+            $("#ddlProductList").select2();
+
+
+            $(document).ready(function () {
+
+                if ('@Model.Status' == 'False') {
+                    $("#txtDocumentNo").addClass("StrikeOut")
+                    $("#btnSave").attr("disabled", " disabled")
+                    $("#btnDelete").attr("disabled", " disabled")
+
+                }
+
+                $(function () {
+
+                    $("#tblList").DataTable();
+                    var dateNow = new Date();
+
+                    //$('#dtpDocumentDate').datetimepicker({
+                    //    format: "DD/MM/YYYY"
+                    //});
+                    $('#dtpDocumentDate').datepicker({
+                        dateFormat: 'dd/mm/yy'
+                    });
+
+                    $("input ,select, textarea,hidden, a").not($(":button,a")).keypress(function (evt) {
+                        if (evt.keyCode == 13) {
+                            evt.preventDefault();
+                            return false;
+                        }
+                    });
+                });
+            })
+
+
+            //$('#ddlProductList').on("select2:select", function (e) {
+
+            //    var barCode = $("#ddlProductList").val();
+            //    var supplierCode = $("#ddlCustomerCode").val();
+            //    var qty = $("#txtReceiveQty").val();
+
+
+
+            //    var url = "../Operation/AddStockAdjustmentProduct?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+            //    var rowCount = 0;
+            //    if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+            //        rowCount = $('#tblList tr').length - 1;
+            //    }
+            //    //"EditOrderItem", "Operation", new { area = "Operation" }
+            //    $.post(url, null, function (data) {
+
+            //        if (data.StockAdjustmentDetail.ProductCode == null) {
+            //            alert("Invalid Product Code Or Bar-Code not found!, please refine your search!!");
+            //            // $("#txtSearchProduct").val('');
+            //            return false;
+            //        }
+            //        var rowData = [
+            //        " <input id='StockAdjustmentDetail[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockAdjustmentDetail[" + rowCount + "].ItemNo'>"
+            //        , " <input id='StockAdjustmentDetail[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockAdjustmentDetail[" + rowCount + "].DocumentNo'>"
+            //        , " <input id='StockAdjustmentDetail[" + rowCount + "].ProductCode' type='hidden' value=" + data.StockAdjustmentDetail.ProductCode + " name='StockAdjustmentDetail[" + rowCount + "].ProductCode'>"
+            //       , "<input id='StockAdjustmentDetail[" + rowCount + "].ProductDescription' type='hidden' value=" + data.StockAdjustmentDetail.ProductDescription + " name='StockAdjustmentDetail[" + rowCount + "].ProductDescription'>" + data.StockAdjustmentDetail.ProductDescription
+            //         , "<input id='StockAdjustmentDetail_" + rowCount + "Quantity' type='text' value=" + data.StockAdjustmentDetail.Quantity + " class = 'form-control input-sm' name='StockAdjustmentDetail[" + rowCount + "].Quantity'>" // + this.Quantity.value
+
+            //        ];
+
+            //        $('#tblList').dataTable().fnAddData(rowData);
+            //        $('tr td:nth-child(1)').hide()
+            //        $('tr td:nth-child(2)').hide()
+            //        $('tr td:nth-child(3)').hide()
+
+
+
+            //    });
+
+            //    return false;
+
+
+
+            //});
+
+
+
+
+            $("#txtSearchProductAdd").keypress(function (evt) {
+                if (evt.keyCode == 13) {
+                    //alert(1);
+                    var textValue = $("#txtSearchProductAdd").val();
+                    var stockType = $("#ddlStockType").val();
+                    //alert(stockType);
+
+                    $("#txtSearchProductAdd").val('');
+                    //var supplierCode = $("#ddlCustomerCode").val();
+                    var Qty = $("#txtReceiveQty").val();
+                    if (evt.keyCode == 13) {
+                        //alert(2);
+
+                        var rooturl = "@Url.Action("AddStockAdjustmentProduct", "Operation", new { area = "Operation" })"
+                        var url = rooturl + "?&barCode=" + textValue + "&quantity=" + Qty + "&StockType=" + stockType;
+
+
+                        //var url = "../Operation/AddStockAdjustmentProduct?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+                        var rowCount = 0;
+                        if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                            rowCount = $('#tblList tr').length - 1;
+                        }
+                        //"EditOrderItem", "Operation", new { area = "Operation" }
+                        $.post(url, null, function (data) {
+
+                            if (data.StockAdjustmentDetail.ProductCode == null) {
+                                alert("Invalid Product Code Or Bar-Code not found!, please refine your search!!");
+                                // $("#txtSearchProduct").val('');
+                                return false;
+                            }
+                            var rowData = [
+                            " <input id='StockAdjustmentDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockAdjustmentDetails[" + rowCount + "].ItemNo'>"
+                            , " <input id='StockAdjustmentDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockAdjustmentDetails[" + rowCount + "].DocumentNo'>"
+                            , " <input id='StockAdjustmentDetails[" + rowCount + "].ProductCode' type='hidden' value=" + data.StockAdjustmentDetail.ProductCode + " name='StockAdjustmentDetails[" + rowCount + "].ProductCode'>"
+                           , "<input id='StockAdjustmentDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.StockAdjustmentDetail.ProductDescription + " name='StockAdjustmentDetails[" + rowCount + "].ProductDescription'>" + data.StockAdjustmentDetail.ProductDescription
+                             , "<input id='StockAdjustmentDetails_" + rowCount + "BarCode' type='hidden' value=" + data.StockAdjustmentDetail.BarCode + " class = 'form-control input-sm' name='StockAdjustmentDetails[" + rowCount + "].BarCode'>" + data.StockAdjustmentDetail.BarCode
+                              , " <input id='StockAdjustmentDetails[" + rowCount + "].StockType' type='hidden' value=" + data.StockAdjustmentDetail.StockType + " name='StockAdjustmentDetails[" + rowCount + "].StockType'>" + data.StockAdjustmentDetail.StockType
+                             , "<input id='StockAdjustmentDetails_" + rowCount + "Quantity' type='text' value=" + data.StockAdjustmentDetail.Quantity + " class = 'form-control input-sm' name='StockAdjustmentDetails[" + rowCount + "].Quantity'>" // + this.Quantity.value
+
+                            ];
+
+                            $('#tblList').dataTable().fnAddData(rowData);
+                            $('tr td:nth-child(1)').hide()
+                            $('tr td:nth-child(2)').hide()
+                            $('tr td:nth-child(3)').hide()
+
+
+
+                        });
+
+                        return false;
+
+                    }
+                }
+
+            });
+
+
+
+
+
+            function DeleteStockAdjustment() {
+
+                var documentNo = $("#txtDocumentNo").val();
+
+                if (documentNo == "NEW") {
+                    alert('Please choose a valid Document No. to Proceed!');
+                    return false;
+                }
+
+
+                if (!confirm("Do you want to delete Selected Document No. [" + documentNo + "] ?")) {
+                    return false;
+                }
+
+                var rooturldelete = "@Url.Action("DeleteStockAdjustment", "Operation", new { area = "Operation" })"
+                var urldelete = rooturldelete + "?documentNo=" + documentNo;
+
+                var urlList = "@Url.Action("StockAdjustments", "Operation", new { area = "Operation" })"
+
+                $.ajax({
+                    url: urldelete, type: "POST", dataType: "json",
+                    data: { documentNo: documentNo },
+                    async: true,
+                    success: function (response) {
+                        if (response.result) {
+                            ModalShow(response.Message, "Success", "Delete");
+                            $("#txtDocumentNo").addClass("StrikeOut")
+                            $("#btnSave").attr("disabled", " disabled")
+                            $("#btnDelete").attr("disabled", " disabled")
+
+                        } else {
+                            ModalShow(response.Message, "Failure", "Delete");
+                        }
+                        location.href = urlList;
+                    }
+                })
+            }
+
+
+
+
+
+            $("input").focus(function () {
+                console.log("fired");
+            });
+
+
+            var documentNo;
+            var isEditLocal = false;
+
+
+            function OnSaveFailure(result) {
+                ModalShow(result.Message, "Failure", "Save");
+            }
+
+            function OnSaveSuccess(result) {
+
+                ModalShow(result.Message, "Success", "Save");
+
+                documentNo = result.POData.DocumentNo;
+            }
+
+            var urlList = "@Url.Action("StockAdjustments", "Operation", new { area = "Operation" })"
+            function BtnOK() {
+                if (ActionType == "Save") {
+                    location.href = urlList;
+                }
+            }
+
+
+
+            $('#tblList tbody').on('click', 'tr', function () {
+                var table = $('#tblList').DataTable();
+                //alert('Row index: ' + table.row(this).index());
+            });
+
+
+            function linkClicked(li) {
+                linkedIndex = li;
+            }
+
+
+
+        </script>
+    }
+
+
+
+}

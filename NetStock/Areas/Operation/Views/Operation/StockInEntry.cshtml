@@ -1,0 +1,785 @@
+﻿@model NetStock.Contract.StockInHeader
+
+@{
+    ViewBag.Title = "Stock In Entry";
+}
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+
+<!--Modal Window Placeholder-->
+@*<div class="modal fade in" id="coaModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">*@
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+
+@*@using (Html.BeginForm("SaveCompanyProfile", "MasterDataController", FormMethod.Post))
+    {*@
+
+@using (Ajax.BeginForm("SaveStockInLedger", "Operation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSaveSuccess", OnFailure = "OnSaveFailure" }, new { enctype = "multipart/form-data", id = "myForm" }))
+{
+
+    <div class="box box-solid box-default">
+
+        <!-- Header Title -->
+        <div class="box-header with-border">
+            <h3 class="box-title">Stock-In Entry</h3>
+        </div>
+
+        <!-- Body -->
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Document No. / เลขที่ใบสั่งซื้อ</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.DocumentNo, new { @id = "txtDocumentNo", @class = "form-control input-sm", @readonly = "readonly", @maxlength = "50" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Date</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.DocumentDate, new { @Value = Model.DocumentDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpDocumentDate" })
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Supplier/รหัสซัพพลายเออร์</label>
+                        <div class="col-md-6">
+                            @Html.DropDownListFor(m => m.CustomerCode, Model.CustomersList, new { @class = "form-control input-sm", @id = "ddlCustomerCode" })
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">P O No.</label>
+                        <div class="col-md-6">
+                            @*@Html.TextBoxFor(m => m.PONo, new { @class = "form-control input-sm", @id = "txtPONo" })*@
+                            @Html.DropDownListFor(m => m.PONo, Model.POList, new { @class = "form-control input-sm", @id = "ddlPOList" })
+
+                        </div>
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <div>
+                            @Html.ActionLink("Add Item", "EditStockItem", "Operation", null, new { data_modal = "", @class = "btn btn-small btn-primary col-md-1", @id = "lnkEditStock" })
+                            @Html.Hidden("SelectedCustomer")
+                            <div class="col-md-2">
+                                @Html.TextBox("txtSearchProduct", "", new { @class = "form-control input-sm" })
+                            </div>
+                        </div>
+                    </div>*@
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <legend>Add Details</legend>
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-3 control-label input-sm">Receive Qty / จำนวนสินค้าที่รับ :</label>
+                        <div class="col-md-1">
+                            @Html.TextBox("txtReceiveQty", "", new { @class = "form-control input-sm" })
+                        </div>
+                        <label class="col-md-2 control-label input-sm">Product / รหัสสินค้า :</label>
+                        <div class="col-md-3">
+                            @Html.Hidden("SelectedCustomer")
+                            @Html.TextBox("txtSearchProduct", "", new { @id = "txtSearchProduct", @class = "form-control input-sm", @placeholder = "Enter Bar-Code or Product Description." })
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="form-horizontal">
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="tbDetails" data-toggle="tab">Supplier Product List</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tbDetails">
+                            <table id="tblList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                                <thead style="background-color:steelblue;color:white;font-size:12px;">
+                                    <tr>
+                                        <th class="hidden">Item No.</th>
+                                        <th class="hidden">Document No.</th>
+                                        <th class="hidden">Product Code</th>
+                                        <th>Product</th>
+                                        <th>Suggest Loc</th>
+                                        <th>P.O Qty</th>
+                                        <th>Buying Price</th>
+                                        <th>Receive Qty</th>
+                                        <th>Pending Qty</th>
+                                        <th>Amount</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size:12px;">
+                                    @if (Model != null)
+                                    {
+                                        int i = 0;
+
+                                        foreach (NetStock.Contract.StockInDetail item in Model.StockInDetails)
+                                        {
+                                            i++;
+                                            int PendingQty = item.POQty - item.Quantity;
+                                            item.PendingQty = PendingQty;
+                                            <tr id="tr_@i">
+                                                <td class="hidden" name="ItemNo">@Html.HiddenFor(m => @item.ItemNo)</td>
+                                                <td class="hidden" name="DocumentNo">@Html.HiddenFor(m => @item.DocumentNo)</td>
+                                                <td class="hidden" name="ProductCode">@Html.HiddenFor(m => @item.ProductCode)</td>
+                                                <td>
+                                                    @*@Html.DisplayFor(m => @item.ProductCode)*@
+                                                    @Html.TextBoxFor(m => @item.ProductDescription, new { @style = "border:none; background:transparent", @readonly = "readonly" })
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(m => @item.LocationDescription)
+                                                    @Html.HiddenFor(m => @item.Location)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(m => @item.POQty)
+                                                    @Html.HiddenFor(m => @item.POQty)
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => @item.BuyingPrice, new { @class = "form-control input-sm" })
+                                                    @*@Html.HiddenFor(m => @item.Quantity)*@
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => @item.Quantity, new { @class = "form-control input-sm", @onchange = "QuantityChanged(this,'" + @item.POQty + "','" + @i + "')" })
+                                                    @*@Html.HiddenFor(m => @item.Quantity)*@
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => @item.PendingQty, new { @id = "txtPendingQty_" + @i, @style = "border:none;background:transparent", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => @item.PendingQty)
+                                                </td>
+                                                <td>
+                                                    @Html.TextBoxFor(m => @item.BuyingAmount, new { @id = "txtBuyingAmount_" + @i, @style = "border:none;background:transparent", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => @item.BuyingAmount)
+                                                </td>
+
+                                            </tr>
+                                        }
+
+
+                                    }
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <!-- Footer -->
+        <div class="box-footer">
+            <div class="row">
+                <div class="pull-right col-xs-4">
+                    <div class="form-group">
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Total Amount / ยอดรวม</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.TotalAmount, new { @class = "form-control input-sm-red", @id = "txtGrandTotalAmount" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="pull-right col-xs-4">
+                    <div class="form-group">
+
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">VAT %</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        @Html.CheckBoxFor(m => m.IsVAT, new { @class = "checkbox", @id = "chkVAT" })
+                                    </span>
+                                    @Html.TextBoxFor(m => m.VATAmount, new { @class = "form-control input-sm-red", @id = "txtVATAmount" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="pull-right col-xs-4">
+                    <div class="form-group">
+
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Net Amt</label>
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(m => m.NetAmount, new { @class = "form-control input-sm-green", @id = "txtNetAmount", @align = "right" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row  no-print">
+                <div class="col-xs-12">
+
+                    <button type="submit" id="btnSave" class="btn btn-social btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    <a href="@Url.Action("StockInLedger", "Operation", new { area = "Operation", documentNo = "NEW" },null)" class="btn btn-social btn-default">
+                        <i class="fa fa-close"></i>
+                        Clear
+                    </a>
+                    <a href="#" id="btnDelete" onclick="DeleteStockEntry('@Model.DocumentNo')" class="btn btn-social btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+
+
+                    <a href="@Url.Action("StockInLedgerList", "Operation", new { area = "Operation" }, null)" class="btn btn-social btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+ @section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+        <script type="text/javascript">
+            $("#ddlCustomerCode").select2();
+
+            function QuantityChanged(tis, ByingPriceId, POQty, Idnumber) {
+                debugger;
+                var ByingPrice = $("#" + ByingPriceId).val();
+                var RQty = Number($(tis).val());
+                var c = Number(POQty) - RQty;
+
+                $("#txtPendingQty_" + Idnumber).val(c);
+
+                var amt = ByingPrice * RQty;
+
+                $("#txtBuyingAmount_" + Idnumber).val(amt);
+
+                SummaryCalculation();
+            }
+
+            function BuyingPriceChanged(ths, quantityID, Idnumber) {
+
+                debugger;
+                var Receivequantity = $("#" + quantityID).val();
+                var BuyingPrice = Number($(ths).val());
+                var c = Receivequantity * BuyingPrice;
+
+                $("#txtBuyingAmount_" + Idnumber).val(c);
+
+                SummaryCalculation();
+            }
+
+            $(document).ready(function () {
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+                
+
+                if ('@Model.Status' == 'False') {
+                    $("#txtDocumentNo").addClass("StrikeOut")
+                    $("#btnSave").attr("disabled", " disabled")
+                    $("#btnDelete").attr("disabled", " disabled")
+
+                }
+
+                $(function () {
+
+                    $("#tblList").DataTable();
+                    var dateNow = new Date();
+
+                    //$('#dtpDocumentDate').datetimepicker({
+                    //    format: "DD/MM/YYYY"
+                    //});
+                    //$('#dtpDocumentDate').datepicker({
+                    //    dateFormat: 'dd/mm/yy'
+                    //});
+
+                    $('#dtpDocumentDate').datepicker({
+                        dateFormat: 'dd/mm/yy'
+                    });
+                });
+            })
+
+            function DeleteStockEntry() {
+
+                var documentNo = $("#txtDocumentNo").val();
+
+                if (documentNo == "NEW") {
+                    alert('Please choose a valid Document No. to Proceed!');
+                    return false;
+                }
+
+
+                if (!confirm("Do you want to delete Selected Document No. [" + documentNo + "] ?")) {
+                    return false;
+                }
+                var rooturl = "@Url.Action("DeleteStockEntry", "Operation", new { area = "Operation" })"
+                var url = rooturl + "?documentNo=" + documentNo; 
+
+
+                var urlList = "@Url.Action("StockInLedgerList", "Operation", new { area = "Operation" })"
+
+                //url: "/Operation/DeleteStockEntry", type: "POST", dataType: "json",
+                $.ajax({
+
+                    url: url, type: "POST", dataType: "json",
+                    data: { documentNo: documentNo },
+                    async: true,
+                    success: function (response) {
+                        if (response.result) {
+                            ModalShow(response.Message, "Success", "Delete");
+                            $("#txtDocumentNo").addClass("StrikeOut")
+                            $("#btnSave").attr("disabled", " disabled")
+                            $("#btnDelete").attr("disabled", " disabled")
+
+                        } else {
+                            ModalShow(response.Message, "Failure", "Delete");
+                        }
+                        location.href = urlList;
+                    }
+                })
+            }
+
+            $('#ddlCustomerCode').on("select2:select", function (e) {
+                var customerCode = $('#ddlCustomerCode').val();
+                var url = "/Operation/GetCustomerPOList?customerCode=" + customerCode;
+                $.post(url, null, function (data) {
+                    //alert(data.d);
+                    //// if the data is NOT NULL, then i want to add this to ddlPOList.
+                    //debugger;
+                    $("#ddlPOList").select2();
+                    $("#ddlPOList").select2('data', null);
+                    $("#ddlPOList").select2('val', '');
+                    $("#ddlPOList").select2('data', { id: null, text: null })
+                    var myData = [];
+                    if (data.POList.length > 0) {
+                        for (var i = 0 ; i < data.POList.length; i++) {
+                            var obj = {
+                                id: data.POList[i].PONo,
+                                text: data.POList[i].PONo
+                            };
+                            myData.push(obj);
+                            //sampleArray += "{" +id:  ", text: " +  + " },";
+                        }
+
+                    }
+
+                    //$.each(function (d) {
+                    //    sampleArray += "{ id:" + d.PONo + ", text: " + d.PONo + " },";
+                    //})
+                    //sampleArray =[ sampleArray  ];
+                    //var sampleArray = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }
+                    //  , { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }
+                    //  , { id: 4, text: 'wontfix' }];
+
+                    $("#ddlPOList").select2({ data: myData });
+
+
+                });
+
+            });
+
+
+            $('#ddlPOList').on("select2:select", function (e) {
+                var poNo = $('#ddlPOList').val();
+
+                var rooturl = "@Url.Action("GetPOListForStockIn", "Operation", new { area = "Operation" })"
+                var url = rooturl + "?poNo=" + poNo;
+
+                //var url = "/Operation/GetPOListForStockIn?poNo=" + poNo;
+                $.post(url, null, function (data) {
+                    //debugger;
+                    // i have to add the list of items from the PO to the table. in the stock in header.
+                    $('#tblList').DataTable().clear();
+
+                    for (var i = 0; i < data.stockDt.length; i++) {
+
+                        var rowData = [
+                      " <input id='StockInDetails[" + i + "].ItemNo' type='hidden' value= '" + data.stockDt[i].ItemNo + " ' name='StockInDetails[" + i + "].ItemNo'>"
+                      , " <input id='StockInDetails[" + i + "].DocumentNo' type='hidden' value= '" + data.stockDt[i].DocumentNo + " ' name='StockInDetails[" + i + "].DocumentNo'>"
+                      , " <input id='StockInDetails[" + i + "].ProductCode' type='hidden' value= '" + data.stockDt[i].ProductCode + " ' name='StockInDetails[" + i + "].ProductCode'>"
+                     //, "<input id='StockInDetails[" + i + "].ProductDescription' type='hidden' value=" + data.stockDt[i].ProductDescription + " name='StockInDetails[" + i + "].ProductDescription'>" + data.stockDt[i].ProductDescription
+
+                      , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + data.stockDt[i].ProductCode + "'>" + data.stockDt[i].ProductDescription + "</a>"
+                     , "<input id='StockInDetails[" + i + "].Location' type='hidden' value='" + data.stockDt[i].Location + "' name='StockInDetails[" + i + "].Location'>" + data.stockDt[i].LocationDescription
+                     , "<input id='StockInDetails[" + i + "].POQty' type='hidden' value='" + data.stockDt[i].POQty + "' name='StockInDetails[" + i + "].Quantity'>" + data.stockDt[i].POQty
+                     , "<input id='StockInDetails[" + i + "].BuyingPrice' type='text' value=" + data.stockDt[i].BuyingPrice + " class = 'form-control input-sm' name='StockInDetails[" + i + "].BuyingPrice'  onchange = 'BuyingPriceChanged(this," + data.stockDt[i].Quantity + "," + i + ")'  >"
+
+                     , "<input id='StockInDetails[" + i + "].Quantity' type='text' value=" + data.stockDt[i].Quantity + " class = 'form-control input-sm' name='StockInDetails[" + i + "].Quantity'  onchange = 'QuantityChanged(this," + data.stockDt[i].BuyingPrice + "," + data.stockDt[i].POQty + "," + i + ")' >" // + this.Quantity.value
+
+
+                     , "<input id='txtPendingQty_" + i + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + i + "].PendingQty'>"
+                     , "<input id='txtBuyingAmount_" + i + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + i + "].BuyingAmount'>"
+                        ];
+
+
+                        var row = "";
+                        $('#tblList').dataTable().fnAddData(rowData);
+                        $('tr td:nth-child(1)').hide()
+                        $('tr td:nth-child(2)').hide()
+                        $('tr td:nth-child(3)').hide()
+
+
+                        SummaryCalculation();
+
+                    }
+                    $("#txtReceiveQty").val('');
+                    $("#txtReceiveQty").focus();
+
+
+
+                });
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+
+            });
+
+
+            function SummaryCalculation() {
+                debugger;
+
+                var table = $('#tblList').DataTable();
+                var price = 0;
+                var qty = 0;
+                var totalAmount = 0;
+
+
+
+                table.column(9).data()
+                    .each(function (value, index) {
+                        var id = "#" + $(value).attr("id");
+                        totalAmount += Number($(id).val());
+                    });
+
+
+
+                $("#txtGrandTotalAmount").val(totalAmount);
+
+                if ($("#chkVAT").is(':checked')) {
+                    CalculateVAT(true);
+                }
+                else {
+                    CalculateVAT(false);
+                }
+            }
+
+            function CalculateVAT(isVAT) {
+                var taxableAmount = Number($("#txtGrandTotalAmount").val());
+                var taxAmount = 0;
+
+                if (isVAT == true) {
+
+                    taxAmount = (taxableAmount * 7) / 100;
+                }
+                else {
+                    taxAmount = 0;
+                }
+
+                $("#txtVATAmount").val(taxAmount);
+                $("#txtNetAmount").val(taxableAmount + taxAmount);
+            }
+
+
+            $("#chkVAT").click(function () {
+                if ($(this).is(':checked')) {
+                    CalculateVAT(true);
+                }
+                else {
+                    CalculateVAT(false);
+                }
+
+            });
+
+            $("input").focus(function () {
+                console.log("fired");
+            });
+
+
+            var documentNo;
+            var isEditLocal = false;
+
+
+            function OnSaveFailure(result) {
+                ModalShow(result.Message, "Failure", "Save");
+            }
+
+            function OnSaveSuccess(result) {
+
+                ModalShow(result.Message, "Success", "Save");
+
+                documentNo = result.POData.DocumentNo;
+            }
+
+
+            function BtnOK() {
+                if (ActionType == "Save") {
+                    location.href = "../Operation/StockInLedgerList";
+                }
+            }
+
+
+            function EditProductDetails(t, rowCount, qno, elocal) {
+                rowdetails = t;
+                if (elocal == "1") {
+                    isEditLocal = true;
+                }
+                if (qno == 0) {
+                    var row = $(t).closest("tr").get(0);
+                    var oTable = $('#tblList').DataTable();
+                    var ids = $.map(oTable.rows(row).data(), function (item) {
+                        var c = new Array();
+                        debugger;
+                        c = [item[0].substr(item[0].indexOf(">") + 1, 20), item[1].substr(item[1].indexOf(">") + 1, 20), item[2].substr(item[2].indexOf(">") + 1, 20)];
+                        return c
+                    });
+
+                    if (ids[0] == "") {
+                        setTimeout(function () {
+                            $("#ProductCode").val(ids[1])
+                            $("#Quantity").val(ids[2])
+
+                        }, 100)
+                        return false;
+                    }
+                }
+            }
+
+            function DeleteProductDetails(t, ProductCode, customerCode) {
+                if (!confirm("Do you want to delete Selected Product?")) {
+                    return false;
+                }
+                var row = $(t).closest("tr").get(0);
+                var oTable = $('#tblList').dataTable(); // JQuery dataTable function to delete the row from the table
+                oTable.fnDeleteRow(oTable.fnGetPosition(row));
+            }
+
+            $('#tblList tbody').on('click', 'tr', function () {
+                var table = $('#tblList').DataTable();
+                //alert('Row index: ' + table.row(this).index());
+            });
+
+
+            function linkClicked(li) {
+                linkedIndex = li;
+            }
+
+
+            function AddDataToTable() {
+
+                var tblData = new Array();
+                var productCode = $("#hdnProductCode").val();
+                //tblData = [{ ServiceType: $("#ServiceType").val(), ChargeCode: $("#ChargeCode").val(), ChargeType: $("#ChargeType").val(), From: $("#From").val(), To: $("#To").val(), SellRate: $("#SellRate").val() }];
+
+
+                var rowCount = 0;
+                if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                    rowCount = $('#tblList tr').length;// - 1;;
+                }
+                debugger;
+                var rowData = [
+                    " <input id='StockInDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ItemNo'>"
+                    , " <input id='StockInDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].DocumentNo'>"
+                    , " <input id='StockInDetails[" + rowCount + "].ProductCode' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ProductCode'>"
+                   //, "<input id='StockInDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + this.ProductDescription.value + " name='StockInDetails[" + rowCount + "].ProductDescription'>" + this.ProductDescription.value
+                   , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + this.ProductCode.value + "'>" + this.ProductDescription.value + "</a>"
+                   , "<input id='StockInDetails[" + rowCount + "].Location' type='hidden' value='" + this.Location.value + "' name='StockInDetails[" + rowCount + "].Location'>" + this.LocationDescripton.value
+                   , "<input id='StockInDetails[" + rowCount + "].POQty' type='hidden' value='" + this.Quantity.value + "' name='StockInDetails[" + rowCount + "].Quantity'>" + this.Quantity.value
+                   , "<input id='StockInDetails[" + rowCount + "].BuyingPrice' type='text' value='0' class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].BuyingPrice' onchange = 'BuyingPriceChanged(this," + data.stockDt[i].BuyingPrice + "," + i + ")' >"
+
+                  , "<input id='StockInDetails[" + rowCount + "].Quantity' type='text' value=" + this.Quantity.value + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].Quantity'  onchange = 'QuantityChanged(this," + this.Quantity.value + "," + rowCount + ")' >" // + this.Quantity.value
+
+
+                 , "<input id='txtPendingQty_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].PendingQty'>"
+                    , "<input id='txtBuyingAmount_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].BuyingAmount'>"
+                ];
+
+                //if ((productCode != null && productCode != "") || isEditLocal) {
+                //    $('#tblList').dataTable().fnUpdate(rowData, 0);
+                //    $('#myModal').modal('hide');
+                //    linkedIndex = null;
+                //}
+                //else {
+
+                var row = "";
+                $('#tblList').dataTable().fnAddData(rowData);
+                $('tr td:nth-child(1)').hide()
+                $('tr td:nth-child(2)').hide()
+                $('tr td:nth-child(3)').hide()
+
+
+                SummaryCalculation();
+                //}
+                var table = $('#tblList').DataTable();
+                var baseamt = 0;
+
+                //$.each(table.column(6).data(), function (key, value) {
+                //    var baseamtlocal = Number(value.substr(value.indexOf(">") + 1, 20));
+                //    baseamt = baseamt + baseamtlocal;
+                //})
+                $('#myModal').modal('hide');// $('#myModalContent').modal('hide');
+                $("a[data-modal]").on("click", function (e) {
+                    return OpenModalPopup(this, e);
+                });
+            }
+
+            $("#txtPONo").keypress(function (evt) {
+                if (evt.keyCode == 13) {
+                    var textValue = $("#txtPONo").val();
+                    var customerCode = $("#ddlCustomerCode").val();
+                    if (evt.keyCode == 13) {
+
+                        //var url = '@Url.Action("AddProductToGrid", "Operation", new { area = "Operation"  })';
+                        var url = "/Operation/AddProductToGrid?CustomerCode=" + customerCode + "&barCode=" + textValue;
+                        var rowCount = 0;
+
+                        //"EditOrderItem", "Operation", new { area = "Operation" }
+                        $.post(url, null, function (data) {
+                            debugger;
+                            var totalamt = (data.OrderDetail.SellRate * data.OrderDetail.Quantity) - data.OrderDetail.DiscountAmount
+                            var rowData = [
+              "<input id='OrderDetail[" + rowCount + "].ItemNo' type='hidden' value=" + data.OrderDetail.ItemNo + " name='OrderDetail[" + rowCount + "].ItemNo'>" + data.OrderDetail.ItemNo
+              , "<input id='OrderDetail[" + rowCount + "].ProductCode' type='hidden' value=' ' name='OrderDetail[" + rowCount + "].ProductCode'>" + data.OrderDetail.ProductCode
+              , "<input id='OrderDetail[" + rowCount + "].SellRate' type='hidden' value=" + data.OrderDetail.SellRate + " name='OrderDetail[" + rowCount + "].AccountCode'>" + data.OrderDetail.SellRate
+              , "<input id='OrderDetail[" + rowCount + "].Quantity' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetail[" + rowCount + "].BaseAmount'>" + data.OrderDetail.Quantity
+              , "<input id='OrderDetail[" + rowCount + "].CurrencyCode' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetail[" + rowCount + "].CurrencyCode'>" + data.OrderDetail.Quantity
+              , "<input id='OrderDetail[" + rowCount + "].DiscountAmount' type='hidden' value=" + data.OrderDetail.DiscountAmount + " name='OrderDetail[" + rowCount + "].LocalAmount'>" + data.OrderDetail.DiscountAmount
+              , "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+              , "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+              , "<input id='OrderDetail[" + rowCount + "].SellPrice' type='hidden' value=" + totalamt + " name='OrderDetail[" + rowCount + "].SellPrice'>" + totalamt
+
+                 //, "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+
+              , " <a id='OrderDetail[" + rowCount + "]' href='/AR/AddARInvoiceItem?itemNo=" + rowCount + "' class='anchor-image' data-modal=''  onclick='EditOrderDetail(this," + rowCount + ",0,1)'>" +
+              " </a> <img src='/Images/fa-trash-o_22.png' onclick='DeleteOrderDetail(this," + rowCount + ",0)' class='img-class'>"];
+
+                            $('#tblItem').dataTable().fnAddData(rowData);
+                            //$('tr td:nth-child(1)').hide()
+                        });
+                        return false;
+                    }
+                    $("#txtPONo").val = '';
+                }
+            });
+
+            //$('#ddlCustomerCode').on('change', function (a,b,c) {
+            //    debugger;
+            //    var supplierCode = $('#ddlCustomerCode').val();
+            //    var url = "Coontroller/Action?p1=" + supplierCode;
+            //    $.post(url, null, function (data, status, jqXHR) {
+            //        // how to attach the return value to the drop down?
+
+            //    })
+            //});
+
+
+            $("#txtSearchProduct").keypress(function (evt) {
+
+                if (evt.keyCode == 13) {
+
+
+                    var barCode = $("#txtSearchProduct").val();
+                    var supplierCode = $("#ddlCustomerCode").val();
+                    var qty = $("#txtReceiveQty").val();
+
+                    //alert(qty);
+
+                    if (evt.keyCode == 13) {
+
+                        var rooturl = "@Url.Action("AddStockInProduct", "Operation", new { area = "Operation" })"
+                        var url = rooturl + "?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+
+
+                        //var url = "../Operation/AddStockInProduct?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+                        var rowCount = 0;
+                        if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                            rowCount = $('#tblList tr').length - 1;
+                        }
+                        //"EditOrderItem", "Operation", new { area = "Operation" }
+                        $.post(url, null, function (data) {
+
+                            if (data.StockInDetail.ProductCode == null) {
+                                alert("Invalid Product Code Or Bar-Code not found!, please refine your search!!");
+                                $("#txtSearchProduct").val('');
+                                return false;
+                            }
+                            var rowData = [
+                            " <input id='StockInDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ItemNo'>"
+                            , " <input id='StockInDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].DocumentNo'>"
+                            , " <input id='StockInDetails[" + rowCount + "].ProductCode' type='hidden' value=" + data.StockInDetail.ProductCode + " name='StockInDetails[" + rowCount + "].ProductCode'>"
+
+
+                           //, "<input id='StockInDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.StockInDetail.ProductDescription + " name='StockInDetails[" + rowCount + "].ProductDescription'>" + data.StockInDetail.ProductDescription
+
+                           , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + data.StockInDetail.ProductCode + "'>" + data.StockInDetail.ProductDescription + "</a>"
+                           , "<input id='StockInDetails[" + rowCount + "].Location' type='hidden' value='" + data.StockInDetail.Location + "' name='StockInDetails[" + rowCount + "].Location'>" + data.StockInDetail.LocationDescription
+
+                           , "<input id='StockInDetails[" + rowCount + "].POQty' type='hidden' value='" + data.StockInDetail.Quantity + "' name='StockInDetails[" + rowCount + "].Quantity'>" + data.StockInDetail.Quantity
+
+                             , "<input id='StockInDetails_" + rowCount + "BuyingPrice' type='text' value=" + data.StockInDetail.BuyingPrice + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].BuyingPrice'  onchange = 'BuyingPriceChanged(this,\"StockInDetails_" + rowCount + "Quantity\"," + rowCount + ")'  >"
+                             //,\"OrderDetails_" + rowCount + "DiscountAmount\",
+                             //,\"StockInDetails_" + rowCount + ".Quantity\","
+
+                            , "<input id='StockInDetails_" + rowCount + "Quantity' type='text' value=" + data.StockInDetail.Quantity + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].Quantity'  onchange = 'QuantityChanged(this,\"StockInDetails_" + rowCount + "BuyingPrice\"," + data.StockInDetail.Quantity + "," + rowCount + ")' >" // + this.Quantity.value
+
+                            , "<input id='txtPendingQty_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].PendingQty'>"
+
+
+                            , "<input id='txtBuyingAmount_" + rowCount + "' type='text' value=" + (data.StockInDetail.Quantity * data.StockInDetail.BuyingPrice) + " style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].BuyingAmount'>"
+                            ];
+
+                            $('#tblList').dataTable().fnAddData(rowData);
+                            $('tr td:nth-child(1)').hide()
+                            $('tr td:nth-child(2)').hide()
+                            $('tr td:nth-child(3)').hide()
+
+                            SummaryCalculation();
+
+                        });
+                        $("#txtSearchProduct").val('');
+                        
+                        $("#txtReceiveQty").val('');
+                        $("#txtReceiveQty").focus();
+                        return false;
+                    }
+                    $("#txtSearchProduct").val('');
+                    
+                    $("#txtReceiveQty").val('');
+                    $("#txtReceiveQty").focus();
+                }
+            });
+
+
+
+        </script>
+    }
+
+
+
+}

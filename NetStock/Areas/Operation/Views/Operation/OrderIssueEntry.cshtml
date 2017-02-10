@@ -1,0 +1,1048 @@
+﻿@model NetStock.Contract.OrderIssueHeader
+@{
+    ViewBag.Title = "OrderIssueEntry";
+}
+
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+    <style type="text/css">
+        .anchPopOverCss, anchPopOverCss:hover {
+            color: #cfc9c9 !important;
+        }
+    </style>
+}
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+@using (Html.BeginForm("", "", FormMethod.Post, new { id = "frmOrderIssueSave", name = "frmOrderIssueSave" }))
+{
+
+}
+
+@*@using (Ajax.BeginForm("SaveOrderIssueEntry", "Operation", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSaveSuccess", OnFailure = "OnSaveFailure" }, new { Area = "Operation", enctype = "multipart/form-data", id = "myForm", name = "myForm" }))
+{*@
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <i class="fa fa-cube"></i>
+                Sales Entry
+            </h3>
+        </div>
+        <div class="box-body">
+            @using (Html.BeginForm("SearchOrderIssue", "Operation", FormMethod.Post, new { id = "frmSearch", name = "frmSearch" }))
+            {
+                <fieldset class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label input-sm">Order Ref</label>
+                        <div class="col-md-3">
+                            <input type="text" name="refOrderNo" class="form-control input-sm" />
+                        </div>
+                        <div class="btn-group btn-primary">
+                            <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"></i>&nbsp;Search</button>
+                        </div>   
+                        <span>
+                            <a class="anchPopOverCss" data-container="body" data-toggle="popover" data-placement="right" data-content="shows the list of Pending P.O's from the selected supplier."><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                        </span>                     
+                    </div>
+                </fieldset>
+            }            
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Order No.</label>
+                    <div class="col-md-2">
+                        @Html.TextBoxFor(m => m.OrderNo, new { id = "txtDocumentNo", @class = "form-control input-sm", @readonly = "readonly", @maxlength = "50" })
+                    </div>
+                    <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Date</label>
+                    <div class="col-md-2">
+                        @Html.TextBoxFor(m => m.OrderDate, new { Value = Model.OrderDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpOrderDate", @readonly = "readonly" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Customer</label>
+                    <div class="col-md-5">
+                        @Html.DropDownListFor(m => m.CustomerCode, Model.CustomersList, "Select Customer", new { @id = "ddlCustomerCode", @class = "form-control input-sm" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Address</label>
+                    <div class="col-md-5">
+                        @Html.TextAreaFor(m => m.CustomerAddress, new { @class = "form-control input-sm", @readonly = "readonly" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Delivery Date</label>
+                    <div class="col-sm-2">
+                        @Html.TextBoxFor(m => m.DeliveryDate, "{0:dd/MM/yyyy}", new { @class = "form-control input-sm datepicker" })
+                    </div>
+                    <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Payment Type / ประเภทการชำระเงิน</label>
+                    <div class="col-md-2">
+                        @Html.DropDownListFor(m => m.PaymentType, Model.PaymentTypeList, null, new { @id = "ddlPaymentType", @class = "form-control input-sm" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Remarks / หมายเหตุ</label>
+                    <div class="col-md-5">
+                        @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control input-sm", @maxlength = "255" })
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <legend>Add Item</legend>
+                <div class="form-group">
+                    <label class="col-md-2 control-label input-sm">Qty</label>
+                    <div class="col-md-2">
+                        @Html.TextBox("txtReceiveQty", "", new { @id = "txtReceiveQty", @class = "form-control input-sm decimalCss", data_a_sep = "", aPad = "false", data_a_sign = "" })
+                    </div>
+                    @*<label class="col-md-1 control-label input-sm">UOM</label>
+                    <div class="col-md-2">
+                        @Html.DropDownListFor(x => x.UOM, Model.UOMList, new { @class = "form-control input-sm" })
+                    </div>*@
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label input-sm">Product : / บาร์โค้ด</label>
+                    <div class="col-md-5">
+                        @Html.Hidden("SelectedCustomer")
+                        @*@Html.TextBox("txtSearchProductAdd", "", new { @id = "txtSearchProductAdd", @class = "form-control input-sm", @placeholder = "Enter barcode or Product Description" })*@
+                        @Html.DropDownList("Products", new SelectList(Utility.GetProductList(), "Value", "Text", ""), "Select Product", new { @class = "form-control input-sm", onchange = "Products_OnChange(this);" })
+
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="tbDetails" data-toggle="tab">Items List</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tbDetails">
+                        @*@Html.Partial("SupplierProductList")*@
+                        <!-- Display List Section -->
+                        <table id="tblItem" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                            <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                <tr>
+                                    <th class="hidden"></th>
+                                    <th>Product</th>
+                                    <th class="hidden">Pickup Loc</th>
+                                    <th>Cost Price</th>
+                                    <th>Sell Rate</th>
+                                    <th>Qty</th>
+                                    <th>Selling Price</th>
+                                    <th>Dis. Type</th>
+                                    <th>Discount</th>
+                                    @*<th>Adjust Amount</th>*@
+                                    <th>Partial Pmt</th>
+                                    <th>Total Amt </th>
+                                    <th class="hidden">Record Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 12px;">
+                                @if (Model != null)
+                                {
+                                    //foreach (NetStock.Contract.OrderDetail item in Model.OrderDetails)
+                                    //{
+                                    for (int itr = 0; itr < Model.OrderIssueDetails.Count; itr++)
+                                    {
+                                        <tr id="tr_@itr" data-id="@itr">
+                                            <td class="hidden" name="ProductCode" id="ProductCode_@itr">
+                                                @Model.OrderIssueDetails[itr].ProductCode
+                                                @Model.OrderIssueDetails[itr].BarCode
+                                                @Model.OrderIssueDetails[itr].MatchQuotation
+                                                @Model.OrderIssueDetails[itr].ProductDescription
+                                                @Model.OrderIssueDetails[itr].ItemNo
+                                            </td>
+                                            <td name="ProductDescription" id="ProductDescription_@itr">
+                                                @Model.OrderIssueDetails[itr].ProductDescription
+                                            </td>
+                                            <td name="Location" id="Location_@itr" class="hidden">
+                                                @Html.HiddenFor(m => @Model.OrderIssueDetails[itr].Location)
+                                                @Model.OrderIssueDetails[itr].LocationDescription
+                                            </td>
+                                            <td name="Cost" id="Cost_@itr">
+                                                @Html.HiddenFor(m => @Model.OrderIssueDetails[itr].Cost)
+                                                @Model.OrderIssueDetails[itr].Cost.ToString("###,###.00")
+                                            </td>
+                                            <td name="SellRate" id="SellRate_@itr">
+                                                @Html.HiddenFor(m => @Model.OrderIssueDetails[itr].SellRate)
+                                                @Model.OrderIssueDetails[itr].SellRate.ToString("###,###.00")
+                                            </td>
+                                            <td name="Quantity" id="Quantity_@itr">
+                                                @Html.HiddenFor(m => @Model.OrderIssueDetails[itr].Quantity)
+                                                @Model.OrderIssueDetails[itr].Quantity.ToString("###")
+                                            </td>
+                                            <td name="SellPrice" id="SellPrice_@itr">
+                                                @Html.HiddenFor(m => @Model.OrderIssueDetails[itr].SellPrice)
+                                                @Model.OrderIssueDetails[itr].SellPrice.ToString("###,###.00")
+                                            </td>
+                                            <td name="DiscountType" id="DiscountType_@itr">
+                                                @Html.DropDownListFor(m => @Model.OrderIssueDetails[itr].DiscountType, Model.DiscountTypeList, null, new { @class = "form-control input-sm", id = "Select_" + itr + "DicountType" })
+                                            </td>
+                                            <td name="DiscountAmount" id="DiscountAmount_@itr">
+                                                @Html.TextBoxFor(m => @Model.OrderIssueDetails[itr].DiscountAmount, new { @Value = @Model.OrderIssueDetails[itr].DiscountAmount.ToString("###,##0.00"), @class = "form-control input-sm", id = "OrderDetails_" + itr + "DiscountAmount", onchange = "DiscountAmount_Changed(this,'" + Model.OrderIssueDetails[itr].SellPrice + "','Select_" + itr + "DicountType','OrderDetails_" + itr + "SellPrice',0)" })
+                                            </td>
+                                            <td name="PartialPayment" id="PartialPayment_@itr">
+                                                @Html.TextBoxFor(m => @Model.OrderIssueDetails[itr].PartialPayment, new { @class = "form-control input-sm", id = "OrderDetails_" + itr + "PartialPayment", onchange = "PartialPayment_Changed();" })
+                                            </td>
+                                            <td name="SellPrice" id="SellPrice_@itr">
+                                                @Html.HiddenFor(m => @Model.OrderIssueDetails[itr].SellPrice)
+                                                @Model.OrderIssueDetails[itr].SellPrice.ToString("###,##0.00")
+                                            </td>
+                                            @*<td>@Html.HiddenFor(m => @item.OrderNo)</td>*@
+                                            <td class="hidden" name="RecordStatus" id="RecordStatus_@itr">
+                                                @Model.OrderIssueDetails[itr].RecordStatus
+                                            </td>
+                                            <td name="Action">
+                                                @*<img class="img-class" src="~/Images/fa-trash-o_22.png" onclick="DeleteDetails(this,'chk_@itr','RecordStatus_@itr','@itr')" />*@
+                                                <button type="button" class="btn btn-default btn-sm" onclick="DeleteDetails(this,'chk_@itr','RecordStatus_@itr','@itr')"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer clearfix">
+            <div class="row">
+                <div class="pull-right col-md-4">
+                    <div class="form-group">
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-8 control-label input-sm">Total Amount / ยอดรวม</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.TotalAmount, new { @Value = Model.TotalAmount.ToString("###,##0.00"), @class = "form-control input-sm-red", @id = "txtTotalAmount", @readonly = "true" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="pull-right col-md-4">
+                    <div class="form-group">
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-8 control-label input-sm">Discount Amt / ส่วนลด</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.DiscountAmount, new { @Value = Model.DiscountAmount.ToString("###,##0.00"), @class = "form-control input-sm-red", @id = "txtDiscountAmount", @readonly = "true" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="pull-right col-xs-4">
+                    <div class="form-group">
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">VAT 7%</label>
+                            <div class="pull-right  col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        @Html.CheckBoxFor(m => m.IsVAT, new { @class = "checkbox", @id = "chkVAT" })
+                                    </span>
+                                    @Html.TextBoxFor(m => m.VATAmount, new { @Value = Model.VATAmount.ToString("###,##0.00"), @class = "form-control input-sm-red", @id = "txtVATAmount", @readonly = "true" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="pull-right col-xs-4">
+                    <div class="form-group">
+
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">W/H Tax %</label>
+                            <div class="pull-right col-sm-4">
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        @Html.CheckBoxFor(m => m.IsWHTax, new { @class = "checkbox", @id = "chkWH" })
+                                    </span>
+                                    @Html.TextBoxFor(m => m.WithHoldingAmount, new { @Value = Model.WithHoldingAmount.ToString("###,##0.00"), @class = "form-control input-sm-red", @id = "txtWithHoldingAmount", @readonly = "true" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="pull-right col-xs-4">
+                    <div class="form-group">
+
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-4 control-label input-sm">Net Amt</label>
+                            <div class="pull-right col-sm-4">
+                                @Html.TextBoxFor(m => m.NetAmount, new { @Value = Model.NetAmount.ToString("###,##0.00"), @class = "form-control input-sm-green", @id = "txtNetAmount", @align = "right", @readonly = "true" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="pull-right col-md-4">
+                    <div class="form-group">
+
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-8 control-label input-sm">Paid Amount / จำนวนที่จ่าย</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.PaidAmount, new { @Value = Model.PaidAmount.ToString("###,##0.00"), @class = "form-control input-sm-green", @id = "txtPaidAmount", @readonly = "true" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="pull-right col-md-4">
+                    <div class="form-group">
+
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-8 control-label input-sm">Balance Amt / จำนวนค้างจ่าย</label>
+                            <div class="col-md-4">
+                                @Html.TextBoxFor(m => m.BalanceAmount, new { @Value = Model.BalanceAmount.ToString("###,##0.00"), @class = "form-control input-sm-green", @id = "txtBalanceAmount", @readonly = "true" })
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" id="btnSave" onclick="return ConfirmSave()" class="btn btn-social btn-success">
+            <i class="fa fa-save"></i>
+            Save
+        </button>
+
+        <a class="btn btn-social btn-default" href="@Url.Action("OrderEntry", "Operation", new { area = "Operation", orderNo = "NEW" }, null)">
+            <i class="fa fa-close"></i>
+            Clear
+        </a>
+
+        @Html.ActionLink("พิมพ์ Invoice", "OrderInvoiceReport", "Reports", new { area = "Reports", orderNo = Model.OrderNo, URL = "/NetStockDiamondReports/CashBill" }, new { data_modal = "test", id = "btnViewReport", onclick = "PrintClick(" + Model.OrderNo + ")", @class = "btn btn-small btn-primary" })
+
+
+
+        <a href="#" id="btnDelete" onclick="DeleteStockEntry('@Model.OrderNo')" class="btn btn-danger">Delete</a>
+        <a href="@Url.Action("Orders", "Operation", new { area = "Operation" }, null)" class="btn btn-social btn-info pull-right">
+            <i class="fa fa-arrow-circle-o-left"></i>
+            Back
+        </a>
+
+    </div>
+
+@*}*@
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+
+        $("#ddlCustomerCode").select2();
+        $("#ddlPaymentType").select2();
+        $("#ddlSaleType").select2();
+        $("#UOM").select2();
+        $("#Products").select2();
+
+
+        $('#ddlCustomerCode').on("select2:select", function (e) {
+
+            var customerCode = $('#ddlCustomerCode').val();
+            var url = "/Operation/GetCustomerDetails?customerCode=" + customerCode;
+            $.post(url, null, function (data) {
+
+                if (data.CustomerData != null && data.CustomerData.CustomerAddress != null && data.CustomerData.CustomerAddress.FullAddress != null)
+                    $("#CustomerAddress").val(data.CustomerData.CustomerAddress.FullAddress);
+                else
+                    $("#CustomerAddress").val('');
+
+                if (data.CustomerData != null) {
+                    $("#RegNo").val(data.CustomerData.RegistrationNo);
+                    $("#CustomerName").val(data.CustomerData.CustomerName);
+                }
+            });
+        });
+        var $eventSelect = $("#ddlCustomerCode");
+
+        var s = $('<select />');
+
+
+        $(document).ready(function () {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover'
+            });
+            $("#txtReceiveQty").focus();
+            $("#tblItem").dataTable({
+                aoColumnDefs: [{
+                    bSortable: false,
+                    aTargets: [-1]
+                }],
+                aoColumns: [
+                { "sWidth": "0%" },
+                { "sWidth": "15%" },
+                { "sWidth": "0%" },
+                { "sWidth": "12%" },
+                { "sWidth": "11%" },
+                { "sWidth": "5%" },
+                { "sWidth": "13%" },
+                { "sWidth": "15%" },
+                { "sWidth": "5%" },
+                { "sWidth": "10%" },
+                { "sWidth": "10%" },
+                { "sWidth": "0%" },
+                { "sWidth": "10%" }]
+            });
+            var dateNow = new Date();
+
+
+            $('.datepicker').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY',
+                inline: false
+            });
+
+            $("#ddlCustomerCode option[text='เงินสด']").attr("selected", "selected");
+
+            $("#chkIsPayLater").click(function () {
+                $('#txtPaymentDays').attr("disabled", !$(this).is(':checked'));
+            });
+
+            var balance = 0;
+            $("#txtPaidAmount").keydown(function (event) {
+                balance = $('#txtTotalAmount').val() - $('#txtPaidAmount').val();
+
+                $('#txtBalanceAmount').val(balance.toString());
+            });
+
+
+            Validation();
+
+            var customerCode = '@Model.CustomerCode';
+            if (customerCode == '') {
+                $("#ddlCustomerCode").select2("val", "");
+            }
+
+
+        });
+
+
+
+
+
+        function DeleteStockEntry() {
+
+            var documentNo = $("#txtDocumentNo").val();
+
+            if (documentNo == "NEW") {
+                alert('Please choose a valid Document No. to Proceed!');
+                return false;
+            }
+
+
+            if (!confirm("Do you want to delete Selected Document No. [" + documentNo + "] ?")) {
+                return false;
+            }
+
+            var rooturl = "@Url.Action("DeleteOrder", "Operation", new { area = "Operation" })"
+            var url2 = rooturl + "?orderNo=" + documentNo;
+
+            var urlList = "@Url.Action("Orders", "Operation", new { area = "Operation" })"
+
+
+
+            $.ajax({
+                url: url2, type: "POST", dataType: "json",
+                data: { documentNo: documentNo },
+                async: true,
+                success: function (response) {
+                    if (response.result) {
+                        ModalShow(response.Message, "Success", "Delete");
+                        $("#txtDocumentNo").addClass("StrikeOut")
+                        $("#btnSave").attr("disabled", " disabled")
+                        $("#btnDelete").attr("disabled", " disabled")
+
+                    } else {
+                        ModalShow(response.Message, "Failure", "Delete");
+                    }
+                    location.href = urlList;
+                }
+            })
+        }
+
+        var documentNo = '';
+
+        function OnSaveFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+
+        function ConfirmSave() {
+            debugger;
+            var rowCount = 0;
+            if ($('#tblItem').dataTable().fnSettings().aoData.length > 0) {
+                rowCount = $('#tblItem tr').length - 1;;
+            }
+
+            if (rowCount == 0) {
+                ModalShowConfirm("Please Key in Atleast 1 Order Item to proceed!");
+                return false;
+            }
+            var totalAmount = $("#txtTotalAmount").val();
+            var paidAmount = $("#txtPaidAmount").val();
+
+            if (totalAmount == 0) {
+                ModalShowConfirm("Total Amount is ZERO!., please check the Invoice Amount before proceed");
+                return false;
+            }
+            if (paidAmount == 0) {
+                ModalShowConfirm("Paid Amount is ZERO!., please check the Invoice Amount before proceed");
+                return false;
+            }
+
+
+            if (!confirm("Proceed to Save the Order ?")) {
+                return false;
+
+            }
+            else {
+                $('#txtReceiveQty').val('0');
+            }
+
+
+
+            return true;
+        }
+
+        function OnSaveSuccess(result) {
+
+            ModalShow(result.Message, "Success", "Save");
+
+            documentNo = result.POData.OrderNo;
+        }
+
+
+        function BtnOK() {
+            if (ActionType == "Save") {
+
+
+                var rooturl = "@Url.Action("OrderEntry", "Operation", new { area = "Operation" })"
+                var url = rooturl + "?orderNo=" + documentNo;
+                if (ActionType == "Save") {
+                    location.href = url;
+
+                }
+            }
+        }
+
+
+
+
+        function PrintClick(invoice) {
+            var ReportURL = ("/NetStockDiamondReports/CashBill");
+            var rooturl = "@Url.Action("OrderInvoiceReport", "Reports", new { area = "Reports" })"
+            var url = rooturl + "?orderNo=" + invoice + "&URL=" + ReportURL;
+            $("#btnViewReport").attr("href", url);
+        }
+
+
+
+        function Validation() {
+            $('#myForm').validate({
+                ignore: '',
+                rules: {
+                    CustomerCode: {
+                        required: true
+                    },
+                    DeliveryDate: {
+                        required: true
+                    },
+                    txtReceiveQty: {
+                        required: true
+                    }
+                },
+                messages: {
+                    CustomerCode: {
+                        required: 'Customer Code is required'
+                    },
+                    DeliveryDate: {
+                        required: 'Delivery Date is required'
+                    },
+                    txtReceiveQty: {
+                        required: 'Quantity is required'
+                    }
+                }
+            });
+        }
+
+        function Products_OnChange(el) {
+            var productCode = el.value;
+            if ($('#myForm').valid()) {
+                var textValue = productCode;
+                var customerCode = $("#ddlCustomerCode").val();
+                var Qty = $("#txtReceiveQty").val();
+                if (true) {
+
+                    var totalQty = 0;
+                    $('#tblItem').DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+                        debugger;
+                        var data = this.data();
+                        try {
+                            if ($(data[2].trim()).val() == textValue || data[2].trim() == textValue) {
+
+                                totalQty += Number($(data[6].trim()).val());
+
+                                return;
+                            }
+                        } catch (e) {
+                            debugger;
+                        }
+
+
+                    });
+                    //alert(totalQty);
+                    var rooturl = "@Url.Action("AddProductToGrid", "Operation", new { area = "Operation" })"
+                    var url = rooturl + "?customerCode=" + customerCode + "&barCode=" + textValue + "&quantity=" + Qty + "&TotalQty=" + totalQty;
+
+
+                    //var url = "../Operation/AddProductToGrid?customerCode=" + customerCode + "&barCode=" + textValue + "&quantity=" + Qty;
+                    var rowCount = 0;
+                    if ($('#tblItem').dataTable().fnSettings().aoData.length > 0) {
+                        rowCount = $('#tblItem tr').length - 1;;
+                    }
+
+
+                    //"EditOrderItem", "Operation", new { area = "Operation" }
+                    $.post(url, null, function (data) {
+                        if (data.Message != "Success") {
+                            alert(data.Message);
+                            return false;
+                        }
+
+                        var totalamt = (data.OrderDetail.SellRate * data.OrderDetail.Quantity) - data.OrderDetail.DiscountAmount
+                        var rowData = [
+     "<input id='OrderDetails[" + rowCount + "].ProductCode' type='hidden' value=" + data.OrderDetail.ProductCode + " name='OrderDetails[" + rowCount + "].ProductCode'>" +
+     "<input id='OrderDetails[" + rowCount + "].BarCode' type='hidden' value=" + data.OrderDetail.BarCode + " name='OrderDetails[" + rowCount + "].BarCode'>" +
+     "<input id='OrderDetails[" + rowCount + "].MatchQuotation' type='hidden' value=" + data.OrderDetail.MatchQuotation + " name='OrderDetails[" + rowCount + "].MatchQuotation'>" +
+     "<input id='OrderDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.OrderDetail.ProductDescription + " name='OrderDetails[" + rowCount + "].ProductDescription'>" +
+     "<input id='OrderDetails[" + rowCount + "].ItemNo' type='hidden' value=" + data.OrderDetail.ItemNo + " name='OrderDetails[" + rowCount + "].ItemNo'>"
+     , "<input id='OrderDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.OrderDetail.ProductDescription + " name='OrderDetails[" + rowCount + "].ProductDescription'>" + data.OrderDetail.ProductDescription
+     , "<input id='OrderDetails[" + rowCount + "].Location' type='hidden' value=" + data.OrderDetail.Location + " name='OrderDetails[" + rowCount + "].Location'>" + data.OrderDetail.LocationDescription
+     , "<input id='OrderDetails[" + rowCount + "].Cost' type='hidden' value=" + data.OrderDetail.Cost + " name='OrderDetails[" + rowCount + "].Cost'>" + data.OrderDetail.Cost
+     , "<input id='OrderDetails[" + rowCount + "].SellRate' type='hidden' value=" + data.OrderDetail.SellRate + " name='OrderDetails[" + rowCount + "].SellRate'>" + data.OrderDetail.SellRate
+     , "<input id='OrderDetails[" + rowCount + "].Quantity' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetails[" + rowCount + "].Quantity'>" + data.OrderDetail.Quantity
+     , "<input id='OrderDetails[" + rowCount + "].SellPrice' type='hidden' value=" + data.OrderDetail.SellPrice + " name='OrderDetails[" + rowCount + "].SellPrice'>" + data.OrderDetail.SellPrice
+    , "<input id='OrderDetails[" + rowCount + "].CurrencyCode' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetails[" + rowCount + "].CurrencyCode'>" +
+        "<select class='form-control input-sm' id='Select_" + rowCount + "DicountType' onchange='cmbDicountType_Chnage(this," + data.OrderDetail.SellPrice + ",\"OrderDetails_" + rowCount + "DiscountAmount\", \"OrderDetails_" + rowCount + "SellPrice\"," + rowCount + ")' ><option value='NONE'>NONE</option><option value='AMOUNT'>AMOUNT</option><option value='PERCENTAGE'>PERCENTAGE</option></select>"
+
+      , "<input data-a-sep='' data-a-dec='.' data-a-sign='' class='NumberAutonumeric form-control input-sm'  id='OrderDetails_" + rowCount + "DiscountAmount'  type='text' value=" + data.OrderDetail.DiscountAmount + " onchange='DiscountAmount_Changed(this," + data.OrderDetail.SellPrice + ",  \"Select_" + rowCount + "DicountType\"  ,  \"OrderDetails_" + rowCount + "SellPrice\"," + rowCount + ")' name='OrderDetails[" + rowCount + "].DiscountAmount'>"
+      , "<input class='form-control input-sm' id='OrderDetails_" + rowCount + "PartialPayment' type='text' onchange='PartialPayment_Changed()' value=" + data.OrderDetail.SellPrice + " name='OrderDetails[" + rowCount + "].PartialPayment'>"
+     , "<input data-a-sep='' data-a-dec='.' data-a-sign='' class='NumberAutonumeric form-control input-sm' id='OrderDetails_" + rowCount + "SellPrice' type='text'  value=" + totalamt + " name='OrderDetails[" + rowCount + "].SellPrice' style='border:none' readonly='readonly'>"
+     , "<input id='OrderDetails[" + rowCount + "].RecordStatus' type='hidden' value='1' name='OrderDetails[" + rowCount + "].RecordStatus'>"
+     ,
+     //'<img class="img-class" src="../Images/fa-trash-o_22.png" onclick="DeleteItemDetails(this,' + "'chk_" + rowCount + "'" + ',' + "'RecordStatus_" + rowCount + "'" + ',' + rowCount + ')" />'
+     '<button type="button" class="btn btn-default btn-sm" onclick="DeleteDetails(this,"chk_' + rowCount + '","RecordStatus_' + rowCount + '","' + rowCount + '")"><i class="fa fa-trash" aria-hidden="true"></i></button>'
+                        ];
+
+                        $('#tblItem').dataTable().fnAddData(rowData);
+                        $('tr td:nth-child(1)').hide()
+                        $('tr td:nth-child(3)').hide()
+                        $('tr td:nth-child(12)').hide()
+
+                        SummaryCalculation();
+
+                    });
+                    //$(".NumberAutonumeric").autoNumeric('init');
+                    //$("#txtSearchProductAdd").val('');
+                    $("#txtReceiveQty").val('');
+                    $("#txtReceiveQty").focus();
+
+                    return false;
+                }
+                //$("#txtSearchProductAdd").val('');
+
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+                $('.select2-hidden-accessible').next().next().css('border', '');
+            }
+            else {
+                if ($('.select2-hidden-accessible').hasClass('error')) {
+                    $('.select2-hidden-accessible').next().next().css('border', 'solid 1px red');
+                }
+                else {
+                    $('.select2-hidden-accessible').next().next().css('border', '');
+                }
+            }
+        }
+        /*
+        $("#txtSearchProductAdd").keypress(function (evt) {
+            $('.select2-hidden-accessible').next().next().css('border', '');
+            if (evt.keyCode == 13 && $('#myForm').valid()) {
+                var textValue = $("#txtSearchProductAdd").val();
+                $("#txtSearchProductAdd").val('');
+                var customerCode = $("#ddlCustomerCode").val();
+                var Qty = $("#txtReceiveQty").val();
+                if (evt.keyCode == 13) {
+
+                    var totalQty = 0;
+                    $('#tblItem').DataTable().rows().every(function (rowIdx, tableLoop, rowLoop) {
+                        debugger;
+                        var data = this.data();
+                        try {
+                            if ($(data[2].trim()).val() == textValue || data[2].trim() == textValue) {
+
+                                totalQty += Number($(data[6].trim()).val());
+
+                                return;
+                            }
+                        } catch (e) {
+                            debugger;
+                        }
+
+
+                    });
+                    //alert(totalQty);
+                    var rooturl = "Url.Action("AddProductToGrid", "Operation", new { area = "Operation" })"
+                    var url = rooturl + "?customerCode=" + customerCode + "&barCode=" + textValue + "&quantity=" + Qty + "&TotalQty=" + totalQty;
+
+
+                    //var url = "../Operation/AddProductToGrid?customerCode=" + customerCode + "&barCode=" + textValue + "&quantity=" + Qty;
+                    var rowCount = 0;
+                    if ($('#tblItem').dataTable().fnSettings().aoData.length > 0) {
+                        rowCount = $('#tblItem tr').length - 1;;
+                    }
+
+
+                    //"EditOrderItem", "Operation", new { area = "Operation" }
+                    $.post(url, null, function (data) {
+                        if (data.Message != "Success") {
+                            alert(data.Message);
+                            return false;
+                        }
+
+                        var totalamt = (data.OrderDetail.SellRate * data.OrderDetail.Quantity) - data.OrderDetail.DiscountAmount
+                        var rowData = [
+     "<input id='OrderDetails[" + rowCount + "].ProductCode' type='hidden' value=" + data.OrderDetail.ProductCode + " name='OrderDetails[" + rowCount + "].ProductCode'>" +
+     "<input id='OrderDetails[" + rowCount + "].BarCode' type='hidden' value=" + data.OrderDetail.BarCode + " name='OrderDetails[" + rowCount + "].BarCode'>" +
+     "<input id='OrderDetails[" + rowCount + "].MatchQuotation' type='hidden' value=" + data.OrderDetail.MatchQuotation + " name='OrderDetails[" + rowCount + "].MatchQuotation'>" +
+     "<input id='OrderDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.OrderDetail.ProductDescription + " name='OrderDetails[" + rowCount + "].ProductDescription'>" +
+     "<input id='OrderDetails[" + rowCount + "].ItemNo' type='hidden' value=" + data.OrderDetail.ItemNo + " name='OrderDetails[" + rowCount + "].ItemNo'>"
+     , "<input id='OrderDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.OrderDetail.ProductDescription + " name='OrderDetails[" + rowCount + "].ProductDescription'>" + data.OrderDetail.ProductDescription
+     , "<input id='OrderDetails[" + rowCount + "].Location' type='hidden' value=" + data.OrderDetail.Location + " name='OrderDetails[" + rowCount + "].Location'>" + data.OrderDetail.LocationDescription
+     , "<input id='OrderDetails[" + rowCount + "].Cost' type='hidden' value=" + data.OrderDetail.Cost + " name='OrderDetails[" + rowCount + "].Cost'>" + data.OrderDetail.Cost
+     , "<input id='OrderDetails[" + rowCount + "].SellRate' type='hidden' value=" + data.OrderDetail.SellRate + " name='OrderDetails[" + rowCount + "].SellRate'>" + data.OrderDetail.SellRate
+     , "<input id='OrderDetails[" + rowCount + "].Quantity' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetails[" + rowCount + "].Quantity'>" + data.OrderDetail.Quantity
+     , "<input id='OrderDetails[" + rowCount + "].SellPrice' type='hidden' value=" + data.OrderDetail.SellPrice + " name='OrderDetails[" + rowCount + "].SellPrice'>" + data.OrderDetail.SellPrice
+    , "<input id='OrderDetails[" + rowCount + "].CurrencyCode' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetails[" + rowCount + "].CurrencyCode'>" +
+        "<select class='form-control input-sm' id='Select_" + rowCount + "DicountType' onchange='cmbDicountType_Chnage(this," + data.OrderDetail.SellPrice + ",\"OrderDetails_" + rowCount + "DiscountAmount\", \"OrderDetails_" + rowCount + "SellPrice\"," + rowCount + ")' ><option value='NONE'>NONE</option><option value='AMOUNT'>AMOUNT</option><option value='PERCENTAGE'>PERCENTAGE</option></select>"
+
+      , "<input data-a-sep='' data-a-dec='.' data-a-sign='' class='NumberAutonumeric form-control input-sm'  id='OrderDetails_" + rowCount + "DiscountAmount'  type='text' value=" + data.OrderDetail.DiscountAmount + " onchange='DiscountAmount_Changed(this," + data.OrderDetail.SellPrice + ",  \"Select_" + rowCount + "DicountType\"  ,  \"OrderDetails_" + rowCount + "SellPrice\"," + rowCount + ")' name='OrderDetails[" + rowCount + "].DiscountAmount'>"
+      , "<input class='form-control input-sm' id='OrderDetails_" + rowCount + "PartialPayment' type='text' onchange='PartialPayment_Changed()' value=" + data.OrderDetail.SellPrice + " name='OrderDetails[" + rowCount + "].PartialPayment'>"
+     , "<input data-a-sep='' data-a-dec='.' data-a-sign='' class='NumberAutonumeric form-control input-sm' id='OrderDetails_" + rowCount + "SellPrice' type='text'  value=" + totalamt + " name='OrderDetails[" + rowCount + "].SellPrice' style='border:none' readonly='readonly'>"
+     , "<input id='OrderDetails[" + rowCount + "].RecordStatus' type='hidden' value='1' name='OrderDetails[" + rowCount + "].RecordStatus'>"
+     ,
+     //'<img class="img-class" src="../Images/fa-trash-o_22.png" onclick="DeleteItemDetails(this,' + "'chk_" + rowCount + "'" + ',' + "'RecordStatus_" + rowCount + "'" + ',' + rowCount + ')" />'
+     '<button type="button" class="btn btn-default btn-sm" onclick="DeleteDetails(this,"chk_' + rowCount + '","RecordStatus_' + rowCount + '","' + rowCount + '")"><i class="fa fa-trash" aria-hidden="true"></i></button>'
+                        ];
+
+                        $('#tblItem').dataTable().fnAddData(rowData);
+                        $('tr td:nth-child(1)').hide()
+                        $('tr td:nth-child(3)').hide()
+                        $('tr td:nth-child(12)').hide()
+
+                        SummaryCalculation();
+
+                    });
+                    //$(".NumberAutonumeric").autoNumeric('init');
+                    $("#txtSearchProductAdd").val('');
+                    $("#txtReceiveQty").val('');
+                    $("#txtReceiveQty").focus();
+
+                    return false;
+                }
+                $("#txtSearchProductAdd").val('');
+
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+                $('.select2-hidden-accessible').next().next().css('border', '');
+            }
+            else {
+                if ($('.select2-hidden-accessible').hasClass('error')) {
+                    $('.select2-hidden-accessible').next().next().css('border', 'solid 1px red');
+                }
+                else {
+                    $('.select2-hidden-accessible').next().next().css('border', '');
+                }
+            }
+        });*/
+
+        function SummaryCalculation() {
+            //debugger;
+            var table = $('#tblItem').DataTable();
+            var totalAmount = 0;
+            var totaldiscAmt = 0;
+            var totalpartialAmt = 0;
+            table.column(10).data()
+                .each(function (value, index) {
+                    totalAmount += Number($(value).val());
+                    console.log('Data in index: ' + index + ' is: ' + totalAmount);
+                });
+            table.column(8).data()
+                .each(function (value, index) {
+                    var controlid = "#" + $(value).attr("id");
+                    totaldiscAmt += Number($(controlid).val());
+                });
+            table.column(9).data()
+                .each(function (value, index) {
+                    totalpartialAmt += Number($(value).val());
+                });
+            $("#txtTotalAmount").val(totalAmount.toFixed(2));
+            $("#txtDiscountAmount").val(totaldiscAmt.toFixed(2));
+
+            $("#txtPaidAmount").val(totalpartialAmt.toFixed(2));
+
+            var BalanceAmount = totalAmount - totalpartialAmt
+            $("#txtBalanceAmount").val(BalanceAmount.toFixed(2));
+
+
+            if ($("#chkVAT").is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+            // Calculate WithHolding TAx Amount ( 3% )
+
+            if ($("#chkWH").is(':checked')) {
+                CalculateWHTax(true);
+            }
+            else {
+                CalculateWHTax(false);
+            }
+
+        }
+
+
+        function CalculateVAT(isVAT) {
+            var taxableAmount = Number($("#txtTotalAmount").val()) - Number($("#txtDiscountAmount").val());
+            var taxAmount = 0;
+
+            if (isVAT == true) {
+
+                taxAmount = (taxableAmount * 7) / 100;
+            }
+            else {
+                taxAmount = 0;
+            }
+
+            $("#txtVATAmount").val(taxAmount.toFixed(2));
+            $("#txtNetAmount").val((taxableAmount + taxAmount).toFixed(2));
+
+            $("#txtPaidAmount").val((taxableAmount + taxAmount).toFixed(2));
+        }
+
+
+        function CalculateWHTax(isWH) {
+
+            //txtWithHoldingAmount chkWH
+
+            var taxableAmount = Number($("#txtTotalAmount").val()) - Number($("#txtDiscountAmount").val());
+            var taxAmount = Number($("#txtVATAmount").val());
+            var totalAmount = Number($("#txtNetAmount").val());
+
+            var whAmount = 0;
+
+            if (isWH == true) {
+
+                whAmount = (taxableAmount * 3) / 100;
+            }
+            else {
+                whAmount = 0;
+            }
+
+            $("#txtWithHoldingAmount").val(whAmount.toFixed(2));
+
+
+            $("#txtNetAmount").val(((taxableAmount + taxAmount) - whAmount).toFixed(2));
+            $("#txtPaidAmount").val(((taxableAmount + taxAmount) - whAmount).toFixed(2));
+
+        }
+
+        $("#chkVAT").click(function () {
+            if ($(this).is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+        });
+
+
+        $("#chkWH").click(function () {
+            if ($(this).is(':checked')) {
+                CalculateWHTax(true);
+            }
+            else {
+                CalculateWHTax(false);
+            }
+
+        });
+
+        function PartialPayment_Changed() {
+
+            var totalpartialAmt = 0;
+            var table = $('#tblItem').DataTable();
+            table.column(10).data()
+               .each(function (value, index) {
+                   var controlid = "#" + $(value).attr("id");
+                   totalpartialAmt += Number($(controlid).val());
+               });
+            $("#txtPaidAmount").val(totalpartialAmt.toFixed(2));
+            var BalanceAmount = Number($("#txtTotalAmount").val()) - totalpartialAmt
+            $("#txtBalanceAmount").val(BalanceAmount.toFixed(2));
+        }
+
+        function cmbDicountType_Chnage(t, SELLINGPRICE, DISCOUNTAMOUNTID, id, rowCount) {
+            //debugger;
+            var DISCOUNTTYPE = $(t).val();
+            id = "#" + id;
+
+            DISCOUNTAMOUNTID = "#" + DISCOUNTAMOUNTID;
+
+            var DISCOUNTAMOUNT = $(DISCOUNTAMOUNTID).val();
+
+
+            TotalCalculation(DISCOUNTTYPE, SELLINGPRICE, DISCOUNTAMOUNT, id, rowCount);
+            SummaryCalculation();
+        }
+
+        function DiscountAmount_Changed(_this, SELLINGPRICE, DiscountTypeId, id, rowCount) {
+
+            var DiscountAmount = $(_this).val();
+            DiscountTypeId = "#" + DiscountTypeId;
+            var DISCOUNTTYPE = $(DiscountTypeId).val();
+            id = "#" + id;
+
+
+            TotalCalculation(DISCOUNTTYPE, SELLINGPRICE, DiscountAmount, id, rowCount);
+            SummaryCalculation();
+        }
+
+        //function AdjustAmount_Changed(_this, SELLINGPRICE, DiscountAmountId, DiscountTypeId, id, rowCount) {
+
+        //     var ADJUSTAMOUNT = $(_this).val();
+        //     //var ADJUSTAMOUNT = $(_this).autoNumeric('get')
+        //     DiscountTypeId = "#" + DiscountTypeId;
+        //     var DISCOUNTTYPE = $(DiscountTypeId).val();
+        //     id = "#" + id;
+
+        //     DiscountAmountId = "#" + DiscountAmountId;
+        //     var DiscountAmount = $(DiscountAmountId).val();
+
+
+        //     TotalCalculation(DISCOUNTTYPE, SELLINGPRICE, ADJUSTAMOUNT, DiscountAmount, id, rowCount);
+        //     SummaryCalculation();
+        // }
+
+        function TotalCalculation(DISCOUNTTYPE, SELLINGPRICE, DISCOUNTAMOUNT, id, rowCount) {
+
+            //var DISCOUNTTYPE = $(t).val();
+            //id = "#" + id;
+            console.log(DISCOUNTTYPE + "," + SELLINGPRICE + "," + DISCOUNTAMOUNT)
+            var TOTALAMOUNT = 0;
+            if (DISCOUNTTYPE == "AMOUNT") {
+                TOTALAMOUNT = SELLINGPRICE - DISCOUNTAMOUNT
+            }
+            else if (DISCOUNTTYPE == "PERCENTAGE") {
+
+                TOTALAMOUNT = SELLINGPRICE - ((SELLINGPRICE * DISCOUNTAMOUNT) / 100)
+            }
+            else if (DISCOUNTTYPE == "NONE") {
+                TOTALAMOUNT = SELLINGPRICE
+            }
+            $(id).val(TOTALAMOUNT);
+            $(id).attr("value", TOTALAMOUNT);
+            //debugger;
+            var oTable = $('#tblItem').dataTable();
+            oTable.fnUpdate("<input data-a-sep='' data-a-dec='.' data-a-sign='' class='NumberAutonumeric form-control input-sm' id='OrderDetails_" + rowCount + "SellPrice' type='text'  value=" + TOTALAMOUNT + " name='OrderDetails[" + rowCount + "].SellPrice' style='border:none' readonly='readonly'>", rowCount, 10);
+            oTable.fnUpdate("<input data-a-sep='' data-a-dec='.' data-a-sign='' onchange='PartialPayment_Changed()' class='NumberAutonumeric form-control input-sm'  id='OrderDetails_" + rowCount + "PartialPayment' type='text' value=" + TOTALAMOUNT + " name='OrderDetails[" + rowCount + "].PartialPayment'>", rowCount, 9);
+
+            //"<input data-a-sep='' data-a-dec='.' data-a-sign='' class='NumberAutonumeric'  id='OrderDetails_" + rowCount + "PartialPayment' type='text' value=" + TOTALAMOUNT + " name='OrderDetails[" + rowCount + "].PartialPayment'>"
+        }
+
+
+
+        function DeleteItemDetails(t, chkbboxId, RecordStatusID, rowID) {
+            if (!confirm("Do you want to delete Selected Item?")) {
+                return false;
+            }
+            var row = $(t).closest("tr").get(0);
+            //debugger;
+            //SellRateChanged(chkbboxId, '', '')
+            $(row).addClass("strikeOut");
+            $("#" + RecordStatusID).text('3')
+
+            //AddOrderItem(rowID)
+        }
+
+
+        var OrderItem = new Array();
+        var lstOrderItem = new Array();
+
+        function AddOrderItem(rowID) {
+            var OrderExist = false;
+            var index = 0;
+            debugger;
+            for (var i = 0; i < lstOrderItem.length; i++) {
+                if (lstOrderItem[i].rowId == rowID) {
+                    OrderExist = true;
+                    index = i;
+                    break;
+                }
+            }
+            if (OrderExist) {
+
+                lstOrderItem[index].RecordStatus = $("#RecordStatus_" + rowID).text().trim();
+                lstOrderItem[index].SellRate = $("#OrderDetails" + rowID + "__SellRate").val()
+            }
+            else {
+                OrderItem = {
+                    rowId: rowID,
+                    ItemID: $("#ItemID_" + rowID).text().trim(),
+                    QuotationNo: $("#QuotationNo_" + rowID).text().trim(),
+                    ProductCode: $("#ProductCode_" + rowID).text().trim(),
+                    ProductDescription: $("#ProductDescription_" + rowID).text().trim(),
+                    BarCode: $("#BarCode_" + rowID).text().trim(),
+                    RecordStatus: $("#RecordStatus_" + rowID).text().trim(),
+                    //SellRate: $("#SellRate_" + rowID).text().trim() == "" ? $($("#SellRate_" + rowID).html().trim()).val() : $("#SellRate_" + rowID).text().trim()
+                    SellRate: $("#QuotationItems_" + rowID + "__SellRate").val()
+                };
+                lstOrderItem.push(QuotationItem);
+            }
+
+        }
+    </script>
+}
+

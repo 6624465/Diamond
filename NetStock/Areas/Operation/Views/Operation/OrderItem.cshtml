@@ -1,0 +1,39 @@
+﻿@model NetStock.Contract.OrderDetail
+
+@using (Html.BeginForm())
+{
+    
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.Quantity, new { @class = "col-md-3 control-label input-sm" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(m => m.Quantity, new { @class = "form-control input-sm " })
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.ProductCode, new { @class = "control-label input-sm col-md-3" })
+                <div class="col-md-2">
+                    @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm " })
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+
+            <div>
+                <div class="col-md-4">
+                    @Html.HiddenFor(m => m.OrderNo)
+                    @Html.HiddenFor(m => m.BarCode)
+                    @Html.HiddenFor(m => m.ItemNo)
+
+                </div>
+            </div>
+
+        </div>
+
+
+}
+
+

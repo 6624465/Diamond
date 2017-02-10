@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Reports">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="SQL5020.Smarterasp.net:DB_9F30C5_AccountingPE_admin">
+          <Created>2016-05-09T19:59:20.5893266+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5020.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_AccountingPE_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>DB_9F30C5_AccountingPE</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SQL5021.Smarterasp.net:DB_9F30C5_NetStock_admin">
+          <Created>2016-02-10T11:59:03.3832775+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5021.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_NetStock_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>0</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SQL5025.Smarterasp.net:DB_9F30C5_NetStockDiamond_admin">
+          <Created>2016-04-26T02:29:22.3853594+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5025.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_NetStockDiamond_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>DB_9F30C5_NetStockDiamond</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SUDARSHAN:sa">
+          <Created>2016-03-12T10:35:10.2033708+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SUDARSHAN</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>Vector</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName />
+        </ConnectionNode>
+        <ConnectionNode Name="SUDARSHAN\SUDARSHAN2012:sa">
+          <Created>2015-09-27T10:35:07.7016773+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SUDARSHAN\SUDARSHAN2012</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>NetStock</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="[Report].[usp_DailySales].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_DailySales].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_Diamond_PurchaseOrder].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>[Report].[usp_Diamond_PurchaseOrder].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_Diamond_Quotation].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_Diamond_Quotation].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_GoodsIssueDashboard].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_GoodsIssueDashboard].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_GoodsReceiveDashboard].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_GoodsReceiveDashboard].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_GoodsReceiveDetailsOverseasDetail].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_GoodsReceiveDetailsOverseasDetail].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_GoodsReceiveDomesticDetail].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_GoodsReceiveDomesticDetail].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_InspectionDomestic].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_InspectionDomestic].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_InspectionOverSeas].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_InspectionOverSeas].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_MonthlyFigureDashboard].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_MonthlyFigureDashboard].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_ProductStockHistory].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5021.Smarterasp.net:False:DB_9F30C5_NetStock_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5021.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStock_admin</AssociatedConnUserName>
+          <FullPath>[Report].[usp_ProductStockHistory].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_ProfitAndLossStatement].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_ProfitAndLossStatement].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_ShipmentIndentList].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_ShipmentIndentList].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_ShipmentSchedule].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_ShipmentSchedule].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].[usp_StockPlan].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].[usp_StockPlan].sql</FullPath>
+        </FileNode>
+        <FileNode Name="[Report].usp_InvoiceCashBill_Original].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>[Report].usp_InvoiceCashBill_Original].sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>

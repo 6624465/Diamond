@@ -1,0 +1,617 @@
+﻿@*@model NetStock.Areas.Operation.Controllers.InspectionOverseas*@
+@model NetStock.Contract.InspectionOverseas
+
+@{
+    //Model.SupplierName = Request.QueryString["supplierName"];
+    Model.ChemicalName = Request.QueryString["proDesc"];
+
+}
+
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <style type="text/css">
+        .displayNone {
+            display: none;
+        }
+    </style>
+}
+<!-- Body -->
+
+@using (Html.BeginForm("SaveInspection", "Operation", FormMethod.Post, new { id = "frmInspection", @class = "form-horizontal" }))
+{
+    <div class="box box-solid box-default">
+        <!-- Header Title -->
+        <div class="box-header with-border">
+            <h3 class="box-title">Inspection</h3>
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="receivedDt" class="col-md-2 control-label input-sm">วันที่รับ</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.ReceivedDate, new { @class = "form-control input-sm datepicker" })
+                        </div>
+                        <label for="supplierName" class="col-md-2 control-label input-sm">Supplier Name</label>
+                        <div class="col-sm-2">
+                            @Html.TextBox("SupplierName", Request.QueryString["supplierName"], new { @class = "form-control input-sm", @readonly = "readonly" })
+                        </div>
+                        <label for="chemicalName" class="col-md-2 control-label input-sm">Chemical Name</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.ChemicalName, new { @class = "form-control input-sm", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="inspectionDt" class="col-md-2 control-label input-sm">วันที่ตรวจ</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.InspectionDate, new { @class = "form-control input-sm datepicker" })
+                        </div>
+                        <label for="traderType" class="col-md-2 control-label input-sm">Trader/Manufacturer</label>
+                        <div class="col-sm-2">
+                            @{
+                                var SUPPLIERTYPE = new List<SelectListItem>() {
+                                        new SelectListItem { Value = "0", Text = "NONE" },
+                                        new SelectListItem { Value = "1", Text = "SUPPLIER" },
+                                        new SelectListItem { Value = "2", Text = "MANUFACTURER" }
+                                    };
+                            }
+                            @Html.DropDownListFor(x => x.SupplierType, new SelectList(SUPPLIERTYPE, "Value", "Text"), new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="piNo" class="col-md-2 control-label input-sm">PI No.</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.PINumber, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="receivedTime" class="col-md-2 control-label input-sm">เวลาที่รับ</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.InspectionTime, "{0:t}", new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="labourReq" class="col-md-2 control-label input-sm">Labour Required ?</label>
+                        <div class="col-sm-2">
+                            @{
+                                var LABOURREQUIRED = new List<SelectListItem>() {
+                                    new SelectListItem { Value = "false", Text = "NOT REQUIRED" },
+                                    new SelectListItem { Value = "true", Text = "REQUIRED" }
+                                };
+                            }
+                            @Html.DropDownListFor(x => x.IsRequireLabour, new SelectList(LABOURREQUIRED, "Value", "Text"), new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="receivedQty" class="col-md-2 control-label input-sm">จำนวนของที่เข้า</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.ReceivedQty, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="inspectionQty" class="col-md-2 control-label input-sm">จำนวนที่ตรวจ</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.InspectionQty, new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="invoiceNo" class="col-md-2 control-label input-sm">Invoice No</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.InvoiceNo, new { @class = "form-control input-sm" })
+                        </div>
+                        <label for="poNo" class="col-md-2 control-label input-sm">P/O No</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(x => x.PONo, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <legend>Add Details</legend>
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tabPurchasing" data-toggle="tab">By Purchasing</a></li>
+                        <li><a href="#tabManufacturer" data-toggle="tab">Manufacturer</a></li>
+                        <li><a href="#tabStore" data-toggle="tab">By Store</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tabPurchasing">
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">Q'ty Received</label>
+                                <div class="col-sm-2">
+                                    @Html.TextBoxFor(x => x.PurchaseReceivedQty, new { @class = "form-control input-sm" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm">UOM</label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var UOM = ViewBag.UOMList;
+                                    }
+                                    @Html.DropDownListFor(x => x.PurchaseQtyUOM, new SelectList(UOM, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="coaBy" class="col-md-2 control-label input-sm">ใบ COA By?</label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var COABY = new List<SelectListItem>() {
+                                                            new SelectListItem { Value = "0", Text = "NOT GET" },
+                                                            new SelectListItem { Value = "1", Text = "SUPPLIER" },
+                                                            new SelectListItem { Value = "2", Text = "GET" }
+                                                        };
+                                    }
+                                    @Html.DropDownListFor(x => x.IsGetCOA, new SelectList(COABY, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm">Supplier</label>
+                                <div class="col-sm-2">
+                                    @Html.TextBoxFor(x => x.COASupplier, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="getallItem" class="col-md-2 control-label input-sm">1.1) มี Item ครบ ?</label>
+                                <div class="col-md-2">
+                                    @{
+                                        var YESNO = new List<SelectListItem>() {
+                                            new SelectListItem { Value = Boolean.FalseString, Text = "NO" },
+                                            new SelectListItem { Value = Boolean.TrueString, Text = "YES" }
+                                        };
+                                    }
+                                    @Html.DropDownListFor(x => x.IsGetAllItem, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm", onchange = "GetAllItemOnChange(this);" })
+                                </div>
+                                <label class="col-md-2 control-label displayNone missingItemCss">Missing Item</label>
+                                <div class="col-md-2 displayNone missingItemCss">
+                                    @Html.TextBoxFor(x => x.MissingItem, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">1.2) ระบุ batch no. บน COA</label>
+                                <div class="col-sm-2">
+                                    @Html.DropDownListFor(x => x.COABatchNo, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm", onchange = "ChemicalReceiveBatchNoOnChanged(this);" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm ChemicalReceiveBatchNoCss displayNone">BATCH NO</label>
+                                <div class="col-sm-2 ChemicalReceiveBatchNoCss displayNone">
+                                    @Html.TextBoxFor(x => x.BatchNo, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">1.3) ระบุ Product Manufacturing Date บน COA</label>
+                                <div class="col-sm-2">
+                                    @Html.DropDownListFor(x => x.IsCOAManufactureDate, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm", onchange = "COAManufactureDateOnChanged(this);" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm CoaManfDtCss displayNone">Manufacturing Date</label>
+                                <div class="col-md-2 CoaManfDtCss displayNone">
+                                    @Html.TextBoxFor(x => x.ManufacturerDate, new { @class = "form-control input-sm datepicker" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">1.4) ระบุ Product Expire Date บน COA</label>
+                                <div class="col-md-2">
+                                    @Html.DropDownListFor(x => x.IsCOAExpiryDate, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm", onchange = "COAExpiryDateOnChanged(this);" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm displayNone COAExpiryDTCss">Expiry Date</label>
+                                <div class="col-md-2 displayNone COAExpiryDTCss">
+                                    @Html.TextBoxFor(x => x.ExpiryDate, new { @class = "form-control input-sm datepicker" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">1.5) ผลการวิเคราะห์แต่ละรายการ</label>
+                                <div class="col-md-2">
+                                    @{
+                                        var TESTRESULT = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = Boolean.TrueString, Text = "PASS" },
+                                                    new SelectListItem { Value = Boolean.FalseString, Text = "NOT PASS" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.TestResult, new SelectList(TESTRESULT, "Value", "Text"), new { @class = "form-control input-sm", onchange = "TestResultOnChange(this);" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm displayNone TestResultCss">Failed Item</label>
+                                <div class="col-md-2 TestResultCss displayNone">
+                                    @Html.TextBoxFor(x => x.FailedItem, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">1.6) สรุปผลการตรวจสอบ COA </label>
+                                <div class="col-md-2">
+                                    @{
+                                        var INSPECTIONRESULT = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "OK" },
+                                                    new SelectListItem { Value = "0", Text = "NOT OK" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.InspectionResult, new SelectList(INSPECTIONRESULT, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabManufacturer">
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">Manufacturer </label>
+                                <div class="col-sm-2">
+                                    @Html.TextBoxFor(x => x.Manufacturer, new { @class = "form-control input-sm" })
+                                </div>
+                                <label for="containerNo" class="col-md-2 control-label input-sm">Container No</label>
+                                <div class="col-sm-2">
+                                    @Html.TextBoxFor(x => x.ContainerNo, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="containerType" class="col-md-2 control-label input-sm">Container Type</label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var CONTAINERTYPE = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "20SD", Text = "20 SD" },
+                                                    new SelectListItem { Value = "40HQ", Text = "40 HQ" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.SizeType, new SelectList(CONTAINERTYPE, "Value", "Text"), new { @class = "form-control input-sm" })
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tabStore">
+                            <div class="form-group">
+                                <label for="BatchNo" class="col-md-2 control-label input-sm">3.1) Quantity Batch no.</label>
+                                <div class="col-sm-2">
+                                    @Html.TextBoxFor(x => x.ChemicalReceiveBatchNo, new { @class = "form-control input-sm" })
+                                </div>
+                                <label for="qtyBatchNo" class="col-md-2 control-label input-sm">เลขที่ batch no.</label>
+                                <div class="col-sm-2">
+                                    @*@Html.TextBoxFor(x => x.StoreQtyBatchNo, new { @class = "form-control input-sm" })*@
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="homogeneous" class="col-md-2 control-label input-sm">3.2) สารเคมี เป็นเนื้อเดียวกัน (homogeneous), ไม่จับกันเป็นก้อน</label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var HOMOGENIOUS = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "OK" },
+                                                    new SelectListItem { Value = "0", Text = "NOT OK" },
+                                                    new SelectListItem { Value = "2", Text = "NA" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.Homogenious, new SelectList(HOMOGENIOUS, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="plGoodCondition" class="col-md-2 control-label input-sm">3.3) ภาชนะบรรจุรวมทั้งฉลาก  อยู่ในสภาพดี</label>
+                                <div class="col-sm-2">
+                                    @Html.DropDownListFor(x => x.IsLabelOK, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">3.4) สีของสารเคมี แตกต่างจากตัวอย่างหรือไม่ </label>
+                                <div class="col-sm-2">
+                                    @Html.DropDownListFor(x => x.IsColorOK, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">3.5) การไหลของสารเคมี เปียกชื้น จับกันเป็นก้อนแข็ง</label>
+                                <div class="col-sm-2">
+                                    @Html.DropDownListFor(x => x.IsWet, new SelectList(YESNO, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">3.6) ลักษณะเม็ดของสารเคมี </label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var CHEMICALPILLCONDITION = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "Dust" },
+                                                    new SelectListItem { Value = "2", Text = "Flaky" },
+                                                    new SelectListItem { Value = "3", Text = "Needle" },
+                                                    new SelectListItem { Value = "0", Text = "Other" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.ChemicalCondition, new SelectList(CHEMICALPILLCONDITION, "Value", "Text"), new { @class = "form-control input-sm" })
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">Result</label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var ACCEPTSTATUS = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "1", Text = "Accept" },
+                                                    new SelectListItem { Value = "0", Text = "Reject" },
+                                                    new SelectListItem { Value = "2", Text = "Accept Under Condition" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.AcceptStatus, new SelectList(ACCEPTSTATUS, "Value", "Text"), new { @class = "form-control input-sm", onchange = "AcceptStatusOnChange(this);" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm displayNone acceptStatusCss">Note</label>
+                                <div class="col-sm-4 displayNone acceptStatusCss">
+                                    @Html.TextAreaFor(x => x.AcceptRemarks, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <label class="control-label input-sm">3.7) มีสารปนเปื้อนอื่นๆหรือไม่ กรุณาอธิบาย</label>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-2 control-label input-sm">Contamination Remarks</label>
+                                <div class="col-sm-2">
+                                    @Html.TextAreaFor(x => x.ContaminationRemarks, new { @class = "form-control input-sm", @rows = "2", @cols = "20" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <label class="control-label input-sm">3.8) น้ำหนักของแต่ละถุง ดูตามแนบ</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-2 control-label input-sm">Bag Condition</label>
+                                <div class="col-sm-2">
+                                    @{
+                                        var BAGCONDITION = new List<SelectListItem>() {
+                                                    new SelectListItem { Value = "0", Text = "Bag Feature" },
+                                                    new SelectListItem { Value = "1", Text = "Different" },
+                                                    new SelectListItem { Value = "2", Text = "Similar" }
+                                                };
+                                    }
+                                    @Html.DropDownListFor(x => x.BagCondition, new SelectList(BAGCONDITION, "Value", "Text"), new { @class = "form-control input-sm", onchange = "BagConditionOnChange(this);" })
+                                </div>
+                                <label class="col-md-2 control-label input-sm displayNone bagConditionCss">น้ำหนักของแต่ละถุง ดูตามแนบ</label>
+                                <div class="col-sm-4 displayNone bagConditionCss">
+                                    @Html.TextAreaFor(x => x.BagWeight, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <label class="control-label input-sm">หมายเหตุ: </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <label class="control-label input-sm">1. กรณีไม่มี  COA  → Blocked → Inform  PUR   to request  Test</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <label class="control-label input-sm">2. หากสินค้าผิดปกติ ให้ติดต่อจัดซื้อ และหยุดการนำของลงจากตู้</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label input-sm">Prepared By</label>
+                    <div class="col-sm-2">
+                        @Html.TextBoxFor(x => x.PreparedBy, new { @class = "form-control input-sm" })
+                    </div>
+                    <label class="col-md-2 control-label input-sm">Checked By</label>
+                    <div class="col-sm-2">
+                        @Html.TextBoxFor(x => x.CheckedBy, new { @class = "form-control input-sm" })
+                    </div>
+                    <label class="col-md-2 control-label input-sm">Approved By</label>
+                    <div class="col-sm-2">
+                        @Html.TextBoxFor(x => x.ApprovedBy, new { @class = "form-control input-sm" })
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div id="InspectionOverseasArea">
+        </div>
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">
+
+                    <button type="submit" id="btnSave" class="btn btn-social btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    <a onclick="backClick();" class="btn btn-social btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        @Html.HiddenFor(x => x.DocumentNo)
+        @Html.HiddenFor(x => x.PONo)
+        @Html.HiddenFor(x => x.ProductCode)
+
+        @Html.Hidden("branchId", TempData["branchId"])
+    </div>
+
+                                        }
+
+@section Scripts {
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+        var documentNo;
+
+
+        $(function () {
+            $('.datepicker').datetimepicker({
+                useCurrent: false,
+
+                format: 'DD/MM/YYYY',
+                inline: false,
+                minDate: '1990/1/1'
+
+            });
+
+            $('#InspectionTime').datetimepicker({
+                format: 'HH:mm a',
+
+                // todayHighlight: true,
+
+                //startView: 1,
+                //maxView: 1
+            });
+
+            $('#frmInspection').validate({
+                rules: {
+                    ReceivedDate: {
+                        required: true
+                    },
+                    SupplierName: {
+                        required: true
+                    },
+                    ChemicalName: {
+                        required: true
+                    },
+                    InspectionDate: {
+                        required: true
+                    },
+                    SupplierType: {
+                        required: true
+                    },
+                    PINo: {
+                        required: true
+                    },
+                    ReceivedTime: {
+                        required: true
+                    },
+                    IsRequireLabour: {
+                        required: true
+                    },
+                    ReceivedQty: {
+                        required: true
+                    }
+                }
+            });
+
+        });
+
+
+
+
+
+        function toggleCheckBox(el) {
+            $('.' + el.classList[1]).removeClass('checked');
+            $(el).addClass('checked')
+            $('#' + $(el).data('name')).val($(el).data('value'));
+        }
+
+        function backClick() {
+            location.href = '@Url.Content("~/Operation/GoodsReceiveOverSeas")' + '?documentNo=' + '@Request.QueryString["documentNo"]' + '&branchID=' + '@Request.QueryString["branchId"]';
+        }
+
+        function ChemicalReceiveBatchNoOnChanged(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '@Boolean.TrueString')
+                $('.ChemicalReceiveBatchNoCss').show();
+            else {
+                $('.ChemicalReceiveBatchNoCss').hide();
+                $('#BatchNo').val('');
+            }
+        }
+
+        function COAManufactureDateOnChanged(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '@Boolean.TrueString')
+                $('.CoaManfDtCss').show();
+            else {
+                $('.CoaManfDtCss').hide();
+                $('#ManufacturerDate').val('');
+            }
+        }
+
+        function COAExpiryDateOnChanged(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '@Boolean.TrueString')
+                $('.COAExpiryDTCss').show();
+            else {
+                $('.COAExpiryDTCss').hide();
+                $('#ExpiryDate').val('');
+            }
+        }
+
+        function GetAllItemOnChange(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '@Boolean.TrueString')
+                $('.missingItemCss').show();
+            else {
+                $('.missingItemCss').hide();
+                $('#MissingItem').val('');
+            }
+        }
+
+        function TestResultOnChange(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '@Boolean.FalseString')
+                $('.TestResultCss').show();
+            else {
+                $('.TestResultCss').hide();
+                $('#FailedItem').val('');
+            }
+        }
+
+        function AcceptStatusOnChange(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '0')
+                $('.acceptStatusCss').show();
+            else {
+                $('.acceptStatusCss').hide();
+                $('#AcceptRemarks').val('');
+            }
+        }
+
+        function BagConditionOnChange(el) {
+            var selectedValue = el.value;
+
+            if (selectedValue == '1')
+                $('.bagConditionCss').show();
+            else {
+                $('.bagConditionCss').hide();
+                $('#BagWeight').val('');
+            }
+        }
+
+        //
+
+        $(function () {
+            @if(Model.ChemicalReceiveBatchNo == Boolean.TrueString)
+            {
+                <text>$('.ChemicalReceiveBatchNoCss').show();</text>
+            }
+
+            @if(Model.IsCOAManufactureDate)
+            {
+                <text>$('.CoaManfDtCss').show();</text>
+            }
+
+            @if(Model.IsCOAExpiryDate)
+            {
+                <text>$('.COAExpiryDTCss').show();</text>
+            }
+
+            @if(Model.IsGetAllItem)
+            {
+                <text>$('.missingItemCss').show();</text>
+            }
+
+            @if(!Model.TestResult)
+            {
+                <text>$('.TestResultCss').show();</text>
+            }
+
+            @if(Model.AcceptStatus == 0)
+            {
+                <text>$('.acceptStatusCss').show();</text>
+            }
+
+            @if(Model.BagCondition == 1)
+            {
+                <text>$('.bagConditionCss').show();</text>
+            }
+
+
+        });
+    </script>
+}

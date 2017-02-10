@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/datetime")
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Net Stock", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <div class="collapse navbar-collapse" id="mnuMasterData">
+                            <ul class="nav navbar-nav">
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Master Data <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>@Html.ActionLink("Company Profile", "CompanyProfile", "MasterData", new { area = "MasterData" }, null)  </li>
+                                        <li>@Html.ActionLink("Products", "Products", "MasterData", new { area = "MasterData" }, null)</li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Suppliers", "Suppliers", "MasterData", new { area = "MasterData" }, null) </li>
+                                        @*<li>@Html.ActionLink("Add Supplier", "EditSupplier", "MasterData", new { area = "MasterData" }, null) </li>*@
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Customers", "Customers", "MasterData", new { area = "MasterData" }, null) </li>
+                                        @*<li>@Html.ActionLink("Add Customer", "EditCustomer", "MasterData", new { area = "MasterData" }, null) </li>*@
+
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+                            <ul class="nav navbar-nav">
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Quotation <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>@Html.ActionLink("Standard Quotation", "StandardRateProfile", "Quotation", new { quotationNo = "STANDARD", isLink = true }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Customer Quotations", "CustomerQuotationList", "Quotation", new { area = "Quotation" }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Supplier Quotations", "CustomerQuotationList", "Quotation", new { area = "Quotation" }, null)  </li>
+                                        @*<li>@Html.ActionLink("Customer Quotation", "EditCustomerQuotation", "Quotation", new { quotationNo = "NEW" }, null)  </li>*@
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+                            <ul class="nav navbar-nav">
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Transactions <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>@Html.ActionLink("Purchase Order", "PurchaseOrder", "Operation", new { orderNo = "NEW" }, null)  </li>
+                                        <li>@Html.ActionLink("Purchase Orders List", "PurchaseOrderList", "Operation", new { area = "Operation" }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Goods Receive", "StockInLedger", "Operation", new { area = "Operation" }, null)  </li>
+                                        <li>@Html.ActionLink("Goods Receive List", "StockInLedgerList", "Operation", new { area = "Operation" }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Sales Entry", "OrderEntry", "Operation", new { orderNo = "NEW" }, null)  </li>
+                                        <li>@Html.ActionLink("Sales History", "Orders", "Operation", new { area = "Operation" }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Delivery Order", "DeliveryOrder", "Operation", new { orderNo = "NEW" }, null)  </li>
+                                        <li>@Html.ActionLink("D.O History", "DeliveryOrders", "Operation", new { area = "Operation" }, null)  </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+                            <ul class="nav navbar-nav">
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Billing <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>@Html.ActionLink("Invoice Entry", "InvoiceEntry", "Billing", new { area = "Billing" }, null)  </li>
+                                        <li>@Html.ActionLink("Invoice Approval", "InvoiceApproval", "Billing", new { area = "Billing" }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Unbilled Invoices", "UnbilledInvoices", "Billing", new { area = "Billing" }, null)  </li>
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+                            <ul class="nav navbar-nav">
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Inquiry <span class="caret"></span></a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>@Html.ActionLink("Product Entry", "InvoiceEntry", "Billing", new { area = "Billing" }, null)  </li>
+                                        <li>@Html.ActionLink("Stock Inquiry", "InvoiceApproval", "Billing", new { area = "Billing" }, null)  </li>
+                                        <li class="divider"></li>
+                                        <li>@Html.ActionLink("Invoice Inquiry", "InvoiceInquiry", "Billing", new { area = "Billing" }, null)  </li>
+
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - <a href="#">Virgo-Leo Solutions</a> </p>
+        </footer>
+    </div>
+
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

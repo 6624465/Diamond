@@ -1,0 +1,154 @@
+﻿@model NetStock.Contract.Users
+
+@{
+    ViewBag.Title = "User Profile";
+}
+
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+
+@using (Ajax.BeginForm("SaveUser", "User", new AjaxOptions { HttpMethod = "POST", OnSuccess = "OnSaveSuccess", OnFailure = "OnSaveFailure" }, new { Area = "User", enctype = "multipart/form-data", id = "myForm" }))
+{
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">User Profile</h3>
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+
+                    <div>
+                        @Html.LabelFor(m => m.UserID, new { @class = "control-label input-sm col-md-2" })
+                        <div class="col-md-2">
+                            @*@(Model.ProductCode == null ?
+                                @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control input-sm" }) :
+                                @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control input-sm", @readonly = "readonly" }))*@
+
+                            @Html.TextBoxFor(m => m.UserID, new { @class = "form-control input-sm " })
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.UserName, new { @class = "form-control input-sm " })
+
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="form-group">
+                   
+                    <div>
+                        @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            <div class="btn-group">
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control input-sm " })
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @*@(Model.BarCode == null ? @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm " }) :
+                                @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm ", @readonly = "readonly" }))*@
+
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control input-sm " })
+
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="form-group">
+                    
+                    <div>
+                        @Html.LabelFor(m => m.MobileNumber, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            <div class="btn-group">
+                                @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control  input-sm" })
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.RoleCode, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(m => m.RoleCode, Model.RoleCodeList, "SELECT ROLE", new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+            </fieldset>
+
+        </div>
+
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">
+                    @*<a href="#" type="submit" class="btn btn-primary">Save</a>*@
+
+                    <button type="submit" id="btnSave" class="btn btn-sm btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+                    <a href="@Url.Action("EditUser", "User", new { area = "EditUser", userID = "NEW" }, null)" class="btn btn-sm btn-default"><i class="fa fa-close"></i>Clear</a>
+
+
+                    <a href="@Url.Content("~/User/UserList")" class="btn btn-sm btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+}
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+
+    <script type="text/javascript">
+        function OnSaveFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+            ModalShow(result.Message, "Success", "Save");
+            //debugger;
+            userID = result.userData.UserID;
+        }
+
+
+        function BtnOK() {
+            if (ActionType == "Save") {
+                location.href = "../User/UserList";
+            }
+        }
+
+    </script>
+}

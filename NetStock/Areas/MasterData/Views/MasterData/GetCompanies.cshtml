@@ -1,0 +1,48 @@
+﻿@model List<NetStock.Contract.Company>
+@{
+    var branch = new NetStock.Contract.Branch();
+}
+@functions {
+    string GetActiveClass(string code1, string code2)
+    {
+        if (code1 == code2)
+            return "class=active";
+        else
+            return "";
+    }
+
+
+}
+@*@using (Html.BeginForm("Company", "MasterData", FormMethod.Post, new { @id = "frmDetails" }))
+{*@
+    <ul id="menu">
+        <li class="active">
+            <a href="#"><span class="side_text">Companies List</span><span class="fa fa-angle-left side_icon"></span></a>
+            <ul>
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    <li @GetActiveClass(Model[i].CompanyCode, Convert.ToString(TempData["TempCompanyCode"]))>
+                        <a onclick="companyInfo('@Model[i].CompanyCode')" data-toggle="collapse" style="font-style: italic; color: maroon;cursor:pointer;">@Model[i].CompanyName<span class="side_icon fa plus-times"></span></a>
+                        <ul>
+                            @for (var j = 0; j < Model[i].BranchList.Count; j++)
+                            {
+                                <li><a id="anch_branch_@j" style="cursor:pointer;" href="@Url.Content("~/MasterData/Branch?companyCode=" + @Model[i].CompanyCode + "&branchCode=" + @Model[i].BranchList[j].BranchCode)">@Model[i].BranchList[j].BranchName</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </li>
+    </ul>
+    @Html.Hidden("companyCode")
+@*}*@
+
+<script type="text/javascript">
+    function branchInfo(BranchCode) {
+        location.href = '@Url.Content("~/MasterData/Branch?branchCode=")' + BranchCode;
+    }
+
+    function companyInfo(CompanyCode) {
+        location.href = '@Url.Content("~/MasterData/Company?companyCode=")' + CompanyCode;
+    }
+</script>

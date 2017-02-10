@@ -1,0 +1,41 @@
+﻿@Html.ActionLink("Report", "ViewReport", "Report", new { area = "Report" }, new { data_modal = "", id = "btnCreate1", @class = "btn btn-small btn-primary" })
+<div class="modal fade in" id="ReportViewerModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='ReportViewerContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @*@Scripts.Render("~/bundles/modalform")*@
+    <script type="text/javascript">
+        //$(document).ready(function () {
+        //    $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+        //    $('#myModalContent').load(this.href, function () {
+        //        $('#myModal').modal({
+        //            /*backdrop: 'static',*/
+
+        //            keyboard: true
+        //        }, 'show');
+
+        //        //bindForm(thiso);
+        //    });
+        //})
+        $("a[data-modal]").on("click", function (e) {
+            $(e.target).closest('.btn-group').children('.dropdown-toggle').dropdown('toggle');
+            debugger;
+            $('#ReportViewerContent').load(this.href, function () {
+                $('#ReportViewerModal').modal({
+                    /*backdrop: 'static',*/
+                    width: 950,
+                    keyboard: true
+                }, 'show');
+
+                //bindForm(thiso);
+            });
+
+            return false;
+        });
+    </script>
+}

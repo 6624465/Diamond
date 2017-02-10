@@ -1,0 +1,100 @@
+﻿@model NetStock.Contract.QuotationItem
+
+
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="lblHeader">Add/Edit Quotation Item </h4>
+
+</div>
+@section css{
+<link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+}
+@using (Html.BeginForm())
+{
+
+
+    <div class="modal-body form-horizontal" id="modalbody">
+
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.ProductCode, new { @class = "control-label input-sm col-md-3" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(m => m.ProductCode, Model.ProductsList, "Select Product", new { @style="width:240px", @id="ddlProductCode", @class = "form-control input-sm" }) 
+
+                </div>
+                
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.BarCode, new { @class = "control-label input-sm col-md-3" })
+                <div class="col-md-2">
+                    @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm", @id = "txtBarCode", @readonly="readonly" })
+                </div>
+                
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.SellRate, new { @class = "col-md-3 control-label input-sm" })
+                <div class="col-md-2">
+                    @Html.TextBoxFor(m => m.SellRate, new { @class = "form-control input-sm NumberAutonumeric", data_a_sep = "", aPad = "false", data_a_sign = "" })
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+
+            <div>
+                <div class="col-md-4">
+                    @Html.HiddenFor(m => m.QuotationNo)
+                    @Html.HiddenFor(m => m.BarCode)
+                    @Html.HiddenFor(m => m.ItemID)
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal-footer" id="closemodal">
+        <button class="btn" data-dismiss="modal">Cancel</button>
+        @*<input class="btn btn-primary" type="submit" value="Save" onclick="Save()" />*@
+        <input class="btn btn-primary" type="button" onclick="AddDataToTable()" value="Save" />
+    </div>
+
+}
+@section Scripts {
+<script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+
+<script type="text/javascript">
+
+    $("#ddlProductCode").select2();
+
+    $(function () {
+        $(".NumberAutonumeric").autoNumeric('init');
+    })
+
+
+    $('#ddlProductCode').on("select2:select", function (e) {
+
+        //debugger;
+        // what you would like to happen
+        var productCode = $('#ddlProductCode').val();
+
+        //alert(productCode);
+
+        var rooturl = "@Url.Action("GetProductDetails", "Quotation", new { area = "Quotation" })"
+        var url = rooturl + "?productCode=" + productCode;
+
+
+        $.post(url, null, function (data) {
+            $("#txtBarCode").val(data.ProductData.BarCode);
+        });
+       
+    });
+
+</script>
+}

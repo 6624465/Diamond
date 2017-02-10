@@ -1,0 +1,149 @@
+﻿@model List<POSAccount.ViewModals.Search.LayoutMenuRights>
+
+@{
+    ViewBag.Title = "Role Rights";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    Dictionary<int, string> DicColors = new Dictionary<int, string>();
+    DicColors.Add(0, "#39ac73");
+    DicColors.Add(1, "#0077b3");
+    DicColors.Add(2, "#cc33ff");
+    DicColors.Add(3, "#ff9999");
+    DicColors.Add(4, "#b3ffb3");
+    DicColors.Add(5, "#003366");
+    DicColors.Add(6, "#ffff33");
+    DicColors.Add(7, "#ff6600");
+    DicColors.Add(8, "#663300");
+    DicColors.Add(9, "#ffcc99");
+    DicColors.Add(10, "#009900");
+    DicColors.Add(11, "#527a7a");
+    DicColors.Add(12, "#000000");
+    DicColors.Add(13, "#662900");
+    DicColors.Add(14, "#000000");
+    DicColors.Add(15, "#000d1a");
+
+    var rolesLst = new POSAccount.BusinessFactory.RolesBO().GetList();
+
+}
+
+<style type="text/css">
+    .box {
+        box-shadow:0 1px 1px #b7b5b5;
+    }
+</style>
+
+<div class="box box-solid box-default ">
+    <div class="box-headern with-border">
+        <h3 class="box-title">&nbsp;&nbsp;Role Rights </h3>
+    </div>
+    <div class="box-body">
+        <fieldset class="form-horizontal">
+            @*<div class="row pull-right" style="padding-bottom: 10px;">
+                <div class="col-md-12">
+                    <a class="btn btn-small btn-primary" data-modal="" href="@Url.Content("~/User/EditUser?userID=NEW")" id="btnCreate"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;New User</a>
+                </div>
+            </div>*@
+            <div class="row" style="padding-bottom:10px;">
+                <div class="col-md-4">
+                    @using (Html.BeginForm("RoleRights", "User", FormMethod.Post, new { id = "frmRole", name = "frmRole" }))
+                    {
+                        @Html.DropDownList("Role", new SelectList(rolesLst, "RoleCode", "RoleDescription", ""), "Select One", new { @class = "form-control input-sm", onchange = "RoleChange();" })
+                    }
+                </div>
+            </div>
+            @using (Html.BeginForm("SaveRights", "User", FormMethod.Post, new { id = "frm" }))
+            {   
+                <div class="row">
+                    @for (int i = 0, k = -1; i < Model.Count; i++)
+                    {
+                        <div class="col-md-4">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title" style="color: @(DicColors[i]);"><i class="@Model[i].Icon"></i>&nbsp;@Model[i].MenuName</h3>
+                                </div>
+                                <div class="box-body">
+                                    <div>
+                                        @for (var j = 0; j < Model[i].securablesLst.Count; j++)
+                                        {
+                                            {
+                                                k = k + 1;
+                                            }
+                                            
+                                            <input id="right_@(k)_hasRight" name="right[@k].hasRight" type="hidden" value="@(Model[i].securablesLst[j].hasRight ? "true" : "false")" class="hdn_@Model[i].securablesLst[j].Sequence" />
+                                            <input id="right_@(k)_SecurableItem" name="right[@k].SecurableItem" type="hidden" value="@Model[i].securablesLst[j].SecurableItem" />
+                                            <input id="right_@(k)_RoleCode" name="right[@k].RoleCode" type="hidden" value="@(Utility.USERROLE)" />
+                                                                                        
+                                            <input type="checkbox" id="chk_@(k)" data-seq="@Model[i].securablesLst[j].Sequence" @(Model[i].securablesLst[j].hasRight ? "checked" : "") class="chkCss chk_@Model[i].securablesLst[j].Sequence" /> 
+                                            <label for="chk_@(k)">@Model[i].securablesLst[j].Description</label><br /> 
+                                            for (var a = 0; a < Model[i].securablesLst[j].ActionMenus.Count; a++)
+                                            {
+                                                {
+                                                    k = k + 1;
+                                                }
+                                            
+                                                <input id="right_@(k)_hasRight" name="right[@k].hasRight" type="hidden" value="@(Model[i].securablesLst[j].ActionMenus[a].hasRight ? "true" : "false")" class="hdnCssParent_@(Model[i].securablesLst[j].ActionMenus[a].ParentSequence)" />
+                                                <input id="right_@(k)_SecurableItem" name="right[@k].SecurableItem" type="hidden" value="@Model[i].securablesLst[j].ActionMenus[a].SecurableItem" />
+                                                <input id="right_@(k)_RoleCode" name="right[@k].RoleCode" type="hidden" value="@(Utility.USERROLE)" />
+                                                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="checkbox" id="chk_@(k)" @(Model[i].securablesLst[j].ActionMenus[a].hasRight ? "checked" : "") class="chkCss chkCssParent_@(Model[i].securablesLst[j].ActionMenus[a].ParentSequence)" /> 
+                                                <label for="chk_@(k)">@Model[i].securablesLst[j].ActionMenus[a].Description</label><br /> 
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="row pull-right">
+                    <div class="col-md-11">
+                        <button type="submit" class="btn btn-primary btn-sm btn-flat"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>
+                    </div>
+                    <div class="col-md-1">&nbsp;</div>
+                </div>
+            }
+        </fieldset>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.chkCss').on('change', function () {
+                var index = this.id.split('_')[1];                
+                var seq = $(this).data('seq');
+                if (typeof seq != 'undefined') {
+                    var chkChildClass = '.chkCssParent_' + seq;
+                    $(chkChildClass).prop('checked', this.checked);                    
+                    $('.hdnCssParent_' + $(this).data('seq')).val(this.checked);
+                }
+                else {
+                    var chkChildClass = '.' + this.classList[1];
+                    var chkChildObj = $(chkChildClass);
+                    var flag = false;
+                    $.each(chkChildObj, function (i, item) {                        
+                        var isChecked = $(item).is(':checked');
+                        if (isChecked)
+                            flag = true;
+                    });
+
+                    if (flag) {
+                        $('.chk_' + chkChildClass.split('_')[1]).prop('checked', 'checked');
+                        $('.hdn_' + chkChildClass.split('_')[1]).val('true');
+                    }
+                    else {
+                        $('.chk_' + chkChildClass.split('_')[1]).removeAttr('checked');
+                        $('.hdn_' + chkChildClass.split('_')[1]).val('false');
+                    }
+
+                }
+                $('#right_' + index + '_hasRight').val(this.checked);
+            });
+        });
+
+
+        function RoleChange() {
+            $('#frmRole').submit();
+        }
+    </script>
+}

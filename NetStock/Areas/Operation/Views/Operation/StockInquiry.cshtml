@@ -1,0 +1,230 @@
+﻿@model NetStock.Contract.StockInquiryHeader
+
+@{
+    ViewBag.Title = "Stock Inquiry";
+}
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+<link href="~/ThemeAdminLTE-2.2.0/plugins/select2/select2.min.css" rel="stylesheet" />
+
+
+@using (Html.BeginForm("StockInquiryResult", "Operation", FormMethod.Post))
+{
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Stock Inquiry</h3>
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-2 control-label input-sm">Product Name</label>
+                        <div class="col-md-3">
+                            @*@Html.DropDownListFor(m => m.ProductCode, Model.ProductList, "ALL", new { @id = "ddlProductCode", @class = "form-control input-sm" })*@
+
+                            @Html.TextBoxFor(m => m.ProductCode, "", new { @id = "txtProductCode", @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-2 control-label input-sm">Category / ประเภท</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.ProductCategory, Model.ProductCategoryList, "ALL", new { @id = "ddlProductCategory", @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-2 control-label input-sm">Supplier/รหัสซัพพลายเออร์</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.SupplierCode, Model.SupplierList, "ALL", new { @id = "ddlSupplierCode", @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                @*<a href="#" class="btn btn-primary">Save</a>*@
+                @*<input type="submit" class="btn btn-social btn-success" value="Search.." />*@
+
+                <button type="submit" id="btnSave" class="btn btn-sm btn-success">
+                    <i class="fa fa-search"></i>
+                    Search...
+                </button>
+                <a href="@Url.Action("StockInquiry", "Operation", new { area = "Operation" }, null)" class="btn btn-sm btn-default">
+                    <i class="fa fa-close"></i>
+                    Clear
+                </a>
+                <a href="@Url.Content("~/Dashboard/Index")" id="btnBack" class="btn btn-sm btn-info">
+                    <i class="fa fa-arrow-circle-o-left"></i>
+                    Back
+                </a>
+            </fieldset>
+        </div>
+
+    </div>
+
+
+
+<table id="tblList" class="table table-striped table-hover table-bordered table-responsive ">
+    <thead style="background-color:steelblue;color:white;font-size:12px;">
+
+        <tr>
+            <th>Product Code</th>
+            <th>Description </th>
+            <th>BarCode</th>
+            <th>Sell Rate</th>
+            <th>Category</th>
+            <th>Size</th>
+            <th>Color</th>
+            <th>Location</th>
+            <th>UOM</th>
+            <th>Stock In Hand</th>
+            <th>ReOrder Qty</th>
+            <th>Supplier(s)</th>
+            <th>Buying Price</th>
+            <th>History</th>
+        </tr>
+    </thead>
+    <tbody style="font-size:12px;">
+        @if (Model != null)
+            {
+                foreach (NetStock.Contract.StockInquiryDetail item in Model.StockInquiryDetails)
+                {
+            <tr>
+                <td>@item.ProductCode </td>
+                <td>@item.ProductDescription </td>
+                <td>@item.BarCode</td>
+                <td>@item.SellRate</td>
+                <td>@item.ProductCategory </td>
+                <td>@item.Size </td>
+                <td>@item.Color</td>
+                <td>@item.Location </td>
+                <td>@item.UOM  </td>
+                <td>@item.StockInHand</td>
+                <td>@item.ReOrderQty</td>
+                <td>@item.Suppliers</td>
+                <td>@item.BuyingPrice</td>
+                <td>
+                    @Html.ActionLink(" ", "ProductStockHistory", "Reports", new { area = "Reports", productCode = @item.ProductCode, URL = "/NetStockReports/ProductStockHistory" }, new { data_modal = "test", id = "btnViewReport", onclick = "PrintClick(" + @item.ProductCode + ")", @style = "background: url('" + Url.Content("~/images/ion-printer_22_Blue.png") + "') no-repeat center right; display:block; height:22px; width:22px;" })
+
+                </td>
+            </tr>
+                }
+            }
+    </tbody>
+</table>
+
+
+}
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+
+    <script type="text/javascript">
+
+    $("#ddlProductCategory").select2();
+    $("#ddlSupplierCode").select2();
+
+
+    function PrintClick(invoice) {
+        //alert('asdf111');
+        //debugger;
+        //var InvoiceNo = $("#txtInvoiceNo").val();
+        var ReportURL = ("/NetStockReports/CashBill");
+        var rooturl = "@Url.Action("InvoiceReport", "Reports", new { area = "Reports" })"
+        var url = roolurl + "?invoiceNo=" + invoice + "&URL=" + ReportURL;
+        $("#btnViewReport").attr("href", url);
+    }
+
+    $("#txtProductCode").keypress(function (evt) {
+        debugger;
+        if (evt.keyCode == 13) {
+
+            var textValue = $("#txtProductCode").val();
+            $("#txtProductCode").val('');
+            if (evt.keyCode == 13) {
+
+
+
+
+                var rooturl = "@Url.Action("StockInquiryProductResult", "Operation", new { area = "Operation" })"
+                var url = rooturl + "?productCode=" + textValue;
+
+
+                //alert(url);
+
+                $('#tblList').DataTable().clear();
+                $("#txtProductCode").focus();
+                $("#txtProductCode").val('');
+
+                $.post(url, null, function (data) {
+
+                    if (data.Message != "Success") {
+
+                        $('#tblList').DataTable().clear();
+                        //alert(data.Message);
+                        ModalShowConfirm(data.Message);
+                        return false;
+                    }
+
+                    for (var i = 0; i < data.stockDt.length; i++) {
+
+                        var rowData = [
+                            data.stockDt[i].ProductCode
+                            , data.stockDt[i].ProductDescription
+                            , data.stockDt[i].BarCode
+                            , data.stockDt[i].SellRate
+                            , data.stockDt[i].ProductCategory
+                            , data.stockDt[i].Size
+                            , data.stockDt[i].Color
+                            , data.stockDt[i].Location
+                            , data.stockDt[i].UOM
+                            , data.stockDt[i].StockInHand
+                            , data.stockDt[i].ReOrderQty
+                            , data.stockDt[i].Suppliers
+                            , data.stockDt[i].BuyingPrice
+                            , '<img class="img-class" src="../ion-printer_22_Blue.png" onclick="PrintClick(' + data.stockDt[i].ProductCode + ')" />'
+                        ];
+                        var row = "";
+                        $('#tblList').dataTable().fnAddData(rowData);
+                    }
+
+
+
+                });
+
+
+
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        var dateNow = new Date();
+
+
+        $("#txtProductCode").focus();
+
+        $("#tblList").DataTable();
+    });
+
+
+</script>
+}
+
+

@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BF0C3AA9-E595-47B7-9510-84CF5DCC1AE9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NetStock.Contract</RootNamespace>
+    <AssemblyName>NetStock.Contract</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft ASP.NET\ASP.NET MVC 4\Assemblies\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Address.cs" />
+    <Compile Include="Branch.cs" />
+    <Compile Include="CBPayment.cs" />
+    <Compile Include="Company.cs" />
+    <Compile Include="Country.cs" />
+    <Compile Include="Currency.cs" />
+    <Compile Include="Customer.cs" />
+    <Compile Include="CustomerProduct.cs" />
+    <Compile Include="DashboardReport.cs" />
+    <Compile Include="GoodsIssueDetail.cs" />
+    <Compile Include="GoodsIssue.cs" />
+    <Compile Include="GoodsReceiveDetail.cs" />
+    <Compile Include="GoodsReceiveDetailsOverseas.cs" />
+    <Compile Include="GoodsReceiveHeader.cs" />
+    <Compile Include="GoodsReceivePODetail.cs" />
+    <Compile Include="IContract.cs" />
+    <Compile Include="InspectionDomestic.cs" />
+    <Compile Include="InspectionOverseas.cs" />
+    <Compile Include="InvoiceDetail.cs" />
+    <Compile Include="InvoiceHeader.cs" />
+    <Compile Include="Location.cs" />
+    <Compile Include="LookUp.cs" />
+    <Compile Include="OrderDetail.cs" />
+    <Compile Include="OrderHeader.cs" />
+    <Compile Include="OrderIssueDetail.cs" />
+    <Compile Include="OrderIssueHeader.cs" />
+    <Compile Include="Product.cs" />
+    <Compile Include="ProductCategory.cs" />
+    <Compile Include="ProductImage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PurchaseOrderDetail.cs" />
+    <Compile Include="PurchaseOrderHeader.cs" />
+    <Compile Include="Quotation.cs" />
+    <Compile Include="QuotationItem.cs" />
+    <Compile Include="ReportParam.cs" />
+    <Compile Include="SIDetail.cs" />
+    <Compile Include="SIHeader.cs" />
+    <Compile Include="StockAdjustmentDetail.cs" />
+    <Compile Include="StockAdjustmentHeader.cs" />
+    <Compile Include="StockInDetail.cs" />
+    <Compile Include="StockInHeader.cs" />
+    <Compile Include="StockInquiryDetail.cs" />
+    <Compile Include="StockInquiryHeader.cs" />
+    <Compile Include="StockLedger.cs" />
+    <Compile Include="SystemWideConfiguration.cs" />
+    <Compile Include="UnbilledDetail.cs" />
+    <Compile Include="UnbilledHeader.cs" />
+    <Compile Include="Users.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

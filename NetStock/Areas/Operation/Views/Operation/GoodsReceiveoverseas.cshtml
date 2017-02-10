@@ -1,0 +1,1742 @@
+﻿@model NetStock.Contract.GoodsReceiveHeader
+
+@{
+
+    ViewBag.Title = "Goods Receive (Domestic)";
+}
+
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />   
+
+    <style>
+        /*.modal-body {
+              max-height: calc(100vh - 210px);
+              overflow-y: auto;
+          }*/
+
+        .anchPopOverCss, anchPopOverCss:hover {
+            color: #cfc9c9 !important;
+        }
+
+        .waterMark {
+            position: relative;
+            overflow: hidden;
+            /*-webkit-transform: rotate(30deg);
+        -moz-transform: rotate(30deg);
+        -ms-transform: rotate(30deg);
+        -o-transform: rotate(30deg);
+        transform: rotate(30deg);*/
+        }
+
+            .waterMark:before {
+                /*content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        top: -50%;
+        left: -50%;
+        z-index: -1;
+        background: url(background.png) 0 0 repeat;
+        -webkit-transform: rotate(30deg);
+        -moz-transform: rotate(30deg);
+        -ms-transform: rotate(30deg);
+        -o-transform: rotate(30deg);
+        transform: rotate(30deg);*/
+                background: url('../../../../Images/Deleted.png') no-repeat;
+                opacity: 0.5;
+                -ms-transform: rotate(7deg);
+                -webkit-transform: rotate(7deg);
+                transform: rotate(7deg);
+                position: relative;
+                overflow: hidden;
+            }
+
+        .dropdown-pull-right {
+            float: right !important;
+            right: 0;
+            left: auto;
+        }
+
+            .dropdown-pull-right > .dropdown-menu {
+                right: 0;
+                left: auto;
+            }
+    </style>
+}
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@{
+    var documentNo = "";
+    if (!string.IsNullOrWhiteSpace(Request.QueryString["documentNo"]))
+    {
+        documentNo = Request.QueryString["documentNo"];
+    }
+
+    List<NetStock.Areas.Operation.Controllers.file> fileList = new List<NetStock.Areas.Operation.Controllers.file>();
+    var documentFolder = Server.MapPath("~/UploadImages/") + documentNo;
+
+    var dirInfo = new System.IO.DirectoryInfo(documentFolder);
+    if (!dirInfo.Exists)
+    {
+        dirInfo.Create();
+    }
+
+    var filesLst = dirInfo.GetFiles();
+    if (filesLst.Count() > 0)
+    {
+        foreach (var file in filesLst)
+        {
+            var item = new NetStock.Areas.Operation.Controllers.file();
+            item.name = file.Name;
+            item.size = Convert.ToInt32(file.Length);
+            item.url = "~/UploadImages/" + documentNo + "//" + file.Name;
+            item.thumbnailUrl = "~/UploadImages/" + documentNo + "//" + file.Name;
+            item.error = "";
+            item.deleteUrl = "";
+            item.deleteType = "";
+
+            fileList.Add(item);
+        }
+    }
+}
+
+@using (Html.BeginForm("SearchPO", "Operation", FormMethod.Post, new { id = "frmSearch" }))
+{
+    <input type="hidden" id="hdnPoNo" name="hdnPoNo" />
+    <input type="hidden" id="hdnType" name="hdnType" value="@DocumentType.OVERSEAS" />
+}
+
+@using (Html.BeginForm("SaveGoodsReceieveOverSeas", "Operation", FormMethod.Post, new { id = "frmGRD" }))
+{
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Goods Receive (OverSeas)</h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-9">
+                    <fieldset class="form-horizontal">
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">P O No.</label>
+                                <div class="col-md-3">
+                                    @Html.TextBoxFor(m => m.PONo, new { @class = "form-control input-sm", @maxlength = "50" })
+                                </div>
+                                <div class="btn-group btn-primary">
+                                    <button class="btn btn-sm btn-primary" type="button" onclick="btnSearchPOClick()"><i class="fa fa-search" aria-hidden="true"></i>&nbsp;Search PO</button>
+                                </div>
+                                <span>
+                                    <a class="anchPopOverCss" data-container="body" data-toggle="popover" data-placement="right" data-content="shows the list of Pending P.O's from the selected supplier."><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Branch</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(m => m.BranchID, Model.BranchList, new { @class = "form-control input-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Document No. / เลขที่ใบสั่งซื้อ</label>
+                                <div class="col-sm-3">
+                                    @Html.TextBoxFor(m => m.DocumentNo, new { @class = "form-control input-sm", maxlength = "50", @readonly = "readonly" })
+                                </div>
+                                <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Date</label>
+                                <div class="col-sm-3">
+                                    @Html.TextBoxFor(m => m.DocumentDate, new { @Value = Model.DocumentDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm datepicker" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="txtInvoiceNo" class="col-md-3 control-label input-sm">Supplier/รหัสซัพพลายเออร์</label>
+                                <div class="col-md-9">
+                                    @Html.DropDownListFor(m => m.SupplierCode, Model.SuppliersList, new { @class = "form-control input-sm" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                @if (!Model.Status)
+                {
+                    <div class="col-md-3" style="opacity: 0.5;-ms-transform: rotate(330deg);-webkit-transform: rotate(330deg);transform: rotate(330deg);">
+                        <img src="~/Images/Deleted.png" />
+                    </div>
+                }
+            </div>
+
+            <fieldset class="form-horizontal">
+                <legend>Add Details</legend>
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#tbDetails" data-toggle="tab">Supplier Product List</a>
+                        </li>
+                        @if (documentNo != "NEW")
+                        {
+                            <li>
+                                <a href="#tabImages" data-toggle="tab">Upload Images</a>
+                            </li>
+                        }
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tbDetails">
+                            <!-- Goods Receive PO details -->
+                            <style type="text/css">
+                                .GoodsReceiveDomesticCss:hover {
+                                    color: white !important;
+                                    background: #2FA4E7 !important;
+                                }
+
+                                .GoodsReceiveOverseasCss:hover {
+                                    color: white !important;
+                                    background: #F39C12 !important;
+                                }
+
+                                .CheckSheetCss:hover {
+                                    color: white !important;
+                                    background: #CDDC39 !important;
+                                }
+
+                                .InspectionChemicalCss:hover {
+                                    color: white !important;
+                                    background: #8BC34A !important;
+                                }
+                            </style>
+                            <table id="tblGoodsReceivePODetailList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                                <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                    <tr>
+                                        <th class="hidden">Document No.</th>
+                                        <th class="">Product Code</th>
+                                        <th>Quantity</th>
+                                        <th>Received Qty</th>
+                                        <th>Pending Qty</th>
+                                        <th>UOM</th>
+                                        <th class="hidden">Currency Code</th>
+                                        <th class="hidden">Unit Price</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.GoodsReceivePODetailList != null)
+                                    {
+                                        for (int itr = 0; itr < Model.GoodsReceivePODetailList.Count; itr++)
+                                        {
+                                            <tr id="trGoodsReceivePODetailList_@itr" class="GoodsReceivePODetailListCss">
+                                                <td class="hidden" name="DocumentNo">
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].DocumentNo)
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].PONo)
+                                                </td>
+                                                <td class="" name="ProductCode">
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].ProductCode)
+                                                    <span id="GoodsReceivePODetailList_@(itr)__ProductCode_span">@Model.GoodsReceivePODetailList[itr].ProductDescription</span>
+
+                                                </td>
+                                                <td>
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].Quantity)
+                                                    <span id="GoodsReceivePODetailList_@(itr)__Quantity_span">@Model.GoodsReceivePODetailList[itr].Quantity</span>
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" id="hdn_ReceiveQuantity_@(itr)" value="@Model.GoodsReceivePODetailList[itr].ReceiveQuantity" />
+                                                    @Html.TextBoxFor(x => x.GoodsReceivePODetailList[itr].ReceiveQuantity, new { @class = "form-control input-sm", onblur = "ReceivedQtyOnblur(" + itr + ", true);" })
+                                                </td>
+                                                <td>
+                                                <td>
+                                                    <input type="text"
+                                                           id="PendingQty_@(itr)"
+                                                           name="PendingQty_@(itr)"
+                                                           class="form-control input-sm"
+                                                           readonly="readonly"
+                                                           value="@Model.GoodsReceivePODetailList[itr].PendingQuantity" />@*@(Model.GoodsReceivePODetailList[itr].Quantity - Model.GoodsReceivePODetailList[itr].ReceiveQuantity)*@
+                                                    </td>
+                                                </td>
+                                                <td>
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].UOM)
+                                                    <span id="GoodsReceivePODetailList_@(itr)__UOM_span">@Model.GoodsReceivePODetailList[itr].UOM</span>
+                                                </td>
+                                                <td class="hidden">
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].CurrencyCode)
+                                                    <span id="GoodsReceivePODetailList_@(itr)__CurrencyCode_span">@Model.GoodsReceivePODetailList[itr].CurrencyCode</span>
+                                                </td>
+                                                <td align="right" class="hidden">
+                                                    @Html.HiddenFor(p => p.GoodsReceivePODetailList[itr].UnitPrice)
+                                                    <span id="GoodsReceivePODetailList_@(itr)__UnitPrice_span">@Model.GoodsReceivePODetailList[itr].UnitPrice</span>
+                                                </td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                            Action
+                                                            <span class="caret"></span>
+                                                        </button>
+                                                        @if (documentNo != "NEW")
+                                                        {
+                                                            <ul class="dropdown-menu dropdown-pull-right" aria-labelledby="dropdownMenu1">
+                                                                <li><a class="cursorCss GoodsReceiveDomesticCss" href="@Url.Content("~/Operation/Goodsreceiveform1?documentNo=" + documentNo + "&poNo=" + Model.GoodsReceivePODetailList[itr].PONo + "&productCode=" + Model.GoodsReceivePODetailList[itr].ProductCode + "&branchId=" + Model.BranchID + "&supplierName=" + Model.SupplierName + "&documentType=" + DocumentType.OVERSEAS.ToString())"><i class="fa fa-crosshairs" aria-hidden="true"></i>&nbsp;Goods Receive Domestic</a></li>
+                                                                <li><a class="cursorCss GoodsReceiveOverseasCss" href="@Url.Content("~/Operation/Goodsreceiveform2?documentNo=" + documentNo + "&poNo=" + Model.GoodsReceivePODetailList[itr].PONo + "&productCode=" + Model.GoodsReceivePODetailList[itr].ProductCode + "&branchId=" + Model.BranchID+ "&documentType=" + DocumentType.OVERSEAS.ToString())"><i class="fa fa-cubes" aria-hidden="true"></i>&nbsp;Goods Receive Overseas</a></li>
+                                                                <li><a class="cursorCss CheckSheetCss" href="@Url.Content("~/Operation/Goodsreceiveform3?documentNo=" + documentNo + "&poNo=" + Model.GoodsReceivePODetailList[itr].PONo + "&productCode=" + Model.GoodsReceivePODetailList[itr].ProductCode + "&branchId=" + Model.BranchID + "&proDesc=" + Model.GoodsReceivePODetailList[itr].ProductDescription+ "&documentType=" + DocumentType.OVERSEAS.ToString())"><i class="fa fa-file" aria-hidden="true"></i>&nbsp;Check Sheet</a></li>
+                                                                <li><a class="cursorCss InspectionChemicalCss" href="@Url.Content("~/Operation/inspection?documentNo=" + documentNo + "&poNo=" + Model.GoodsReceivePODetailList[itr].PONo + "&productCode=" + Model.GoodsReceivePODetailList[itr].ProductCode + "&branchId=" + Model.BranchID + "&supplierName=" + Model.SupplierName + "&proDesc=" + Model.GoodsReceivePODetailList[itr].ProductDescription+ "&documentType=" + DocumentType.OVERSEAS.ToString())"><i class="fa fa-user-md" aria-hidden="true"></i>&nbsp;Inspection Chemical</a></li>
+                                                            </ul>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    }
+                                </tbody>
+                            </table>
+
+                        </div>
+                        <!-- File Upload -->
+                        @if (documentNo != "NEW")
+                        {
+                            <div id="tabImages" class="tab-pane">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        @if (fileList.Count < 10)
+                                        {
+                                            <button class="btn btn-sm btn-primary" type="button" onclick="btnUploadFiles();"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Upload Images</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-primary" type="button" disabled="disabled"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Upload Images</button>
+                                        }
+                                    </div>
+                                    <div class="col-md-10">
+                                        <h4>Total images uploaded <span class="label label-primary">@fileList.Count</span></h4>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:10px;">
+                                    <div class="col-md-4">
+                                        
+                                        @if (fileList != null && fileList.Count > 0)
+                                        {
+                                            <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                                                <div class="carousel-inner" role="listbox">
+                                                    @for (var i = 0; i < fileList.Count; i++)
+                                                    {
+                                                        <div @( i == 0 ? MvcHtmlString.Create("class=\"item active\"") : MvcHtmlString.Create("class=\"item\"") ) style="margin-left:100px;">
+                                                            <span class="preview">
+                                                                <img src="@Url.Content(fileList[i].url)" alt="@fileList[i].name" style="height:100px;width:200px;">
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                                                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true" style="color:#3C8DBC"></span>
+                                                    <span class="sr-only">Previous</span>
+                                                </a>
+                                                <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+                                                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="color:#3C8DBC"></span>
+                                                    <span class="sr-only">Next</span>
+                                                </a>
+
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                                            }
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div id="InspectionOverseasArea">
+        </div>
+        <div id="InspectionDomesticArea">
+        </div>
+        <!-- Footer -->
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">
+
+                    <button type="button" id="btnSave" class="btn btn-sm btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    <a href="@Url.Action("GoodsReceiveDomestic", "Operation", new { area = "Operation", documentNo = "NEW" }, null)" class="btn btn-sm btn-default">
+                        <i class="fa fa-close"></i>
+                        Clear
+                    </a>
+                    <a href="#" id="btnDelete" onclick="DeleteStockEntry('@Model.DocumentNo')" class="btn btn-sm btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+
+
+                    <div class="btn-group dropup">
+                        <button type="button" class="btn btn-sm btn-primary"><i class="fa fa-print"></i>Print</button>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" style="padding-bottom:2px;">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                @Html.ActionLink("Goods Receive Domestic", "ViewGF1", "Reports", new { area = "Reports", documentNo = Model.DocumentNo, dateFrom = Model.DocumentDate.ToString("dd/MM/yyyy"), dateTo = Model.DocumentDate.ToString("dd/MM/yyyy"), URL = "/NetStockDiamondReports/GoodsReceiveDomesticDetails" }, new { data_modal = "test", id = "btnViewReport" })
+                            </li>
+                            <li>
+                                @Html.ActionLink("Goods Receive OverSeas", "ViewGF2", "Reports", new { area = "Reports", documentNo = Model.DocumentNo, dateFrom = Model.DocumentDate.ToString("dd/MM/yyyy"), dateTo = Model.DocumentDate.ToString("dd/MM/yyyy"), URL = "/NetStockDiamondReports/GoodsReceiveOverseasDetails" }, new { data_modal = "test", id = "btnViewReport" })
+                            </li>
+                            <li>
+                                @Html.ActionLink("Check Sheet", "ViewCheckSheet", "Reports", new { area = "Reports", documentNo = Model.DocumentNo, dateFrom = Model.DocumentDate.ToString("dd/MM/yyyy"), dateTo = Model.DocumentDate.ToString("dd/MM/yyyy"), URL = "/NetStockDiamondReports/InspectionDomestic" }, new { data_modal = "test", id = "btnViewReport" })
+                            </li>
+                            <li>
+                                @Html.ActionLink("Inspection", "ViewInspection", "Reports", new { area = "Reports", documentNo = Model.DocumentNo, dateFrom = Model.DocumentDate.ToString("dd/MM/yyyy"), dateTo = Model.DocumentDate.ToString("dd/MM/yyyy"), URL = "/NetStockDiamondReports/InspectionOverseas" }, new { data_modal = "test", id = "btnViewReport" })
+                            </li>
+
+                        </ul>
+                    </div>
+
+
+
+
+                    <a href="@Url.Action("GoodsReceiveList", "Operation", new { area = "Operation" }, null)" class="btn btn-sm btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="hdnFlag" name="hdnFlag" value="-1" />
+    <input type="hidden" id="hdnInsFlag" name="hdnInsFlag" value="-1" />
+                                            }
+@section scripts{
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script src="@Url.Content("~/Scripts/js/GoodsReceiveDomestic.js")"></script>
+    <script src="@Url.Content("~/Scripts/js/GoodsReceive.js")"></script>
+    <script type="text/javascript">
+        var uploadUrl = '@Url.Content("~/Operation/ImageUploads/")';
+    </script>
+    <script type="text/javascript">
+        function btnUploadFiles() {
+            location.href = '@Url.Content("~/Operation/ImageUploads?documentno=")' + '@Model.DocumentNo' + '&documentType=' + '@DocumentType.OVERSEAS.ToString()'
+        }
+
+        $(function () {
+            var isSaved = '@TempData["isSaved"]';
+            //debugger;
+            if (isSaved == 'True') {
+                ModalShow2('Saved Successfully', "Success", "Save");
+            }
+            else if (isSaved == 'False') {
+                ModalShow2('Not Saved', "Failure", "Save");
+            }
+
+            $('#btnSave').on('click', function () {
+                var rowsCount = $('.GoodsReceivePODetailListCss').length;
+                //alert(rowsCount);
+                if (rowsCount > 0) {
+                    $('#frmGRD').submit();
+                }
+            });
+
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover'
+            });
+        });
+
+
+
+        $("#ddlCustomerCode").select2();
+        function toggleCheckBox(el) {
+            $('.' + el.classList[1]).removeClass('checked');
+            $(el).addClass('checked')
+        }
+
+        function checkBoxClick(el) {
+            var id = el.id;
+            $(el).toggleClass('checked');
+
+            var isChecked = $(el).hasClass('checked');
+            var hdnId = id.split('_')[0];
+            $('#' + hdnId).val(isChecked);
+        }
+
+        function QuantityChanged(tis, ByingPriceId, POQty, Idnumber) {
+            ////debugger;
+            var ByingPrice = $("#" + ByingPriceId).val();
+            var RQty = Number($(tis).val());
+            var c = Number(POQty) - RQty;
+
+            $("#txtPendingQty_" + Idnumber).val(c);
+
+            var amt = ByingPrice * RQty;
+
+            $("#txtBuyingAmount_" + Idnumber).val(amt);
+
+            SummaryCalculation();
+        }
+
+        function BuyingPriceChanged(ths, quantityID, Idnumber) {
+
+            ////debugger;
+            var Receivequantity = $("#" + quantityID).val();
+            var BuyingPrice = Number($(ths).val());
+            var c = Receivequantity * BuyingPrice;
+
+            $("#txtBuyingAmount_" + Idnumber).val(c);
+
+            SummaryCalculation();
+        }
+
+        $(document).ready(function () {
+            sessionStorage.removeItem('SsnTempDomestic');
+            $("#txtReceiveQty").val('');
+            $("#txtReceiveQty").focus();
+
+
+            if ('@Model.Status' == 'False') {
+                $("#txtDocumentNo").addClass("StrikeOut")
+                $("#btnSave").attr("disabled", " disabled")
+                $("#btnDelete").attr("disabled", " disabled")
+
+            }
+
+
+            $("#tblGoodsReceivePODetailList").DataTable({
+                'bFilter': false,
+                'bPaginate': false,
+                'bInfo': false,
+                'bSortable': true,
+                'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+                    //nRow.className = "gradeX odd";
+                    nRow.id = 'trGoodsReceivePODetailList_' + iDisplayIndex;
+                    nRow.className = 'GoodsReceivePODetailListCss';
+                    return nRow;
+                }
+            });
+
+            $("#tblGoodsReceivedList").DataTable({
+                'bFilter': false,
+                'bPaginate': false,
+                'bInfo': false,
+                'bSortable': true,
+                'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+                    //nRow.className = "gradeX odd";
+                    nRow.id = 'GoodsReceive_' + iDisplayIndex;
+                    nRow.className = 'GoodsReceiveCss';
+                    return nRow;
+                }
+            });
+            var dateNow = new Date();
+
+            //$('#dtpDocumentDate').datetimepicker({
+            //    format: "DD/MM/YYYY"
+            //});
+            //$('#dtpDocumentDate').datepicker({
+            //    dateFormat: 'dd/mm/yy'
+            //});
+
+
+            $('.datepicker').datetimepicker({
+                useCurrent: false,
+                //maxDate: moment('@DateTime.Now.ToString("MM/dd/yyyy")'),
+                format: 'DD/MM/YYYY',
+                inline: false
+            });
+
+            //$('#dtpDocumentDate').datepicker({
+            //    dateFormat: 'dd/mm/yy'
+            //});
+
+
+
+            $('.lblCss').on('click', function () {
+                var className = $(this).prev()[0].classList[1];
+                $('.' + className).removeClass('checked');
+                $(this).prev().addClass('checked');
+
+            });
+        });
+
+        function btnAddNewRecord() {
+            $('#hdnFlag').val('-1');
+            $('#modalObj_ProductCode, #modalObj_Qty').val('');
+            $('.isCoveredCss, .isSortedCss, .isHumidityCss, .isSameAsPhotoCss, .isCleanCss, .isCompressedCss, .isCorrectWeightCss').removeClass('checked');
+            $('.isCoveredCss[data-value="false"], .isSortedCss[data-value="false"], .isHumidityCss[data-value="false"], .isSameAsPhotoCss[data-value="false"], .isCleanCss[data-value="false"], .isCompressedCss[data-value="false"], .isCorrectWeightCss[data-value="false"]').addClass('checked');
+            frmGoodsReceiveDomesticModalValidation();
+            $('#goodsReveiveModal').modal('show');
+        }
+
+        function btnAddDetails() {
+            //var validator = $('#frmGoodsReceiveForm1Modal').data('bootstrapValidator');
+            //validator.validate();
+            //if (validator.isValid()) {
+
+            var hdnFlag = $('#hdnFlag').val();
+            if (hdnFlag == '-1') {
+                var _index = $('.GoodsReceiveCss').length;
+                var obj = {
+                    index: _index,
+                    ProductCode: $('#modalObj_ProductCode').val(),
+                    Qty: $('#modalObj_Qty').val(),
+                    UOM: $('#modalObj_UOM').val(),
+                    IsCovered: $('.isCoveredCss.checked').data('value'),
+                    CoverRemarks: $('#modalObj.CoverRemarks').val(),
+                    IsSorted: $('.isSortedCss.checked').data('value'),
+                    SortedRemarks: $('#modalObj.SortedRemarks').val(),
+                    IsHumidity: $('.isHumidityCss.checked').data('value'),
+                    IsSameAsPhoto: $('.isSameAsPhotoCss.checked').data('value'),
+                    IsClean: $('.isCleanCss.checked').data('value'),
+                    IsCompressed: $('.isCompressedCss.checked').data('value'),
+                    IsCorrectWeight: $('.isCorrectWeightCss.checked').data('value'),
+                    IsCovered_span: $('.isCoveredCss.checked').data('value') ? 'checked' : '',
+                    IsSorted_span: $('.isSortedCss.checked').data('value') ? 'checked' : '',
+                    IsHumidity_span: $('.isHumidityCss.checked').data('value') ? 'checked' : '',
+                    IsSameAsPhoto_span: $('.isSameAsPhotoCss.checked').data('value') ? 'checked' : '',
+                    IsClean_span: $('.isCleanCss.checked').data('value') ? 'checked' : '',
+                    IsCompressed_span: $('.isCompressedCss.checked').data('value') ? 'checked' : '',
+                    IsCorrectWeight_span: $('.isCorrectWeightCss.checked').data('value') ? 'checked' : ''
+
+
+                };
+                ////debugger;
+                var rowData = [
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__ProductCode" name="GoodsReceiveDetails[' + obj.index + '].ProductCode" type="hidden" value="' + obj.ProductCode + '">' +
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__ProductCode_span">' + obj.ProductCode + '</span>',
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__Qty_span">' + obj.Qty + '</span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__Qty" name="GoodsReceiveDetails[' + obj.index + '].Qty" type="hidden" value="' + obj.Qty + '">',
+
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsCovered_span" class="class_checkbox ' + obj.IsCovered_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsCovered" name="GoodsReceiveDetails[' + obj.index + '].IsCovered" type="hidden" value="' + obj.IsCovered + '">',
+
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsSorted_span" class="class_checkbox ' + obj.IsSorted_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsSorted" name="GoodsReceiveDetails[' + obj.index + '].IsSorted" type="hidden" value="' + obj.IsSorted + '">',
+
+
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsHumidity_span" class="class_checkbox ' + obj.IsHumidity_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsHumidity" name="GoodsReceiveDetails[' + obj.index + '].IsHumidity" type="hidden" value="' + obj.IsHumidity + '">',
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsSameAsPhoto_span" class="class_checkbox ' + obj.IsSameAsPhoto_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsSameAsPhoto" name="GoodsReceiveDetails[' + obj.index + '].IsSameAsPhoto" type="hidden" value="' + obj.IsSameAsPhoto + '">',
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsClean_span" class="class_checkbox ' + obj.IsClean_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsClean" name="GoodsReceiveDetails[' + obj.index + '].IsClean" type="hidden" value="' + obj.IsClean + '">',
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsCompressed_span" class="class_checkbox ' + obj.IsCompressed_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsCompressed" name="GoodsReceiveDetails[' + obj.index + '].IsCompressed" type="hidden" value="' + obj.IsCompressed + '">',
+
+                        '<span id="GoodsReceiveDetails_' + obj.index + '__IsCorrectWeight_span" class="class_checkbox ' + obj.IsCorrectWeight_span + '"></span>' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__IsCorrectWeight" name="GoodsReceiveDetails[' + obj.index + '].IsCorrectWeight" type="hidden" value="' + obj.IsCorrectWeight + '">' +
+
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__UOM" name="GoodsReceiveDetails[' + obj.index + '].UOM" type="hidden" value="' + obj.UOM + '">' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__CoverRemarks" name="GoodsReceiveDetails[' + obj.index + '].CoverRemarks" type="hidden" value="' + obj.CoverRemarks + '">' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__SortedRemarks" name="GoodsReceiveDetails[' + obj.index + '].SortedRemarks" type="hidden" value="' + obj.SortedRemarks + '">' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__PalletQty" name="GoodsReceiveDetails[' + obj.index + '].PalletQty" type="hidden" value="' + obj.PalletQty + '">' +
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__PalletUOM" name="GoodsReceiveDetails[' + obj.index + '].PalletUOM" type="hidden" value="' + obj.PalletUOM + '">' +
+
+
+                        '<input id="GoodsReceiveDetails_' + obj.index + '__Status" name="GoodsReceiveDetails[' + obj.index + '].Status" type="hidden" value="true">',
+
+                        '<div class="dropdown">' +
+                        '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Action<span class="caret"></span></button>' +
+                        '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">' +
+                            '<li><a class="cursorCss" id="Edit_' + obj.index + '" onclick="EditGoodsReceiveDetails(' + obj.index + ')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>' +
+                            '<li><a class="cursorCss" onclick="DeleteGoodsReceiveDetails(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>' +
+                            '<li><a class="cursorCss" onclick="PEditInspectionDomestic(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Inspection</a></li>' +
+                        '</ul></div>'
+
+                ];
+                $('#tblGoodsReceivedList').dataTable().fnAddData(rowData);
+            }
+            else {
+                $('#GoodsReceiveDetails_' + hdnFlag + '__ProductCode').val($('#modalObj_ProductCode').val());
+                $('#GoodsReceiveDetails_' + hdnFlag + '__ProductCode_span').text($('#modalObj_ProductCode').val());
+
+                $('#GoodsReceiveDetails_' + hdnFlag + '__Qty').val($('#modalObj_Qty').val());
+                $('#GoodsReceiveDetails_' + hdnFlag + '__Qty_span').text($('#modalObj_Qty').val());
+
+                $('#GoodsReceiveDetails_' + hdnFlag + '__UOM').val($('#modalObj_UOM').val());
+                $('#GoodsReceiveDetails_' + hdnFlag + '__UOM_span').text($('#modalObj_UOM').val());
+
+                $('#GoodsReceiveDetails_' + hdnFlag + '__CoverRemarks').val($('#modalObj_CoverRemarks').val());
+                $('#GoodsReceiveDetails_' + hdnFlag + '__CoverRemarks_span').text($('#modalObj_CoverRemarks').val());
+
+                $('#GoodsReceiveDetails_' + hdnFlag + '__SortedRemarks').val($('#modalObj_SortedRemarks').val());
+                $('#GoodsReceiveDetails_' + hdnFlag + '__SortedRemarks_span').text($('#modalObj_SortedRemarks').val());
+
+
+                if ($('.isCoveredCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCovered_span').removeClass('checked');
+                }
+
+                if ($('.isSortedCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSorted_span').removeClass('checked');
+                }
+
+                if ($('.isHumidityCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsHumidity_span').removeClass('checked');
+                }
+
+                if ($('.isSameAsPhotoCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsSameAsPhoto_span').removeClass('checked');
+                }
+
+                if ($('.isCleanCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsClean_span').removeClass('checked');
+                }
+
+                if ($('.isCompressedCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCompressed_span').removeClass('checked');
+                }
+
+                if ($('.isCorrectWeightCss.checked').data('value')) {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight').val('true');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight').val('false');
+                    $('#GoodsReceiveDetails_' + hdnFlag + '__IsCorrectWeight_span').removeClass('checked');
+                }
+
+            }
+            $('#hdnFlag').val('-1');
+            $('#GoodsReceiveForm1Modal').modal('hide');
+            //}
+        }
+
+        function EditGoodsReceiveDetails(index) {
+            $('#modalObj_ProductCode').val($('#GoodsReceiveDetails_' + index + '__ProductCode').val());
+            $('#modalObj_Qty').val($('#GoodsReceiveDetails_' + index + '__Qty').val());
+            $('#modalObj_UOM').val($('#GoodsReceiveDetails_' + index + '__UOM').val());
+            $('#modalObj_CoveredRemarks').val($('#GoodsReceiveDetails_' + index + '__CoveredRemarks').val());
+            $('#modalObj_SortedRemarks').val($('#GoodsReceiveDetails_' + index + '__SortedRemarks').val());
+
+
+            $('.isCoveredCss').removeClass('checked');
+            $('.isCoveredCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsCovered').val() + '"]').addClass('checked');
+
+            $('.isSortedCss').removeClass('checked');
+            $('.isSortedCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsSorted').val() + '"]').addClass('checked');
+
+            $('.isHumidityCss').removeClass('checked');
+            $('.isHumidityCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsHumidity').val() + '"]').addClass('checked');
+
+            $('.isSameAsPhotoCss').removeClass('checked');
+            $('.isSameAsPhotoCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsSameAsPhoto').val() + '"]').addClass('checked');
+
+            $('.isCleanCss').removeClass('checked');
+            $('.isCleanCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsClean').val() + '"]').addClass('checked');
+
+            $('.isCompressedCss').removeClass('checked');
+            $('.isCompressedCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsCompressed').val() + '"]').addClass('checked');
+
+            $('.isCorrectWeightCss').removeClass('checked');
+            $('.isCorrectWeightCss[data-value="' + $('#GoodsReceiveDetails_' + index + '__IsCorrectWeight').val() + '"]').addClass('checked');
+
+            $('#goodsReveiveModal').modal('show');
+            $('#hdnFlag').val(index);
+
+        }
+
+        function DeleteGoodsReceiveDetails(index) {
+            $('#GoodsReceiveDetails_' + index + '__Status').val(false);
+            $('#GoodsReceive_' + index).css({
+                'color': 'red',
+                'text-decoration': 'line-through',
+                'font-style': 'italic'
+            });
+        }
+
+        function DeleteStockEntry(documentNo) {
+
+            //var documentNo = $("#txtDocumentNo").val();
+
+            if (documentNo == "NEW" || documentNo == '') {
+                alert('Please choose a valid Document No. to Proceed!');
+                return false;
+            }
+
+
+            if (!confirm("Do you want to delete Selected Document No. [" + documentNo + "] ?")) {
+                return false;
+            }
+            var rooturl = "@Url.Action("DeleteGoodsReceive", "Operation", new { area = "Operation" })"
+            var url = rooturl + "?documentNo=" + documentNo;
+
+            location.href = url;
+
+
+        }
+
+        $('#ddlCustomerCode').on("select2:select", function (e) {
+            var customerCode = $('#ddlCustomerCode').val();
+            var url = "/Operation/GetCustomerPOList?customerCode=" + customerCode;
+            $.post(url, null, function (data) {
+                //alert(data.d);
+                //// if the data is NOT NULL, then i want to add this to ddlPOList.
+                ////debugger;
+                $("#ddlPOList").select2();
+                $("#ddlPOList").select2('data', null);
+                $("#ddlPOList").select2('val', '');
+                $("#ddlPOList").select2('data', { id: null, text: null })
+                var myData = [];
+                if (data.POList.length > 0) {
+                    for (var i = 0 ; i < data.POList.length; i++) {
+                        var obj = {
+                            id: data.POList[i].PONo,
+                            text: data.POList[i].PONo
+                        };
+                        myData.push(obj);
+                        //sampleArray += "{" +id:  ", text: " +  + " },";
+                    }
+
+                }
+
+                //$.each(function (d) {
+                //    sampleArray += "{ id:" + d.PONo + ", text: " + d.PONo + " },";
+                //})
+                //sampleArray =[ sampleArray  ];
+                //var sampleArray = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }
+                //  , { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }
+                //  , { id: 4, text: 'wontfix' }];
+
+                $("#ddlPOList").select2({ data: myData });
+
+
+            });
+
+        });
+
+
+        $('#ddlPOList').on("select2:select", function (e) {
+            var poNo = $('#ddlPOList').val();
+
+            var rooturl = '@Url.Action("GetPOListForStockIn", "Operation", new { area = "Operation" })';
+            var url = rooturl + "?poNo=" + poNo;
+
+            //var url = "/Operation/GetPOListForStockIn?poNo=" + poNo;
+            $.post(url, null, function (data) {
+                ////debugger;
+                // i have to add the list of items from the PO to the table. in the stock in header.
+                $('#tblList').DataTable().clear();
+
+                for (var i = 0; i < data.stockDt.length; i++) {
+
+                    var rowData = [
+                  " <input id='StockInDetails[" + i + "].ItemNo' type='hidden' value= '" + data.stockDt[i].ItemNo + " ' name='StockInDetails[" + i + "].ItemNo'>"
+                  , " <input id='StockInDetails[" + i + "].DocumentNo' type='hidden' value= '" + data.stockDt[i].DocumentNo + " ' name='StockInDetails[" + i + "].DocumentNo'>"
+                  , " <input id='StockInDetails[" + i + "].ProductCode' type='hidden' value= '" + data.stockDt[i].ProductCode + " ' name='StockInDetails[" + i + "].ProductCode'>"
+                 //, "<input id='StockInDetails[" + i + "].ProductDescription' type='hidden' value=" + data.stockDt[i].ProductDescription + " name='StockInDetails[" + i + "].ProductDescription'>" + data.stockDt[i].ProductDescription
+
+                  , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + data.stockDt[i].ProductCode + "'>" + data.stockDt[i].ProductDescription + "</a>"
+                 , "<input id='StockInDetails[" + i + "].Location' type='hidden' value='" + data.stockDt[i].Location + "' name='StockInDetails[" + i + "].Location'>" + data.stockDt[i].LocationDescription
+                 , "<input id='StockInDetails[" + i + "].POQty' type='hidden' value='" + data.stockDt[i].POQty + "' name='StockInDetails[" + i + "].Quantity'>" + data.stockDt[i].POQty
+                 , "<input id='StockInDetails[" + i + "].BuyingPrice' type='text' value=" + data.stockDt[i].BuyingPrice + " class = 'form-control input-sm' name='StockInDetails[" + i + "].BuyingPrice'  onchange = 'BuyingPriceChanged(this," + data.stockDt[i].Quantity + "," + i + ")'  >"
+
+                 , "<input id='StockInDetails[" + i + "].Quantity' type='text' value=" + data.stockDt[i].Quantity + " class = 'form-control input-sm' name='StockInDetails[" + i + "].Quantity'  onchange = 'QuantityChanged(this," + data.stockDt[i].BuyingPrice + "," + data.stockDt[i].POQty + "," + i + ")' >" // + this.Quantity.value
+
+
+                 , "<input id='txtPendingQty_" + i + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + i + "].PendingQty'>"
+                 , "<input id='txtBuyingAmount_" + i + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + i + "].BuyingAmount'>"
+                    ];
+
+
+                    var row = "";
+                    $('#tblList').dataTable().fnAddData(rowData);
+                    $('tr td:nth-child(1)').hide()
+                    $('tr td:nth-child(2)').hide()
+                    $('tr td:nth-child(3)').hide()
+
+
+                    SummaryCalculation();
+
+                }
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+
+
+
+            });
+            $("#txtReceiveQty").val('');
+            $("#txtReceiveQty").focus();
+
+        });
+
+
+        function SummaryCalculation() {
+            ////debugger;
+
+            var table = $('#tblList').DataTable();
+            var price = 0;
+            var qty = 0;
+            var totalAmount = 0;
+
+
+
+            table.column(9).data()
+                .each(function (value, index) {
+                    var id = "#" + $(value).attr("id");
+                    totalAmount += Number($(id).val());
+                });
+
+
+
+            $("#txtGrandTotalAmount").val(totalAmount);
+
+            if ($("#chkVAT").is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+        }
+
+        function CalculateVAT(isVAT) {
+            var taxableAmount = Number($("#txtGrandTotalAmount").val());
+            var taxAmount = 0;
+
+            if (isVAT == true) {
+
+                taxAmount = (taxableAmount * 7) / 100;
+            }
+            else {
+                taxAmount = 0;
+            }
+
+            $("#txtVATAmount").val(taxAmount);
+            $("#txtNetAmount").val(taxableAmount + taxAmount);
+        }
+
+
+        $("#chkVAT").click(function () {
+            if ($(this).is(':checked')) {
+                CalculateVAT(true);
+            }
+            else {
+                CalculateVAT(false);
+            }
+
+        });
+
+        //$("input").focus(function () {
+        //    console.log("fired");
+        //});
+
+
+        var documentNo;
+        var isEditLocal = false;
+
+
+        function OnSaveFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+
+            ModalShow(result.Message, "Success", "Save");
+
+            documentNo = result.POData.DocumentNo;
+        }
+
+
+        function BtnOK() {
+            if (ActionType == "Save") {
+                location.href = "../Operation/StockInLedgerList";
+            }
+        }
+
+
+        function EditProductDetails(t, rowCount, qno, elocal) {
+            rowdetails = t;
+            if (elocal == "1") {
+                isEditLocal = true;
+            }
+            if (qno == 0) {
+                var row = $(t).closest("tr").get(0);
+                var oTable = $('#tblList').DataTable();
+                var ids = $.map(oTable.rows(row).data(), function (item) {
+                    var c = new Array();
+                    ////debugger;
+                    c = [item[0].substr(item[0].indexOf(">") + 1, 20), item[1].substr(item[1].indexOf(">") + 1, 20), item[2].substr(item[2].indexOf(">") + 1, 20)];
+                    return c
+                });
+
+                if (ids[0] == "") {
+                    setTimeout(function () {
+                        $("#ProductCode").val(ids[1])
+                        $("#Quantity").val(ids[2])
+
+                    }, 100)
+                    return false;
+                }
+            }
+        }
+
+        function DeleteProductDetails(t, ProductCode, customerCode) {
+            if (!confirm("Do you want to delete Selected Product?")) {
+                return false;
+            }
+            var row = $(t).closest("tr").get(0);
+            var oTable = $('#tblList').dataTable(); // JQuery dataTable function to delete the row from the table
+            oTable.fnDeleteRow(oTable.fnGetPosition(row));
+        }
+
+        $('#tblList tbody').on('click', 'tr', function () {
+            var table = $('#tblList').DataTable();
+            //alert('Row index: ' + table.row(this).index());
+        });
+
+
+        function linkClicked(li) {
+            linkedIndex = li;
+        }
+
+
+        function AddDataToTable() {
+
+            var tblData = new Array();
+            var productCode = $("#hdnProductCode").val();
+            //tblData = [{ ServiceType: $("#ServiceType").val(), ChargeCode: $("#ChargeCode").val(), ChargeType: $("#ChargeType").val(), From: $("#From").val(), To: $("#To").val(), SellRate: $("#SellRate").val() }];
+
+
+            var rowCount = 0;
+            if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                rowCount = $('#tblList tr').length;// - 1;;
+            }
+            ////debugger;
+            var rowData = [
+                " <input id='StockInDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ItemNo'>"
+                , " <input id='StockInDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].DocumentNo'>"
+                , " <input id='StockInDetails[" + rowCount + "].ProductCode' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ProductCode'>"
+               //, "<input id='StockInDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + this.ProductDescription.value + " name='StockInDetails[" + rowCount + "].ProductDescription'>" + this.ProductDescription.value
+               , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + this.ProductCode.value + "'>" + this.ProductDescription.value + "</a>"
+               , "<input id='StockInDetails[" + rowCount + "].Location' type='hidden' value='" + this.Location.value + "' name='StockInDetails[" + rowCount + "].Location'>" + this.LocationDescripton.value
+               , "<input id='StockInDetails[" + rowCount + "].POQty' type='hidden' value='" + this.Quantity.value + "' name='StockInDetails[" + rowCount + "].Quantity'>" + this.Quantity.value
+               , "<input id='StockInDetails[" + rowCount + "].BuyingPrice' type='text' value='0' class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].BuyingPrice' onchange = 'BuyingPriceChanged(this," + data.stockDt[i].BuyingPrice + "," + i + ")' >"
+
+              , "<input id='StockInDetails[" + rowCount + "].Quantity' type='text' value=" + this.Quantity.value + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].Quantity'  onchange = 'QuantityChanged(this," + this.Quantity.value + "," + rowCount + ")' >" // + this.Quantity.value
+
+
+             , "<input id='txtPendingQty_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].PendingQty'>"
+                , "<input id='txtBuyingAmount_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].BuyingAmount'>"
+            ];
+
+            //if ((productCode != null && productCode != "") || isEditLocal) {
+            //    $('#tblList').dataTable().fnUpdate(rowData, 0);
+            //    $('#myModal').modal('hide');
+            //    linkedIndex = null;
+            //}
+            //else {
+
+            var row = "";
+            $('#tblList').dataTable().fnAddData(rowData);
+            $('tr td:nth-child(1)').hide()
+            $('tr td:nth-child(2)').hide()
+            $('tr td:nth-child(3)').hide()
+
+
+            SummaryCalculation();
+            //}
+            var table = $('#tblList').DataTable();
+            var baseamt = 0;
+
+            //$.each(table.column(6).data(), function (key, value) {
+            //    var baseamtlocal = Number(value.substr(value.indexOf(">") + 1, 20));
+            //    baseamt = baseamt + baseamtlocal;
+            //})
+            $('#myModal').modal('hide');// $('#myModalContent').modal('hide');
+            $("a[data-modal]").on("click", function (e) {
+                return OpenModalPopup(this, e);
+            });
+        }
+
+        $("#txtPONo").keypress(function (evt) {
+            if (evt.keyCode == 13) {
+                var textValue = $("#txtPONo").val();
+                var customerCode = $("#ddlCustomerCode").val();
+                if (evt.keyCode == 13) {
+
+                    //var url = '@Url.Action("AddProductToGrid", "Operation", new { area = "Operation" })';
+                    var url = "/Operation/AddProductToGrid?CustomerCode=" + customerCode + "&barCode=" + textValue;
+                    var rowCount = 0;
+
+                    //"EditOrderItem", "Operation", new { area = "Operation" }
+                    $.post(url, null, function (data) {
+                        //debugger;
+                        var totalamt = (data.OrderDetail.SellRate * data.OrderDetail.Quantity) - data.OrderDetail.DiscountAmount
+                        var rowData = [
+          "<input id='OrderDetail[" + rowCount + "].ItemNo' type='hidden' value=" + data.OrderDetail.ItemNo + " name='OrderDetail[" + rowCount + "].ItemNo'>" + data.OrderDetail.ItemNo
+          , "<input id='OrderDetail[" + rowCount + "].ProductCode' type='hidden' value=' ' name='OrderDetail[" + rowCount + "].ProductCode'>" + data.OrderDetail.ProductCode
+          , "<input id='OrderDetail[" + rowCount + "].SellRate' type='hidden' value=" + data.OrderDetail.SellRate + " name='OrderDetail[" + rowCount + "].AccountCode'>" + data.OrderDetail.SellRate
+          , "<input id='OrderDetail[" + rowCount + "].Quantity' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetail[" + rowCount + "].BaseAmount'>" + data.OrderDetail.Quantity
+          , "<input id='OrderDetail[" + rowCount + "].CurrencyCode' type='hidden' value=" + data.OrderDetail.Quantity + " name='OrderDetail[" + rowCount + "].CurrencyCode'>" + data.OrderDetail.Quantity
+          , "<input id='OrderDetail[" + rowCount + "].DiscountAmount' type='hidden' value=" + data.OrderDetail.DiscountAmount + " name='OrderDetail[" + rowCount + "].LocalAmount'>" + data.OrderDetail.DiscountAmount
+          , "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+          , "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+          , "<input id='OrderDetail[" + rowCount + "].SellPrice' type='hidden' value=" + totalamt + " name='OrderDetail[" + rowCount + "].SellPrice'>" + totalamt
+
+             //, "<input id='OrderDetail[" + rowCount + "].AdjustAmount' type='hidden' value=" + data.OrderDetail.AdjustAmount + " name='OrderDetail[" + rowCount + "].AdjustAmount'>" + data.OrderDetail.AdjustAmount
+
+          , " <a id='OrderDetail[" + rowCount + "]' href='/AR/AddARInvoiceItem?itemNo=" + rowCount + "' class='anchor-image' data-modal=''  onclick='EditOrderDetail(this," + rowCount + ",0,1)'>" +
+          " </a> <img src='/Images/fa-trash-o_22.png' onclick='DeleteOrderDetail(this," + rowCount + ",0)' class='img-class'>"];
+
+                        $('#tblItem').dataTable().fnAddData(rowData);
+                        //$('tr td:nth-child(1)').hide()
+                    });
+                    return false;
+                }
+                $("#txtPONo").val = '';
+            }
+        });
+
+        //$('#ddlCustomerCode').on('change', function (a,b,c) {
+        //    //debugger;
+        //    var supplierCode = $('#ddlCustomerCode').val();
+        //    var url = "Coontroller/Action?p1=" + supplierCode;
+        //    $.post(url, null, function (data, status, jqXHR) {
+        //        // how to attach the return value to the drop down?
+
+        //    })
+        //});
+
+
+        $("#txtSearchProduct").keypress(function (evt) {
+            debugger;
+            if (evt.keyCode == 13) {
+
+
+                var barCode = $("#txtSearchProduct").val();
+                var supplierCode = $("#ddlCustomerCode").val();
+                var qty = $("#txtReceiveQty").val();
+
+                //alert(qty);
+
+                if (evt.keyCode == 13) {
+
+                    var rooturl = '@Url.Action("AddStockInProduct", "Operation", new { area = "Operation" })';
+                    var url = rooturl + "?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+
+
+                    //var url = "../Operation/AddStockInProduct?supplierCode=" + supplierCode + "&barCode=" + barCode + "&quantity=" + qty;
+                    var rowCount = 0;
+                    if ($('#tblList').dataTable().fnSettings().aoData.length > 0) {
+                        rowCount = $('#tblList tr').length - 1;
+                    }
+                    //"EditOrderItem", "Operation", new { area = "Operation" }
+                    $.post(url, null, function (data) {
+
+                        if (data.StockInDetail.ProductCode == null) {
+                            alert("Invalid Product Code Or Bar-Code not found!, please refine your search!!");
+                            $("#txtSearchProduct").val('');
+                            return false;
+                        }
+                        var rowData = [
+                        " <input id='StockInDetails[" + rowCount + "].ItemNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].ItemNo'>"
+                        , " <input id='StockInDetails[" + rowCount + "].DocumentNo' type='hidden' value= ' ' name='StockInDetails[" + rowCount + "].DocumentNo'>"
+                        , " <input id='StockInDetails[" + rowCount + "].ProductCode' type='hidden' value=" + data.StockInDetail.ProductCode + " name='StockInDetails[" + rowCount + "].ProductCode'>"
+
+
+                       //, "<input id='StockInDetails[" + rowCount + "].ProductDescription' type='hidden' value=" + data.StockInDetail.ProductDescription + " name='StockInDetails[" + rowCount + "].ProductDescription'>" + data.StockInDetail.ProductDescription
+
+                       , "<a data-toggle='modal' data-target='#myModal' href='/Operation/ProductPhoto?ProductCode=" + data.StockInDetail.ProductCode + "'>" + data.StockInDetail.ProductDescription + "</a>"
+                       , "<input id='StockInDetails[" + rowCount + "].Location' type='hidden' value='" + data.StockInDetail.Location + "' name='StockInDetails[" + rowCount + "].Location'>" + data.StockInDetail.LocationDescription
+
+                       , "<input id='StockInDetails[" + rowCount + "].POQty' type='hidden' value='" + data.StockInDetail.Quantity + "' name='StockInDetails[" + rowCount + "].Quantity'>" + data.StockInDetail.Quantity
+
+                         , "<input id='StockInDetails_" + rowCount + "BuyingPrice' type='text' value=" + data.StockInDetail.BuyingPrice + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].BuyingPrice'  onchange = 'BuyingPriceChanged(this,\"StockInDetails_" + rowCount + "Quantity\"," + rowCount + ")'  >"
+                         //,\"OrderDetails_" + rowCount + "DiscountAmount\",
+                         //,\"StockInDetails_" + rowCount + ".Quantity\","
+
+                        , "<input id='StockInDetails_" + rowCount + "Quantity' type='text' value=" + data.StockInDetail.Quantity + " class = 'form-control input-sm' name='StockInDetails[" + rowCount + "].Quantity'  onchange = 'QuantityChanged(this,\"StockInDetails_" + rowCount + "BuyingPrice\"," + data.StockInDetail.Quantity + "," + rowCount + ")' >" // + this.Quantity.value
+
+                        , "<input id='txtPendingQty_" + rowCount + "' type='text' value='0' style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].PendingQty'>"
+
+
+                        , "<input id='txtBuyingAmount_" + rowCount + "' type='text' value=" + (data.StockInDetail.Quantity * data.StockInDetail.BuyingPrice) + " style = 'border:none;background:transparent' readonly = 'readonly'  name='StockInDetails[" + rowCount + "].BuyingAmount'>"
+                        ];
+
+                        $('#tblList').dataTable().fnAddData(rowData);
+                        $('tr td:nth-child(1)').hide()
+                        $('tr td:nth-child(2)').hide()
+                        $('tr td:nth-child(3)').hide()
+
+                        SummaryCalculation();
+
+                    });
+                    $("#txtSearchProduct").val('');
+
+                    $("#txtReceiveQty").val('');
+                    $("#txtReceiveQty").focus();
+                    return false;
+                }
+                $("#txtSearchProduct").val('');
+
+                $("#txtReceiveQty").val('');
+                $("#txtReceiveQty").focus();
+            }
+        });
+
+        function btnSaveClick() {
+            //debugger;
+            //var goodsReceiveHdrObj = {
+            //    BranchID: parseInt($('#BranchID').val()),
+            //    DocumentNo: 'NEW',
+            //    DocumentDate: $('#DocumentDate').val(),
+            //    SupplierCode: $('#SupplierCode').val(),
+            //    GoodsReceiveDetails: GetTableData(),
+            //    //InspectionOverSeasList: GetInspectionData(),
+            //    InspectionDomesticList: GetInspectionDomesticData(),
+            //    GoodsReceiveDetails: GetTableOverseasData(),
+            //    InspectionOverSeasList: GetInspectionData()
+            //}
+            //var promise = SaveFormData(goodsReceiveHdrObj);
+            //$.when(promise).done(function (data) {
+            //    $('#tabImages').tab('show');
+            //    $('#hdnDocumentNo').val(data);
+            //    $('#btnStartUpload').click();
+            //});
+        }
+
+
+        function GetInspectionData() {
+            //debugger;
+            var insCount = $('.insCss').length;
+            var insArray = new Array();
+            for (var i = 0; i < insCount; i++) {
+                var insItem = JSON.parse($('#InspectionOverSeasList_' + i).val());
+                insArray.push(insItem);
+                //debugger;
+            }
+
+            return insArray;
+        }
+
+
+        function GetInspectionDomesticData() {
+            //debugger;
+            var count = $('.insCss').length;
+            var arr = new Array();
+            for (var i = 0; i < count; i++) {
+                //var jsonData = JSON.parse($('#InspectionDomesticList_' + i).val());
+                var productName = $('#InspectionDomesticList_' + i + '_productName').val();
+                var inspectorName = $('#InspectionDomesticList_' + i + '_inspectorName').val();
+                var _inspectionDate = $('#InspectionDomesticList_' + i + '_inpectionDate').val();
+                for (var j = 0; j < jsonData.length; j++) {
+                    var obj = {
+                        ProductCode: productName,
+                        InspectionDate: _inspectionDate,
+                        InspectedBy: inspectorName,
+                        BatchNo: jsonData[j].dbatchNo,
+                        Qty: jsonData[j].dQty,
+                        UOM: jsonData[j].dUom,
+                        BagNo: '',
+                        BagWeight: jsonData[j].dWeight,
+                        Color: jsonData[j].dColor,
+                        MeltingMinute: jsonData[j].dMeltingMin,
+                        IsMeltAll: jsonData[j].dCantMelt,
+                        IsClean: jsonData[j].dNotClean,
+                        PHLevel: jsonData[j].dPhlevel,
+                        Remarks: jsonData[j].dRemarks
+                    };
+
+                    arr.push(obj);
+                }
+            }
+            return arr;
+        }
+
+        //function GetInspectionData() {
+        //    //debugger;
+        //    var insCount = $('.insCss').length;
+        //    var insArray = new Array();
+        //    for (var i = 0; i < insCount; i++) {
+        //        var insItem = JSON.parse($('#InspectionOverSeasList_' + i).val());
+        //        insArray.push(insItem);
+        //        //debugger;
+        //    }
+
+        //    return insArray;
+        //}
+
+        function GetTableData() {
+            var iCount = $('.GoodsReceiveCss').length;
+
+            var detailsArr = new Array();
+            for (var i = 0; i < iCount; i++) {
+                var item = {
+                    ProductCode: $('#GoodsReceiveDetails_' + i + '__ProductCode').val(),
+                    Qty: $('#GoodsReceiveDetails_' + i + '__Qty').val() == 'true' ? true : false,
+                    IsCovered: $('#GoodsReceiveDetails_' + i + '__IsCovered').val() == 'true' ? true : false,
+                    IsSorted: $('#GoodsReceiveDetails_' + i + '__IsSorted').val() == 'true' ? true : false,
+                    IsHumidity: $('#GoodsReceiveDetails_' + i + '__IsHumidity').val() == 'true' ? true : false,
+                    IsSameAsPhoto: $('#GoodsReceiveDetails_' + i + '__IsSameAsPhoto').val() == 'true' ? true : false,
+                    IsClean: $('#GoodsReceiveDetails_' + i + '__IsClean').val() == 'true' ? true : false,
+                    IsCompressed: $('#GoodsReceiveDetails_' + i + '__IsCompressed').val() == 'true' ? true : false,
+                    IsCorrectWeight: $('#GoodsReceiveDetails_' + i + '__IsCorrectWeight').val() == 'true' ? true : false,
+                    Status: $('#GoodsReceiveDetails_' + i + '__Status').val() == 'true' ? true : false,
+                };
+
+                detailsArr.push(item);
+            }
+
+            return detailsArr;
+        }
+
+
+
+        function GetTableOverseasData() {
+            var iCount = $('.GoodsReceiveOverseasCss').length;
+
+            var detailsArr = new Array();
+            for (var i = 0; i < iCount; i++) {
+                var item = {
+                    ProductCode: $('#GoodsReceiveOverseasDetails_' + i + '__ProductCode').val(),
+                    Qty: $('#GoodsReceiveOverseasDetails_' + i + '__Qty').val() == 'true' ? true : false,
+                    IsCovered: $('#GoodsReceiveOverseasDetails_' + i + '__IsCovered').val() == 'true' ? true : false,
+                    IsSorted: $('#GoodsReceiveOverseasDetails_' + i + '__IsSorted').val() == 'true' ? true : false,
+                    IsHumidity: $('#GoodsReceiveOverseasDetails_' + i + '__IsHumidity').val() == 'true' ? true : false,
+                    IsSameAsPhoto: $('#GoodsReceiveOverseasDetails_' + i + '__IsSameAsPhoto').val() == 'true' ? true : false,
+                    IsClean: $('#GoodsReceiveOverseasDetails_' + i + '__IsClean').val() == 'true' ? true : false,
+                    IsCompressed: $('#GoodsReceiveOverseasDetails_' + i + '__IsCompressed').val() == 'true' ? true : false,
+                    IsCorrectWeight: $('#GoodsReceiveOverseasDetails_' + i + '__IsCorrectWeight').val() == 'true' ? true : false,
+                    Status: $('#GoodsReceiveOverseasDetails_' + i + '__Status').val() == 'true' ? true : false,
+                };
+
+                detailsArr.push(item);
+            }
+
+            return detailsArr;
+        }
+
+        function SaveFormData(obj) {
+            //debugger;
+            var def = $.Deferred();
+            $.ajax({
+                method: 'POST',
+                url: '@Url.Content("~/Operation/SaveGoodsReceieveDomestic")',
+                data: JSON.stringify(obj),
+                contentType: 'application/json',
+                acceptType: 'JSON',
+                success: function (data) {
+                    def.resolve(data);
+                }
+            });
+            return def.promise();
+        }
+
+        function btnSearchPOClick() {
+            var searchtxt = $('#PONo').val();
+            if (searchtxt.length > 0) {
+                $('#hdnPoNo').val(searchtxt);
+                $('#frmSearch').submit();
+                
+                /*
+                var rooturl = 'Url.Action("GetPODetails", "Operation", new { area = "Operation" })';
+                var url = rooturl + "?DocumentNo=" + searchtxt;
+                //$.post(url, null, function (data) {
+                //    debugger;
+                //    AddDataToTableforPODetails(data.GoodsReceivePODetailData);
+                //    $('#PaymentType').attr('disabled', 'disabled');
+                //});
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    success: function (data) {
+                        debugger;
+                        AddDataToTableforPODetails(data.GoodsReceivePODetailData);
+                        $('#PaymentType').attr('disabled', 'disabled');
+                    }
+                });
+                */
+
+            }
+            else {
+                $('#lblErrMsg').text('Please enter atleast 5 characters.');
+                setTimeout(function () {
+                    $('#lblErrMsg').text('');
+                }, 3000)
+            }
+        }
+
+        var gPendingQuantity = 0;
+        function AddDataToTableforPODetails(data) {
+            debugger;
+            var tblData = new Array();
+
+
+            $('#tblGoodsReceivePODetailList').DataTable().clear().draw();
+            for (var i = 0; i < data.length; i++) {
+
+
+                var rowCount = 0;
+                if ($('#tblGoodsReceivePODetailList').dataTable().fnSettings().aoData.length > 0) {
+                    rowCount = $('#tblGoodsReceivePODetailList tr').length - 1;;
+                }
+
+                //PONo
+                gPendingQuantity = data[i].PendingQuantity;
+                var rowData = [
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__DocumentNo" name="GoodsReceivePODetailList[' + rowCount + '].DocumentNo" type="hidden" value="' + data[i].DocumentNo + '">' +
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__PONo" name="GoodsReceivePODetailList[' + rowCount + '].PONo" type="hidden" value="' + data[i].PONo + '">',
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__ProductCode" name="GoodsReceivePODetailList[' + rowCount + '].ProductCode" type="hidden" value="' + data[i].ProductCode + '">' +
+                            '<span id="GoodsReceivePODetailList_' + rowCount + '__ProductCode_span">' + data[i].ProductDescription + '</span>',
+                            '<span id="GoodsReceivePODetailList_' + rowCount + '__Quantity_span">' + data[i].Quantity + '</span>' +
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__Quantity" name="GoodsReceivePODetailList[' + rowCount + '].Quantity" type="hidden" value="' + data[i].Quantity + '">',
+
+                            '<input type="hidden" id="hdn_ReceiveQuantity_' + rowCount + '" value="' + data[i].ReceiveQuantity + '" />' +
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__ReceiveQuantity" name="GoodsReceivePODetailList[' + rowCount + '].ReceiveQuantity" type="text" value="' + data[i].ReceiveQuantity + '" class="form-control input-sm" onblur="ReceivedQtyOnblur(' + rowCount + ', true);" />',
+
+                            '<input id="PendingQty_' + rowCount + '" name="PendingQty_' + rowCount + '" type="text" value="' + data[i].PendingQuantity + '" class="form-control input-sm" readonly="readonly" />',
+                            '<span id="GoodsReceivePODetailList_' + rowCount + '__UOM_span">' + data[i].UOM + '</span>' +
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__UOM" name="GoodsReceivePODetailList[' + rowCount + '].UOM" type="hidden" value="' + data[i].UOM + '">',
+                            '<span id="GoodsReceivePODetailList_' + rowCount + '__CurrencyCode_span">' + data[i].CurrencyCode + '</span>' +
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__CurrencyCode" name="GoodsReceivePODetailList[' + rowCount + '].CurrencyCode" type="hidden" value="' + data[i].CurrencyCode + '">',
+                            '<span id="GoodsReceivePODetailList_' + rowCount + '__UnitPrice_span">' + data[i].UnitPrice + '</span>' +
+                            '<input id="GoodsReceivePODetailList_' + rowCount + '__UnitPrice" name="GoodsReceivePODetailList[' + rowCount + '].UnitPrice" type="hidden" value="' + data[i].UnitPrice + '">',
+                            '<div class="dropdown">' +
+                            '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Action<span class="caret"></span></button>' +
+                            '</div>'];
+                //debugger;
+                //if ((qno != null && qno != "") || isEditLocal) {
+                //    $('#tblGoodsReceivePODetailList').dataTable().fnUpdate(rowData, 0);
+
+                //    linkedIndex = null;
+                //}
+                //else {
+
+                var row = "";
+                $('#tblGoodsReceivePODetailList').dataTable().fnAddData(rowData);
+                $('tr td:nth-child(1)').hide();
+
+                $('tr td:nth-child(7)').hide()
+                $('tr td:nth-child(8)').hide()
+                // ReceivedQtyOnblur(rowCount, false);
+                //}
+            }
+        }
+
+        function ReceivedQtyOnblur(index, flag) {
+            var pendingQty = parseFloat($('#PendingQty_' + index).val()); //gPendingQuantity;
+            var receivedQty = parseFloat($('#GoodsReceivePODetailList_' + index + '__ReceiveQuantity').val());
+            //if (flag) {
+            //    receivedQty = receivedQty + parseInt($('#hdn_ReceiveQuantity_' + index).val());
+            //}
+            var Qty = parseFloat($('#GoodsReceivePODetailList_' + index + '__Quantity').val());
+            if ((pendingQty - receivedQty) < 0) {
+                alert('Received Quantity cannot be more than pending Quantity');
+                $('#GoodsReceivePODetailList_' + index + '__ReceiveQuantity').val('0');
+            } else {
+                $('#PendingQty_' + index).val(pendingQty - receivedQty);
+            }
+        }
+
+        function GoodsReceiveForm1(index) {
+
+
+            var vaue = $('#GoodsReceivePODetailList_' + index + '__ProductCode').val();
+
+            $("#modalObj1.ProductCode").val($('#GoodsReceivePODetailList_' + index + '__ProductCode').val());
+            $("#modalObj2.Quantity").val($('#GoodsReceivePODetailList_' + index + '__Qty').val());
+            $("#modalObj2.UOM").val($('#GoodsReceivePODetailList_' + index + '__UOM').val());
+
+
+            $('#GoodsReceiveForm1Modal').modal('show');
+        }
+
+
+        function GoodsReceiveForm2(index) {
+            $('#GoodsReceiveForm2Modal').modal('show');
+        }
+
+
+        function CheckSheet(index) {
+
+            $('#inspectionModal').modal('show');
+        }
+
+
+        function Inspection(index) {
+            $('#checkSheetModal').modal('show');
+        }
+
+
+        function btnAddGoodsDetailsOverseas() {
+            //debugger;
+            //var validator = $('#frmgoodsReveiveModalOver').data('bootstrapValidator');
+            //validator.validate();
+            //if (validator.isValid()) {
+
+            var hdnFlag = $('#hdnFlag').val();
+            if (hdnFlag == '-1') {
+                var _index = $('.GoodsReceiveCss').length;
+                var obj = {
+                    index: _index,
+                    ProductCode: $('#modalObj_ProductCode').val(),
+                    ProductCode_span: $('#modalObj_ProductCode').val(),
+                    Quantity: $('#modalObj_Quantity').val(),
+                    Quantity_span: $('#modalObj_Quantity').val(),
+                    UOM: $('#modalObj_UOM').val(),
+                    UOM_span: $('#modalObj_UOM').val(),
+                    QtyPerUOM: $('#modalObj_QtyPerUOM').val(),
+                    ContainerNo: $('#modalObj_ContainerNo').val(),
+                    ContainerNo_span: $('#modalObj_ContainerNo').val(),
+                    ContainerCondition: $('.ContainerConditionCss.checked').data('value'),
+                    ContainerCondition_span: $('.ContainerConditionCss.checked').data('value') ? 'checked' : '',
+                    SealNo: $('#modalObj_SealNo').val(),
+                    SealNo_span: $('#modalObj_SealNo').val(),
+                    SealCondition: $('.SealConditionCss.checked').data('value'),
+                    SealCondition_span: $('.SealConditionCss.checked').data('value') ? 'checked' : '',
+                    DamageDetails: $('#modalObj_DamageDetails').val(),
+                    IsSort: $('.isSortCss.checked').data('value'),
+                    IsSort_span: $('.isSortCss.checked').data('value') ? 'checked' : '',
+                    SortRemarks: $('#modalObj_SortRemarks').val(),
+                    IsFCL: $('.isFCLCss.checked').data('value'),
+                    IsFCL_span: $('.isFCLCss.checked').data('value') ? 'checked' : '',
+                    IsHumidity: $('.isHumidityCss.checked').data('value'),
+                    IsHumidity_span: $('.isHumidityCss.checked').data('value') ? 'checked' : '',
+                    IsProperPackage: $('.isProperPackageCss.checked').data('value'),
+                    IsProperPackage_span: $('.isProperPackageCss.checked').data('value') ? 'checked' : '',
+                    IsClean: $('.isCleanCss.checked').data('value'),
+                    IsCompressed: $('.isCompressedCss.checked').data('value'),
+                    IsCorrectWeight: $('.isCorrectWeightCss.checked').data('value'),
+                    IsProductLabel: $('.isProductLabelCss.checked').data('value'),
+                    IsInspectContainer: $('.isInspectContainerCss.checked').data('value')
+                };
+
+                var rowData = [
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__ProductCode" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].ProductCode" type="hidden" value="' + obj.ProductCode + '">' +
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__ProductCode_span">' + obj.ProductCode + '</span>',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__Quantity_span">' + obj.Quantity + '</span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__Quantity" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].Quantity" type="hidden" value="' + obj.Quantity + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__UOM_span">' + obj.UOM_span + '</span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__UOM" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].UOM" type="hidden" value="' + obj.UOM + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__ContainerNo_span">' + obj.ContainerNo_span + '</span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__ContainerNo" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].ContainerNo" type="hidden" value="' + obj.ContainerNo + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__ContainerCondition_span" class="class_checkbox ' + obj.ContainerCondition_span + '"></span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__ContainerCondition" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].ContainerCondition" type="hidden" value="' + obj.ContainerCondition + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__SealCondition_span" class="class_checkbox ' + obj.SealCondition_span + '"></span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__SealCondition" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].SealCondition" type="hidden" value="' + obj.SealCondition + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__SealNo_span">' + obj.SealNo_span + '</span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__SealNo" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].SealNo" type="hidden" value="' + obj.SealNo + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsSort_span" class="class_checkbox ' + obj.IsSort_span + '"></span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsSort" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsSorted" type="hidden" value="' + obj.IsSort + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsFCL_span" class="class_checkbox ' + obj.IsFCL_span + '"></span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsFCL" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsFCL" type="hidden" value="' + obj.IsFCL + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsHumidity_span" class="class_checkbox ' + obj.IsHumidity_span + '"></span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsHumidity" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsHumidity" type="hidden" value="' + obj.IsHumidity + '">',
+
+                        '<span id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsProperPackage_span" class="class_checkbox ' + obj.IsProperPackage_span + '"></span>' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsProperPackage" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsProperPackage" type="hidden" value="' + obj.IsProperPackage + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__DamageDetails" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].DamageDetails" type="hidden" value="' + obj.DamageDetails + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__SortRemarks" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].SortRemarks" type="hidden" value="' + obj.SortRemarks + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsClean" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsClean" type="hidden" value="' + obj.IsClean + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsCompressed" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsCompressed" type="hidden" value="' + obj.IsCompressed + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsCorrectWeight" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsCorrectWeight" type="hidden" value="' + obj.IsCorrectWeight + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsProductLabel" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsProductLabel" type="hidden" value="' + obj.IsProductLabel + '">' +
+                        '<input id="GoodsReceiveDetailsOverseasList_' + obj.index + '__IsInspectContainer" name="GoodsReceiveDetailsOverseasList[' + obj.index + '].IsInspectContainer" type="hidden" value="' + obj.IsInspectContainer + '">',
+
+                        '<div class="dropdown">' +
+                        '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Action<span class="caret"></span></button>' +
+                        '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">' +
+                            '<li><a class="cursorCss" id="Edit_' + obj.index + '" onclick="EditGoodsReceiveOverseasDetails(' + obj.index + ')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>' +
+                            '<li><a class="cursorCss" onclick="DeleteGoodsReceiveOverseasDetails(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>' +
+                            '<li><a data-target="#inspectionModal" data-toggle="modal" class="cursorCss" onclick="EditGRInspectionOverseas(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Inspection</a></li>' +
+                        '</ul></div>'
+
+                ];
+                $('#tblGoodsReceivedList').dataTable().fnAddData(rowData);
+
+            }
+            else {
+
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ProductCode').val($('#modalObj_ProductCode').val());
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ProductCode_span').text($('#modalObj_ProductCode').val());
+
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__Quantity_span').text($('#modalObj_Quantity').val());
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__Quantity').val($('#modalObj_Quantity').val());
+
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__UOM_span').text($('#modalObj_UOM').val());
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__UOM').val($('#modalObj_UOM').val());
+
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ContainerNo_span').text($('#modalObj_ContainerNo').val());
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ContainerNo').val($('#modalObj_ContainerNo').val());
+
+                if ($('.ContainerConditionCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ContainerCondition').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ContainerCondition_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ContainerCondition').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__ContainerCondition_span').removeClass('checked');
+                }
+
+                if ($('.SealConditionCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SealCondition').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SealCondition_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SealCondition').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SealCondition_span').removeClass('checked');
+                }
+
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SealNo_span').text($('#modalObj_SealNo').val());
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SealNo').val($('#modalObj_SealNo').val());
+
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__DamageDetails').val($('#modalObj_DamageDetails').val());
+                $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__SortRemarks').val($('#modalObj_SortRemarks').val());
+
+                if ($('.isSortCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsSort').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsSort_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsSort').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsSort_span').removeClass('checked');
+                }
+
+                if ($('.isFCLCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsFCL').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsFCL_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsFCL').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsFCL_span').removeClass('checked');
+                }
+
+                if ($('.isHumidityCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity_span').removeClass('checked');
+                }
+
+                if ($('.isHumidityCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsHumidity_span').removeClass('checked');
+                }
+
+                if ($('.isProperPackageCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsProperPackage').val('true');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsProperPackage_span').addClass('checked');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsProperPackage').val('false');
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsProperPackage_span').removeClass('checked');
+                }
+
+                if ($('.isCleanCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsClean').val('true');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsClean').val('false');
+                }
+
+                if ($('.isCompressedCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsCompressed').val('true');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsCompressed').val('false');
+                }
+
+                if ($('.isCorrectWeightCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsCorrectWeight').val('true');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsCorrectWeight').val('false');
+                }
+
+                if ($('.isProductLabelCss.checked').data('value')) {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsProductLabel').val('true');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsProductLabel').val('false');
+                }
+
+                if ($('.isInspectContainerCss.checked').data('value')) {
+                    frm
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsInspectContainer').val('true');
+                }
+                else {
+                    $('#GoodsReceiveDetailsOverseasList_' + hdnFlag + '__IsInspectContainer').val('false');
+                }
+
+
+                $('#hdnFlag').val('-1');
+            }
+
+            $('#GoodsReceiveForm2Modal').modal('hide');
+        }
+        //}
+
+
+    </script>
+}
+
+
+
+

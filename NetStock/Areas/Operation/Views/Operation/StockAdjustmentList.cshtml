@@ -1,0 +1,79 @@
+﻿@model List<NetStock.Contract.StockAdjustmentHeader>
+
+@{
+    ViewBag.Title = "List Of Stock-Adjustments";
+}
+@section css{
+
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Recent Stock-Adjustment List</h3>
+    </div>
+    <div class="panel-body">
+        <fieldset class="form-horizontal">
+
+            @Html.ActionLink("New Stock Adjustment", "StockAdjustment", "Operation", new { documentNo = "NEW" }, new { data_modal = "", id = "btnCreate", @class = "btn btn-small btn-primary" })
+            @* @Html.ActionLink("New Chart Of Account", "EditChartOfAccount", "MasterData", new { area = "MasterData" }, new { data_modal = "", id = "btnCreate", @class = "btn btn-small btn-primary" })*@
+
+
+            <!-- Display List Section -->
+
+            <table id="tblList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                <thead style="background-color:steelblue;color:white;font-size:12px;">
+
+                    <tr>
+                        <th>Document No.</th>
+                        <th>Date</th>
+                         
+                         
+                    </tr>
+                </thead>
+                <tbody style="font-size:12px;">
+                    @if (Model != null)
+                    {
+                        foreach (NetStock.Contract.StockAdjustmentHeader item in Model)
+                        {
+                            <tr>
+                                <td>@Html.ActionLink(@item.DocumentNo, "StockAdjustment", "Operation", new { documentNo = @item.DocumentNo }, new { data_modal = "", id = "btnCreate", @class = "btn btn-link btn-sm" })</td>
+                                <td> @item.DocumentDate.ToString("dd-MM-yyyy") </td>
+                                
+                                
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </fieldset>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tblList').DataTable({
+                responsive: true
+            });
+            var table = $('#tblList').DataTable();
+            $('#tblList tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+        });
+
+    </script>
+}

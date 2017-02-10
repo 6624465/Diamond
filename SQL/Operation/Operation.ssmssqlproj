@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Operation">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="SQL5023.Smarterasp.net:DB_9F30C5_NetJournal_admin">
+          <Created>2016-06-26T11:47:03.3891447+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5023.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_NetJournal_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SQL5025.Smarterasp.net:DB_9F30C5_NetStockDiamond_admin">
+          <Created>2016-04-20T16:57:15.0514109+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5025.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_NetStockDiamond_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SUDARSHAN\SUDARSHAN2012:sa">
+          <Created>2016-03-25T22:07:45.4132464+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SUDARSHAN\SUDARSHAN2012</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>NetStockDiamond</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="[Operation].[usp_SearchGoodsReceiveHeaderByPO].sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>[Operation].[usp_SearchGoodsReceiveHeaderByPO].sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.usp_GetProductPrice.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.usp_GetProductPrice.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.GoodsIssue.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.GoodsIssue.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.GoodsIssueDetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.GoodsIssueDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.GoodsReceiveDetailsOverseas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.GoodsReceiveDetailsOverseas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.GoodsReceivePODetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.GoodsReceivePODetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.InspectionDomestic.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.InspectionDomestic.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.InspectionOverSeas.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Operation.InspectionOverSeas.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.InvoiceDetail.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.InvoiceDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.InvoiceHeader.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.InvoiceHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.OrderDetail.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.OrderDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.OrderHeader.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.OrderHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.PurchaseOrderDetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.PurchaseOrderDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.PurchaseOrderHeader.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Operation.PurchaseOrderHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.PurchaseOrderHistory.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.PurchaseOrderHistory.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.SIDetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.SIDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.SIHeader.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.SIHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.SIHeaderHistory.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.SIHeaderHistory.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.StockAdjustmentDetail.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.StockAdjustmentDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.StockAdjustmentHeader.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.StockAdjustmentHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.StockInDetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.StockInDetail.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.StockInHeader.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Operation.StockInHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.StockLedger.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Operation.StockLedger.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.usp_GetPOBySupplierCode.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.usp_GetPOBySupplierCode.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.usp_PurchaseOrderBySupplier.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.usp_PurchaseOrderBySupplier.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.usp_StockCount.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Operation.usp_StockCount.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.usp_StockInDetailSelectPendingQty.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.usp_StockInDetailSelectPendingQty.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.usp_UpdateOutStockInDetailProduct.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Operation.usp_UpdateOutStockInDetailProduct.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.GoodsReceiveHeader.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.GoodsReceiveHeader.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Operation.GoodsReceiveDetail.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Operation.GoodsReceiveDetail.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>

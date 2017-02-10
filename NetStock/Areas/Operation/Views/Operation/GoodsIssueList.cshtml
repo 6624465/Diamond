@@ -1,0 +1,103 @@
+﻿@model List<NetStock.Contract.GoodsIssue>
+
+@{
+    ViewBag.Title = "List Of Orders";
+}
+@section css{
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+<div class="box box-solid box-default ">
+    <div class="box-header with-border">
+        <h3 class="box-title">Goods Issue List</h3>
+    </div>
+    <div class="panel-body">
+        <fieldset class="form-horizontal">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="tbDetails" data-toggle="tab">List Of Goods Issue</a>
+                    </li>
+                    <li class="pull-right">
+                        <div class="btn-group btn-primary">
+                            <div class="btn-group btn-primary">
+                                <a class="btn btn-sm btn-primary pull-right" href="@Url.Content("~/Operation/GoodsIssue?documentNo=NEW")" id="btnCreate"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;New Goods Issue</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <!-- Display List Section -->
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tbDetails">
+
+
+                        <table id="tblList" class="table table-striped table-hover table-bordered table-responsive setting-table">
+                            <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                <tr>
+                                    <th>Document No.</th>
+                                    <th>Document Date</th>
+                                    <th>Customer</th>
+
+                                </tr>
+                            </thead>
+                            <tbody style="font-size: 12px;">
+                                @if (Model != null)
+                                {
+                                    foreach (NetStock.Contract.GoodsIssue item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Content("~/Operation/GoodsIssue?documentNo=" + item.DocumentNo)">@item.DocumentNo</a>
+                                            </td>
+                                            <td>@item.DocumentDate.ToString("dd-MM-yyyy") </td>
+                                            <td>@item.CustomerName </td>
+
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+    </div>
+
+
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tblList').DataTable({
+                responsive: true
+            });
+            var table = $('#tblList').DataTable();
+            $('#tblList tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+
+            var isSaved = '@TempData["isSaved"]';
+            if (isSaved == 'True') {
+                ModalShow2('@TempData["resultMessage"]', "Success", "Save");
+            }
+            else if (isSaved == 'False') {
+                ModalShow2('@TempData["resultMessage"]', "Failure", "Save");
+            }
+        });
+
+    </script>
+}

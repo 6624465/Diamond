@@ -1,0 +1,367 @@
+﻿@model NetStock.Contract.Product
+
+@{
+    ViewBag.Title = "Product Master";
+
+    string str = "";
+    if (Request["productCode"] != "NEW")
+    {
+        str = string.Format("Created By: {0} <br/> Created On: {1} <br/> Modified By: {2} <br/> Modified On: {3}", Model.CreatedBy, Model.CreatedOn, Model.ModifiedBy, Model.ModifiedBy.Length > 0 ? Model.ModifiedOn.ToString("dd/MM/yy HH:mm:ss") : "");
+    }
+}
+
+<style type="text/css">
+    .popover {
+        width:300px;
+    }
+</style>
+@using (Html.BeginForm("AddProduct", "MasterData", FormMethod.Post, new { enctype = "multipart/form-data", id = "myForm" }))
+{
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            @if (Request["productCode"] == "NEW")
+            {
+                <h3 class="box-title">Product Profile</h3>
+            }
+            else
+            {
+                <h3 class="box-title">Product Profile&nbsp;&nbsp;<a class="anchPopOverCss" data-container="body" data-toggle="popover" data-placement="right" data-content="@str" data-original-title="" title=""><i class="fa fa-tv" aria-hidden="true"></i></a></h3>
+            }
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+
+                    <div>
+                        @Html.LabelFor(m => m.ProductCode, new { @class = "control-label input-sm col-md-2" })
+                        <div class="col-md-2">
+                            @*@(Model.ProductCode == null ?
+                                @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control input-sm" }) :
+                                @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control input-sm", @readonly = "readonly" }))*@
+
+                            @Html.TextBoxFor(m => m.ProductCode, new {  @class = "form-control input-sm ", @maxlength = "50" })
+                            @*@Html.ValidationMessageFor(m => m.ProductCode)*@
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.Description, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.Description, new { @class = "form-control input-sm ", @maxlength = "200" })
+                            @* @Html.ValidationMessageFor(m => m.Description)*@
+
+                        </div>
+                    </div>
+                    <div>
+                        @Html.LabelFor(m => m.BuyingPrice, new { @style = "display:none", @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            <div class="btn-group">
+                                @Html.TextBoxFor(m => m.BuyingPrice, new { @style = "display:none", @class = "form-control input-sm NumberAutonumeric", data_a_sep = "", aPad = "false", data_a_sign = "" })
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.BarCode, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @*@(Model.BarCode == null ? @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm " }) :
+                                @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm ", @readonly = "readonly" }))*@
+
+                            @Html.TextBoxFor(m => m.BarCode, new { @id = "txtBarCode", @class = "form-control input-sm ", @maxlength = "50" })
+                            @*  @Html.ValidationMessageFor(m => m.BarCode)*@
+
+                        </div>
+                    </div>
+                    <div>
+                        @Html.LabelFor(m => m.SellingPrice, new { @style = "display:none", @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            <div class="btn-group">
+                                @Html.TextBoxFor(m => m.SellingPrice, new { @style = "display:none", @class = "form-control input-sm NumberAutonumeric", data_a_sep = "", aPad = "false", data_a_sign = "" })
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.UOM, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(m => m.UOM, Model.UOMList, "SELECT UOM", new { @class = "input-sm form-control",@required="required"})
+                        </div>
+                    </div>
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Category / ประเภท</label>
+                        <div class="col-md-2">
+                            @Html.DropDownListFor(m => m.ProductCategory, Model.ProductCategoryList, "SELECT Category", new { @class = "input-sm form-control" ,@required="required"})
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.Color, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            @Html.TextBoxFor(m => m.Color, new { @class = "form-control input-sm ", @maxlength = "50" })
+                        </div>
+                    </div>
+                    <div>
+                        @Html.LabelFor(m => m.Size, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            <div class="btn-group">
+                                @Html.TextBoxFor(m => m.Size, new { @class = "form-control input-sm ", @maxlength = "50" })
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        @Html.LabelFor(m => m.ReOrderQty, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+
+                            @Html.TextBoxFor(m => m.ReOrderQty, new { @class = "form-control input-sm " })
+
+
+                        </div>
+                    </div>
+                    <div>
+                        @Html.LabelFor(m => m.Location, new { @class = "col-md-2 control-label input-sm" })
+                        <div class="col-md-4">
+                            <div class="btn-group">
+                                @Html.DropDownListFor(m => m.Location, Model.LocationList, "Select W/H Location", new { @class = "form-control input-sm " })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <div>
+                            @Html.LabelFor(m => m.Photo.FileName, new { @class = "col-md-2 control-label input-sm" })
+                            <div class="col-md-4">
+                                @(Model.Photo.FileName == null ?
+                            @Html.DisplayFor(m => m.Photo.FileName, new { @class = "form-control input-sm ", @value = "NO File Uploaded...." }) :
+                            @Html.DisplayFor(m => m.Photo.FileName, new { @class = "form-control input-sm " }))
+
+
+                            </div>
+                        </div>
+                    </div>*@
+
+
+            </fieldset>
+
+        </div>
+
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">                  
+                    <button type="button" id="btnSave" onclick="btnSaveClick();" class="btn btn-primary btn-sm">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+
+                    <a href="#" id="btnDelete" onclick="DeleteProduct('@Model.ProductCode')" class="btn btn-sm btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+                    <a href="@Url.Action("AddProduct", "MasterData", new { area = "MasterData", ProductCode = "NEW" }, null)" class="btn btn-sm btn-default"><i class="fa fa-close"></i>Clear</a>
+                    <a href="../MasterData/Products" class="btn btn-sm btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+}
+
+
+@section Scripts {    
+
+    <script type="text/javascript">
+
+        $(function () {
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover',
+                html: true,
+            });
+
+            $('#myForm').validate({
+                rules: {
+                    Description: {
+                        required: true
+                    },
+                    UOM: {
+                        required: true
+                    },
+                    ProductCategory: {
+                        required: true
+                    }
+                }
+            });          
+        });
+
+        function btnSaveClick() {
+            if ($('#myForm').valid()) {
+                $('#myForm').submit();
+            }
+        }
+
+         
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#target').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+
+
+        $("#imgInp").change(function () {
+            readURL(this);
+        });
+        //$(function () {
+        //    $(".NumberAutonumeric").autoNumeric('init');
+        //})
+
+
+        $(document).ready(function () {
+            //debugger;
+            $("#ProductCode").focus();
+
+            if ('@Model.Status' == 'False') {
+                $("#Description").addClass("StrikeOut")
+                $("#btnSave").attr("disabled", " disabled")
+                $("#btnDelete").attr("disabled", " disabled")
+
+            }
+
+            var product = $("#ProductCode").val();
+            if (product=="NEW")
+            {
+                $("#btnDelete").addClass('disabled')
+            }
+            else
+            {
+                $("#btnDelete").removeClass('disabled')
+            }
+
+        });
+
+
+        function CheckValues() {
+
+            var description = $("#Description").val();
+            var barcode = $("#BarCode").val();
+
+
+            if (description == "") {
+                ModalShowConfirm("Product Description is REQUIRED!");
+                return false;
+            }
+
+            if (barcode == "") {
+                ModalShowConfirm("Product Bar-Code is REQUIRED!");
+                return false;
+            }
+
+            
+
+            return true;
+
+
+        }
+
+        function DeleteProduct() {
+            debugger;
+            var product = $("#ProductCode").val();
+            var description = $("#Description").val();
+
+
+            if (product == "NEW" || product == "") {
+                ModalShowConfirm("Please choose a valid Product to Proceed!");
+                return false;
+            }
+
+
+            if (!confirm("Do you want to delete Selected Product [" + description + "] ?")) {
+                return false;
+            }
+
+            var rooturldelete = "@Url.Action("DeleteProduct", "MasterData", new { area = "MasterData" })"
+            var urldelete = rooturldelete + "?productCode=" + product;
+
+            var urlList = "@Url.Action("Products", "MasterData", new { area = "MasterData" })"
+
+            //url: "/MasterData/DeleteProduct", type: "POST", dataType: "json",
+            $.ajax({
+                url: urldelete, type: "POST", dataType: "json",
+                data: { productCode: product },
+                async: true,
+                success: function (response) {
+                    if (response.result) {
+                        ModalShow(response.Message, "Success", "Delete");
+                        $("#txtDescription").addClass("StrikeOut")
+                        $("#btnSave").attr("disabled", " disabled")
+                        $("#btnDelete").attr("disabled", " disabled")
+
+                    } else {
+                        ModalShow(response.Message, "Failure", "Delete");
+                    }
+                    location.href = urlList;
+                }
+            })
+        }
+
+        function OnSaveFailure(result) {
+            //debugger;
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+            debugger;
+
+            if (result.success == true) {
+                ModalShow(result.Message, "Success", "Save");
+                documentNo = result.POData.ProductCode;
+                var urlList = "@Url.Action("Products", "MasterData", new { area = "MasterData" })"
+                location.href = urlList;
+            }
+            else {
+                ModalShow(result.Message, "Failure", "Save");
+            }
+        }
+
+
+        function BtnOK() {
+            debugger;
+            if (ActionType == "Save") {
+
+                //PrintClick(documentNo);
+                var urlList = "@Url.Action("Products", "MasterData", new { area = "MasterData" })"
+
+                if (ActionType == "Save") {
+                    location.href = urlList;
+
+                }
+            }
+        }
+
+    </script>
+
+
+}

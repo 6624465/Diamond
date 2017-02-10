@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Config">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="SQL5025.Smarterasp.net:DB_9F30C5_NetStockDiamond_admin">
+          <Created>2016-06-10T10:00:34.0806578+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5025.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_NetStockDiamond_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SUDARSHAN:sa">
+          <Created>2016-03-12T10:34:23.3986937+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SUDARSHAN</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>Vector</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SUDARSHAN\SUDARSHAN2012:sa">
+          <Created>2016-04-24T23:29:32.0395611+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SUDARSHAN\SUDARSHAN2012</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>NetJournal</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="Config.Lookup.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Config.Lookup.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Config.SystemWideConfiguration.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Config.SystemWideConfiguration.sql</FullPath>
+        </FileNode>
+        <FileNode Name="truncate all table data.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\SUDARSHAN2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\SUDARSHAN2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>truncate all table data.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>

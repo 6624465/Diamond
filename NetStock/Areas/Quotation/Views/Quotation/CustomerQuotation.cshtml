@@ -1,0 +1,545 @@
+﻿@model NetStock.Contract.Quotation
+
+@{
+    ViewBag.Title = "Customer";
+}
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+
+    <style type="text/css">
+        .select2 {
+            width: 216px !important;
+        }
+
+        .anchPopOverCss, anchPopOverCss:hover {
+            color: #cfc9c9 !important;
+        }
+    </style>
+}
+
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm("SaveCustomerQuotation", "Quotation", FormMethod.Post, new { id = "myForm" }))
+{
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Customer Quotation</h3>
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Quotation No.</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.QuotationNo, new { @class = "form-control input-sm", @readonly = "readonly", @maxlength = "50" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Date</label>
+                        <div class="col-sm-2">
+                            @Html.TextBoxFor(m => m.QuotationDate, new { @Value = Model.QuotationDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpQuotationDate" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Customer</label>
+                        <div class="col-md-5">
+                            @Html.DropDownListFor(m => m.CustomerCode, Model.CustomersList, null, new { @id = "ddlCustomerCode", @class = "form-control input-sm" })
+                        </div>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Effective Date</label>
+                        <div class="col-md-2">
+                            @Html.TextBoxFor(m => m.EffectiveDate, new { @Value = Model.EffectiveDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpEffectiveDate" })
+                        </div>
+                        <label for="txtInvoiceNo" class="col-md-1 control-label input-sm">Expiry Date</label>
+                        <div class="col-md-2">
+                            @Html.TextBoxFor(m => m.ExpiryDate, new { @Value = Model.ExpiryDate.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpExpiryDate" })
+                        </div>
+                        <span>
+                            <a class="anchPopOverCss" style="cursor:pointer;" data-container="body" data-toggle="popover" data-placement="right" data-content="Quotation Expiry date should be More than or equal to Effective date"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </span>
+                    </div>
+                </div>
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="tbDetails" data-toggle="tab">Item Details</a>
+                        </li>
+                        <li class="pull-right">
+                            <div class="btn-group btn-primary">
+                                <button class="btn btn-sm btn-success" onclick="btnAddNewRecord()" data-toggle="modal" data-target="#ProductListModal"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Add</button>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tbDetails">
+                            <table id="tblQuotationItems" class="table table-striped table-hover table-bordered table-responsive ">
+                                <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Sell Price </th>
+                                        <th>Currency</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size: 12px;">
+                                    @if (Model != null)
+                                    {
+                                        for (int itr = 0; itr < Model.QuotationItems.Count; itr++)
+                                        {
+                                            <tr id="trQuotationItems_@itr" class="QuotationItemsCss">
+                                                <td>
+                                                    @Html.HiddenFor(p => p.QuotationItems[itr].RecordStatus)
+                                                    @Html.HiddenFor(p => p.QuotationItems[itr].ProductCode)
+                                                    <span id="QuotationItems_@(itr)__ProductCode_span">@Model.QuotationItems[itr].ProductDescription</span>
+                                                </td>
+                                                <td>
+                                                    @Html.HiddenFor(p => p.QuotationItems[itr].SellRate)
+                                                    <span id="QuotationItems_@(itr)__SellRate_span">@Model.QuotationItems[itr].SellRate</span>
+                                                </td>
+                                                <td>
+                                                    @Html.HiddenFor(p => p.QuotationItems[itr].CurrencyCode)
+                                                    <span id="QuotationItems_@(itr)__CurrencyCode_span">@Model.QuotationItems[itr].CurrencyCode</span>
+
+                                                </td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                            Action
+                                                            <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                            <li><a class="cursorCss" id="Edit_@itr" onclick="EditQuotationItem('@(itr)')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>
+                                                            <li><a class="cursorCss" onclick="DeleteQuotationItem('@(itr)')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="box-footer">
+            <div class="row  no-print">
+                <div class="col-xs-12">
+                    <button type="button" onclick="btnSaveClick();" id="btnSave" class="btn btn-sm btn-success">
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+                    <a class="btn btn-sm btn-default" href="@Url.Action("EditCustomerQuotation", "Quotation", new { area = "Quotation", quotationNo = "NEW" }, null)">
+                        <i class="fa fa-close"></i>
+                        Clear
+                    </a>
+                    <a href="#" id="btnDelete" onclick="DeleteQuotation('@Model.QuotationNo')" class="btn btn-sm btn-danger">
+                        <i class="fa fa-times-circle"></i>
+                        Delete
+                    </a>
+                    @Html.ActionLink("Print", "QuotationReport", "Reports", new { area = "Reports", quotationNo = Model.QuotationNo, URL = "/NetStockDiamondReports/Diamond.Quotation" }, new { data_modal = "test", id = "btnViewReport", onclick = "PrintClick()", @class = "btn btn-sm btn-primary" })
+                    <a href="@Url.Action("CustomerQuotationList", "Quotation", new { area = "Quotation" }, null)" class="btn btn-sm btn-info pull-right">
+                        <i class="fa fa-arrow-circle-o-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="hdnFlag" name="hdnFlag" value="-1" />
+    </div>
+}
+
+
+<div class="modal fade" id="ProductListModal" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-md">
+            <form id="frmProductListModal" name="frmProductListModal" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Product Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        @{  var modalObj = new NetStock.Contract.QuotationItem();  }
+                        <label class="col-md-2 control-label input-sm">ProductCode</label>
+                        <div class="col-md-5">
+                            @Html.DropDownListFor(x => modalObj.ProductCode, Model.ProductsList, "Select Product Code", new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label input-sm">Sell Rate</label>
+                        <div class="col-md-5">
+                            @Html.TextBoxFor(x => modalObj.SellRate, new { @class = "form-control input-sm decimalCss", placeholder = "Unit Price", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 control-label input-sm">Currency</label>
+                        <div class="col-md-5">
+                            @Html.DropDownListFor(x => modalObj.CurrencyCode, Model.CurrencyCodeList, "Select Currency", new { @class = "form-control input-sm", @required = "required" })
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fa fa-undo" aria-hidden="true"></i>&nbsp;Close</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="btnAddDetails()"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+
+        var selectedDocumentNoId;
+        var DocumentNo;
+        var isEditLocal = false;
+        var QuotationItem = new Array();
+        var lstQuotationItem = new Array();
+
+        $("#ddlSupplier").select2();
+
+        $(function () {
+            var dateNow = new Date();
+            $("#tblQuotationItems").DataTable(
+                 {
+                     'bFilter': false,
+                     'bPaginate': false,
+                     'bInfo': false,
+                     //'bSortable': true,
+                     'bSort': false,
+                     'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+                         //nRow.className = "gradeX odd";
+                         nRow.id = 'trQuotationItems_' + iDisplayIndex;
+                         nRow.className = 'QuotationItemsCss';
+                         return nRow;
+                     }
+                 });
+
+            $("input ,select, textarea,hidden, a").not($(":button,a")).keypress(function (evt) {
+                if (evt.keyCode == 13) {
+                    evt.preventDefault();
+                    return false;
+                }
+            });
+
+            $('#dtpQuotationDate').datetimepicker({
+                useCurrent: false,
+                //maxDate: moment('DateTime.Now.ToString("dd/MM/yyyy")'),
+                format: 'DD/MM/YYYY',
+                inline: false
+            });
+
+            $('#dtpEffectiveDate').datetimepicker({
+                format: 'DD/MM/YYYY'
+            });
+            $('#dtpExpiryDate').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY'
+            });
+            
+            @if(Request.QueryString["quotationNo"] == "NEW")
+            {
+                <text>$('#dtpEffectiveDate, #dtpExpiryDate').val('');</text>
+            }            
+            $("#dtpEffectiveDate").on("dp.change", function (e) {
+                $('#dtpExpiryDate').data("DateTimePicker").minDate(e.date);
+            });
+            $("#dtpExpiryDate").on("dp.change", function (e) {
+                $('#dtpEffectiveDate').data("DateTimePicker").maxDate(e.date);
+            });
+
+            $('#modalObj_ProductCode').select2();
+            ProductDetailsModalValidation();
+            MainFormValidation();
+
+            $('[data-toggle="popover"]').popover({
+                trigger: 'hover'
+            });
+        });
+
+        function btnSaveClick() {
+            if ($('#myForm').valid()) {
+                if ($('.QuotationItemsCss').length > 0) {
+                    $('#btnSave').attr('disabled', 'disabled');
+                    $('#myForm').submit();
+
+                }
+                else {
+                    alert('Please add atleast one item');
+                }
+            }
+        }
+
+        function MainFormValidation() {
+            $('#myForm').validate({
+                rules: {
+                    'QuotationDate': {
+                        required: true
+                    },
+                    'CustomerCode': {
+                        required: true
+                    },
+                    'EffectiveDate': {
+                        required: true
+                    },
+                    'ExpiryDate': {
+                        required: true
+                    }
+                },
+                messages: {
+                    'QuotationDate': {
+                        required: 'Quotation Date is required'
+                    },
+                    'CustomerCode': {
+                        required: 'Customer Code is required'
+                    },
+                    'EffectiveDate': {
+                        required: 'Effective Date is required'
+                    },
+                    'ExpiryDate': {
+                        required: 'Expiry Date is required'
+                    }
+                }
+            });
+        }
+        function ProductDetailsModalValidation() {
+            $('#frmProductListModal').validate({
+                rules: {
+                    'modalObj.ProductCode': {
+                        required: true
+                    },
+                    'modalObj.SellRate': {
+                        required: true
+                    },
+                    'modalObj.CurrencyCode': {
+                        required: true
+                    }
+                },
+                messages: {
+                    'modalObj.ProductCode': {
+                        required: 'Product Code is required'
+                    },
+                    'modalObj.SellRate': {
+                        required: 'Sell Rate is required'
+                    },
+                    'modalObj.CurrencyCode': {
+                        required: 'Currency Code is required'
+                    }
+                }
+            });
+        }
+
+
+        function OnSaveFailure(result) {
+            ModalShow(result.Message, "Failure", "Save");
+        }
+
+        function OnSaveSuccess(result) {
+
+            if (result.success) {
+                ModalShow(result.Message, "Success", "Save");
+            }
+            else {
+                ModalShow(result.Message, "Failure", "Save");
+            }
+
+            //ModalShow(result.Message, "Success", "Save");
+            //debugger;
+            DocumentNo = result.quotationData.QuotationNo;
+        }
+
+        var urlList = "@Url.Action("CustomerQuotationList", "Quotation", new { area = "Quotation" })"
+        //location.href = "/Quotation/CustomerQuotationList";
+        function BtnOK() {
+            if (ActionType == "Save") {
+                location.href = urlList;
+            }
+        }
+
+
+
+
+        $(document).ready(function () {
+            //debugger;
+            if ('@Model.Status' == 'False') {
+                $("#txtQuotationNo").addClass("StrikeOut")
+                $("#btnSave").attr("disabled", " disabled")
+                $("#btnDelete").attr("disabled", " disabled")
+
+            }
+
+            $('#tblQuotationItem').DataTable({
+                responsive: true
+            });
+
+        });
+
+
+        function DeleteQuotation() {
+            debugger;
+            var quotationNo = $("#QuotationNo").val();
+
+            if (quotationNo == "NEW") {
+                alert('Please choose a valid Quotation to Proceed!');
+                return false;
+            }
+
+
+            if (!confirm("Do you want to delete Selected Quotation [" + quotationNo + "] ?")) {
+                return false;
+            }
+
+
+            var rooturldelete = "@Url.Action("DeleteCustomerQuotation", "Quotation", new { area = "Quotation" })"
+            var urldelete = rooturldelete + "?quotationNo=" + quotationNo;
+            location.href = urldelete;
+        }
+
+
+        function btnAddNewRecord() {
+            $('#hdnFlag').val('-1');
+            $("#modalObj_ProductCode").select2("val", "");
+            var tblRows = $('.QuotationItemsCss').length;
+
+            $("#modalObj_ProductCode > option").each(function () {
+                for (var i = 0; i < tblRows; i++) {
+                    var tblProductCode = $('#QuotationItems_' + i + '__ProductCode').val();
+
+                    if (tblProductCode == this.value) {
+                        $(this).attr('disabled', 'disabled');
+                        break;
+                    }
+                }
+            });
+
+            $('#modalObj_ProductCode').select2();
+        }
+
+        function btnAddDetails() {
+            //var validator = $('#frmshippmentIndentModal').data('bootstrapValidator');
+            //validator.validate();
+            //if (validator.isValid()) {
+            if (!$('#frmProductListModal').valid()) {
+                return;
+            }
+            debugger;
+            var hdnFlag = $('#hdnFlag').val();
+            if (hdnFlag == '-1') {
+                var _index = $('.QuotationItemsCss').length;
+                var obj = {
+                    index: _index,
+                    ProductCodeDesc: $('#modalObj_ProductCode option:selected').text(),
+                    ProductCode: $('#modalObj_ProductCode').val(),
+                    SellRate: $('#modalObj_SellRate').val(),
+                    CurrencyCode: $('#modalObj_CurrencyCode').val(),
+                };
+
+                var rowData = [
+
+                            '<input id="QuotationItems_' + obj.index + '__RecordStatus" name="QuotationItems[' + obj.index + '].RecordStatus" type="hidden" value="1">' +
+                            '<input id="QuotationItems_' + obj.index + '__ProductCode" name="QuotationItems[' + obj.index + '].ProductCode" type="hidden" value="' + obj.ProductCode + '">' +
+                            '<span id="QuotationItems_' + obj.index + '__ProductCode_span">' + obj.ProductCodeDesc + '</span>',
+
+
+                            '<input id="QuotationItems_' + obj.index + '__SellRate" name="QuotationItems[' + obj.index + '].SellRate" type="hidden" value="' + obj.SellRate + '">' +
+                            '<span id="QuotationItems_' + obj.index + '__SellRate_span">' + obj.SellRate + '</span>',
+                            '<input id="QuotationItems_' + obj.index + '__CurrencyCode" name="QuotationItems[' + obj.index + '].CurrencyCode" type="hidden" value="' + obj.CurrencyCode + '">' +
+                            '<span id="QuotationItems_' + obj.index + '__CurrencyCode_span">' + obj.CurrencyCode + '</span>',
+
+                            '<div class="dropdown">' +
+                            '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">Action<span class="caret"></span></button>' +
+                            '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">' +
+                                '<li><a class="cursorCss" id="Edit_' + obj.index + '" onclick="EditQuotationItem(' + obj.index + ')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>' +
+                                '<li><a class="cursorCss" onclick="DeleteQuotationItem(' + obj.index + ')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>' +
+                            '</ul></div>'
+
+                ];
+                $('#tblQuotationItems').dataTable().fnAddData(rowData);
+
+                $('#ProductListModal').modal('hide');
+                ResetModal();
+            }
+            else {
+                $('#QuotationItems_' + hdnFlag + '__ProductCode').val($('#modalObj_ProductCode').val());
+                $('#QuotationItems_' + hdnFlag + '__ProductCode_span').text($('#modalObj_ProductCode option:selected').text());
+
+                $('#QuotationItems_' + hdnFlag + '__SellRate').val($('#modalObj_SellRate').val());
+                $('#QuotationItems_' + hdnFlag + '__SellRate_span').text($('#modalObj_SellRate').val());
+
+                $('#QuotationItems_' + hdnFlag + '__CurrencyCode').val($('#modalObj_CurrencyCode').val());
+                $('#QuotationItems_' + hdnFlag + '__CurrencyCode_span').text($('#modalObj_CurrencyCode').val());
+
+
+                $('#hdnFlag').val('-1');
+                $('#ProductListModal').modal('hide');
+            }
+        }
+
+        function EditQuotationItem(index) {
+            debugger;
+            $('#modalObj_ProductCode').select2('val', $('#QuotationItems_' + index + '__ProductCode').val());
+            $('#modalObj_SellRate').val($('#QuotationItems_' + index + '__SellRate').val());
+            $('#modalObj_CurrencyCode').val($('#QuotationItems_' + index + '__CurrencyCode').val());
+
+            $('#ProductListModal').modal('show');
+            $('#hdnFlag').val(index);
+        }
+
+        function DeleteQuotationItem(index) {
+            debugger;
+            //$('#PurchaseOrderDetails_' + index + '__Status').val(false);
+            $('#trQuotationItems_' + index).css({
+                'color': 'red',
+                'display': 'none',
+                'text-decoration': 'line-through',
+                'font-style': 'italic'
+            });
+
+            $('#QuotationItems_' + index + '__RecordStatus').val('3');
+        }
+
+        function ResetModal() {
+            $('#modalObj_ProductCode').val('');
+            $('#modalObj_SellRate').val('');
+            $('#modalObj_CurrencyCode').val('');
+        }
+
+
+        function PrintClick() {
+            //debugger;
+            var DocumentNo = $("#QuotationNo").val();
+
+            var ReportURL = ("/NetStockDiamondReports/Diamond.Quotation");
+
+            var rooturl = '@Url.Action("QuotationReport", "Reports", new { area = "Reports" })';
+            var url = rooturl + "?quotationNo=" + DocumentNo + "&URL=" + ReportURL;
+            $("#btnViewReport").attr("href", url);
+        }
+
+    </script>
+}
+

@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="MasterData">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="SQL5025.Smarterasp.net:DB_9F30C5_NetStockDiamond_admin">
+          <Created>2016-04-25T03:15:37.2539274+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5025.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_NetStockDiamond_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB>DB_9F30C5_NetStockDiamond</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SQL5025.Smarterasp.net:DB_9F30C5_PickC_admin">
+          <Created>2016-09-19T09:56:26.8262399+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SQL5025.Smarterasp.net</Server>
+          <UserName>DB_9F30C5_PickC_admin</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+        <ConnectionNode Name="SUDARSHAN\sudarshan2012:sa">
+          <Created>2016-03-25T11:42:18.7866657+07:00</Created>
+          <Type>SQL</Type>
+          <Server>SUDARSHAN\sudarshan2012</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="Master.Address.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.Address.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Branch.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.Branch.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Company.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.Company.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Country.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.Country.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Currency.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.Currency.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Customer.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.Customer.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.CustomerProduct.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.CustomerProduct.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Location.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.Location.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Product.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.Product.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.ProductImage.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.ProductImage.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.Quotation.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.Quotation.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.QuotationItem.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.QuotationItem.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.udf_FullAddress.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Master.udf_FullAddress.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.usp_GetProductPrice.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SUDARSHAN\sudarshan2012:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SUDARSHAN\sudarshan2012</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>Master.usp_GetProductPrice.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.usp_GetSupplierProductPrice.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:SQL5025.Smarterasp.net:False:DB_9F30C5_NetStockDiamond_admin</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>SQL5025.Smarterasp.net</AssociatedConnSrvName>
+          <AssociatedConnUserName>DB_9F30C5_NetStockDiamond_admin</AssociatedConnUserName>
+          <FullPath>Master.usp_GetSupplierProductPrice.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.usp_GetSupplierProductQuotation.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.usp_GetSupplierProductQuotation.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Master.ProductCategory.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Master.ProductCategory.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>

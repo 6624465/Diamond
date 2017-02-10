@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{F14B399A-7131-4C87-9E4B-1186C45EF12D}") = "NetStockDiamondReports", "NetStockDiamondReports.rptproj", "{14DFE819-90E1-46E2-BC01-D692443EC013}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		DebugLocal|Default = DebugLocal|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.Debug|Default.ActiveCfg = Debug
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.Debug|Default.Build.0 = DebugLocal
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.Debug|Default.Deploy.0 = DebugLocal
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.DebugLocal|Default.ActiveCfg = DebugLocal
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.DebugLocal|Default.Build.0 = DebugLocal
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.Release|Default.ActiveCfg = Release
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.Release|Default.Build.0 = Release
+		{14DFE819-90E1-46E2-BC01-D692443EC013}.Release|Default.Deploy.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

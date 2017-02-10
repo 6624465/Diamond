@@ -1,0 +1,325 @@
+﻿@model NetStock.Contract.UnbilledHeader
+
+@{
+    ViewBag.Title = "Invoice";
+}
+@section css{
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/select2.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+}
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm("UnBilledInvoiceInquiry", "Billing", FormMethod.Post, new { id = "frmUnbilledInvoice", name = "frmUnbilledInvoice" }))
+{
+
+
+    <div class="box box-solid box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Unbilled Invoices</h3>
+        </div>
+        <div class="box-body">
+            <fieldset class="form-horizontal">
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Customer / รหัสลูกค้า</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.CustomerCode, Model.CustomersList, "ALL", new { @id = "ddlCustomerCode", @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Date From / จากวันที่</label>
+                        <div class="col-sm-3">
+                            @Html.TextBoxFor(m => m.DateFrom, new { @Value = Model.DateFrom.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpDateFrom" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Date To / ถึงวันที่</label>
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.DateTo, new { @Value = Model.DateTo.ToString("dd/MM/yyyy"), @class = "form-control input-sm", @id = "dtpDateTo" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label class="col-md-2 control-label input-sm">Invoice Type / ประเภทการขาย</label>
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(m => m.InvoiceType, Model.InvoiceTypeList, null, new { @class = "form-control input-sm" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label for="txtInvoiceNo" class="col-md-2 control-label input-sm">Over Due</label>
+                        <div class="col-md-2">
+                            @Html.CheckBoxFor(m => m.OverDue, new { @class = "checkbox", @id = "chkIsPayLater" })
+                        </div>
+                    </div>
+                </div>
+                @*<div class="form-group">
+                        <div>
+                            <label for="txtInvoiceNo" class="col-md-2 control-label input-sm"></label>
+                            <div class="col-md-2">
+                                @Html.TextBoxFor(m => m.PaymentDays, new { @class = "form-control input-sm", @id = "txtPaymentDays" })
+                            </div>
+                        </div>
+                    </div>*@
+                @*<a href="#" class="btn btn-primary">Save</a>*@
+                <button type="button" id="btnSave" class="btn btn-sm btn-success" onclick="btnSaveClick();">
+                    <i class="fa fa-search"></i>
+                    Search...
+                </button>
+                <a href="@Url.Action("UnbilledInvoices", "Billing", new { area = "Billing" }, null)" class="btn btn-sm btn-default">
+                    <i class="fa fa-close"></i>
+                    Clear
+                </a>
+                
+            </fieldset>
+        </div>
+
+    </div>
+
+
+
+    <table id="tblInvoice" class="table table-striped table-bordered">
+        <thead style="background-color:steelblue;color:white;font-size:12px;">
+            <tr>
+                <th style="text-align:left;"><input type="checkbox" value="" id="chkSelectAll" /></th>
+                <th>Invoice No.</th>
+                <th>Invoice Date</th>
+                <th>รหัสลูกค้า</th>
+                <th>Invoice Amount </th>
+                <th>Due Amount </th>
+                <th>Due Date </th>
+                @*<th>พิมพ์! </th>*@
+            </tr>
+        </thead>
+        <tbody style="font-size:12px;">
+            @if (Model != null)
+            {
+                int incr = 0;
+                foreach (NetStock.Contract.UnbilledDetail item in Model.lstDetails)
+                {
+                    incr++;
+                    <tr data-id="@incr">
+                        <td style="text-align:center;">
+                            <input type="checkbox" value="" id="chkInvoiceNo_@incr" class="checkbox glyphicon-align-center" />
+                        </td>
+                        <td id="InvoiceNo">
+                            @Html.ActionLink(@item.InvoiceNo, "InvoiceEntry", "Billing", new { invoiceNo = @item.InvoiceNo }, new { data_modal = "", id = "btnCreate", @class = "btn btn-link" })
+                        </td>
+                        <td id="InvoiceDate">@item.InvoiceDate.ToString("dd-MM-yyyy") </td>
+                        <td id="CustomerName">@item.CustomerName </td>
+                        <td id="InvoiceAmount">@item.InvoiceAmount.ToString("###0.00")</td>
+                        <td id="PendingAmount">@item.PendingAmount.ToString("###0.00")</td>
+                        <td id="DueDate">@item.DueDate.ToString("dd-MM-yyyy")</td>
+                        @*<td id="InvoiceNo">
+                            @Html.ActionLink("พิมพ์", "InvoiceReport", "Reports", new { area = "Reports", invoiceNo = @item.InvoiceNo, URL = "/NetStockReports/CashBill" }, new { data_modal = "test", id = "btnViewReport", onclick = "PrintClick(" + @item.InvoiceNo + ")", @class = "btn btn-small btn-primary" })
+
+                        </td>*@
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div class="panel-footer clearfix">
+        <div class="row">
+            <div class="pull-left">
+                @*@Html.ActionLink("Approve", "ProcessApproval", "Billing", new { customerCode = Model.CustomerCode }, new { @class = "btn btn-sm btn-primary", @onclick = "return confirm('Proceed To Approval ?')" })*@
+                <input type="button" class="btn btn-sm btn-primary" id="" onclick="SendingData()" value="Received Payment" />
+                <a href="@Url.Content("~/Dashboard/Index")" id="btnBack" class="btn btn-sm btn-info">
+                    <i class="fa fa-arrow-circle-o-left"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/select2.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+
+        function PrintClick(invoice) {
+            //debugger;
+            //var InvoiceNo = $("#txtInvoiceNo").val();
+            var ReportURL = ("/NetStockReports/CashBill");
+            var url = "/Reports/InvoiceReport?invoiceNo=" + invoice + "&URL=" + ReportURL;
+            $("#btnViewReport").attr("href", url);
+        }
+
+
+        $("#ddlCustomerCode").select2();
+
+
+        $(document).ready(function () {
+            var dateNow = new Date();
+            //$('#dtpDateFrom').datetimepicker({
+            //    format: "DD/MM/YYYY"
+            //});
+            //$('#dtpDateTo').datetimepicker({
+            //    format: "DD/MM/YYYY"
+            //});
+
+            $('#dtpDateFrom, #dtpDateTo').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY',
+                inline: false
+            });
+
+
+            $('#dtpDateFrom').on('dp.change', function (e) {
+                $('#dtpDateTo').data('DateTimePicker').minDate(e.date);
+            });
+            $('#dtpDateTo').on('dp.change', function (e) {
+                $('#dtpDateFrom').data('DateTimePicker').maxDate(e.date);
+            });
+
+            $('#dtpDateFrom, #dtpDateTo').val('');
+            /*
+            var dateFrom = 'Model.DateFrom';
+            var dateTo = 'Model.DateTo';
+
+            if (dateFrom == '') {
+                $('#dtpDateFrom').val('');
+            }
+
+            if (dateTo == '') {
+                $('#dtpDateTo').val('');
+            }
+            */
+
+            $("#chkIsPayLater").click(function () {
+                $('#txtPaymentDays').attr("disabled", !$(this).is(':checked'));
+            });
+
+            $('#chkSelectAll').click(function (event) {  //on click
+                if (this.checked) { // check select status
+                    $('.checkbox').each(function () { //loop through each checkbox
+                        this.checked = true;  //select all checkboxes with class "checkbox1"
+                    });
+                } else {
+                    $('.checkbox').each(function () { //loop through each checkbox
+                        this.checked = false; //deselect all checkboxes with class "checkbox1"
+                    });
+                }
+            });
+
+            $('#frmUnbilledInvoice').validate({
+                rules: {
+                    DateFrom: {
+                        required: true
+                    },
+                    DateTo: {
+                        required: true
+                    }
+                },
+                messages: {
+                    DateFrom: {
+                        required: 'From Date is required'
+                    },
+                    DateTo: {
+                        required: 'To Date is required'
+                    }
+                }
+            });
+
+
+        });
+
+
+        function SendingData() {
+            if (!confirm('Proceed To Approval ?')) {
+                return false;
+            }
+
+
+            var oTable = $("#tblInvoice").dataTable();
+            oTable.fnGetNodes()
+            var htmlTableValue = oTable.fnGetNodes();// $("#tblInvoice").html();
+            var test = [];
+            var str = "";
+            var t;
+            var rowcount = oTable.fnGetData().length
+            var i = 0;
+            $.each(htmlTableValue, function (a, b, c, d) {
+                var checkedRows = [];
+                var tempString = "";
+                i++;
+                var x = $.each(b.children, function (ccn, columnDetails, z, p) {
+
+                    //ccn=Current Column Number
+                    if ($('#chkInvoiceNo_' + i).is(":checked")) {
+                        checkedRows.push('"' + $(columnDetails).attr("id") + '":"' + $(columnDetails).text() + '"');
+                        if (ccn != 0) { //check for first column as checkbox and avoid it.
+                            if (ccn == 6) { //checked for the end columns and remove comma from the end of json
+                                tempString += '"' + $(columnDetails).attr("id") + '":"' + $(columnDetails).text().trim() + '"';
+                            }
+                            else if (ccn == 2) {
+                                tempString += '"' + $(columnDetails).attr("id") + '":"' + $(columnDetails).text().trim() + '",';
+                                ;
+                            }
+                            else {
+                                tempString += '"' + $(columnDetails).attr("id") + '":"' + $(columnDetails).text().trim() + '",';
+                            }
+                        }
+                    }
+                });
+                //debugger
+                tempString = "{" + tempString + "}";
+                test.push(checkedRows);
+                if (a == rowcount - 1) {
+                    str += tempString;
+                }
+                else {
+                    str += tempString + ",";
+                }
+                //str = tempString;
+            })
+            str = "[" + str + "]";
+            var d = JSON.stringify({ htmlTableValue: str });
+            //alert(d);
+            //debugger;
+            $.ajax({
+                url: '@Url.Action("SendInvoiceApproval", "Billing")',
+                type: 'POST',
+                cache: false,
+                data: d,
+                dataType: 'json',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) { window.location.href = '@Url.Action("UnbilledInvoices", "Billing")' },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+
+        function btnSaveClick() {
+            if ($('#frmUnbilledInvoice').valid()) {                
+                $('#frmUnbilledInvoice').submit();
+            }
+        }
+
+
+
+    </script>
+}
+
+

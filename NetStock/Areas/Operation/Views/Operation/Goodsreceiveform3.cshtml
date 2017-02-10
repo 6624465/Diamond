@@ -1,0 +1,523 @@
+﻿@model NetStock.Areas.Operation.Controllers.InspectionDomesticVm
+
+
+@section css{
+
+    <link href="@Url.Content("~/Content/dataTables.bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/dataTables.responsive.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/bootstrap-datetimepicker.css")" rel="stylesheet" />
+    <style type="text/css">
+        .cursorCss{
+            cursor:pointer;
+        }
+    </style>
+}
+
+<div class="box box-solid box-default">
+    <div class="box-header with-border">
+        <h2 class="box-title"><b>Incoming Check Sheet</b></h2>
+    </div>
+
+    <!-- Body -->
+    <div class="box-body">
+        <fieldset class="form-horizontal">
+            <legend></legend>
+            <form id="frmCheckSheet" method="post">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">วันที่ตรวจ</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dinspectorDate" name="dinspectorDate" class="form-control datepicker input-sm" placeholder="Inspection Date" />
+                    </div>
+                    <label class="col-md-2 control-label input-sm">ตรวจโดย</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dinspectorName" name="dinspectorName" class="form-control input-sm" placeholder="Inspector Name" />
+                    </div>
+                    <label class="col-md-2 control-label input-sm">สินค้า</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dproductName" name="dproductName" class="form-control input-sm" placeholder="Product Name" disabled="disabled" value="@Request.QueryString["proDesc"]" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label input-sm">Batch No</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dbatchNo" name="dbatchNo" class="form-control input-sm" placeholder="Batch No" requird />
+                    </div>
+                    <label class="col-md-2 control-label input-sm">Quantity</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dQty" name="dQty" class="form-control input-sm" placeholder="" />
+                    </div>
+                    <label class="col-md-2 control-label input-sm">UOM</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dUom" name="dUom" class="form-control input-sm" placeholder="UOM" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label input-sm">Color</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dColor" name="dColor" class="form-control input-sm" placeholder="Color" />
+                    </div>
+                    <label class="col-md-2 control-label input-sm">Weight</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dWeight" name="dWeight" class="form-control input-sm" placeholder="Weight" />
+                    </div>
+                    <label class="col-md-2 control-label input-sm">Melting Min</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dMeltingMin" name="dMeltingMin" class="form-control input-sm" placeholder="Melting Min" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <span style="padding-top: 10px;">
+                            <input type="checkbox" id="dCantMelt" />
+                        </span>&nbsp;
+                        <label for="dCantMelt">Can't Melt</label>
+                    </div>
+                    <label class="col-md-2 control-label">Clean After</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dCleanAfter" name="dCleanAfter" class="form-control input-sm" placeholder="Clean After" />
+                    </div>
+                    <label class="col-md-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <span style="padding-top: 10px;">
+                            <input type="checkbox" id="dNotClean" />
+                        </span>&nbsp;
+                        <label for="dNotClean">Not Clean</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">PH Level</label>
+                    <div class="col-sm-2">
+                        <input type="text" id="dPhlevel" name="dPhlevel" class="form-control input-sm" placeholder="PH Level" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Remarks</label>
+                    <div class="col-sm-6">
+                        <textarea id="dRemarks" class="form-control input-sm" placeholder="Remarks"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 10px">
+                    <div class="col-md-2 pull-right">
+                        <button class="btn btn-success btn-sm" id="btnAdd" type="button" onclick="addDomesticItem()">Add</button>
+                        <button class="btn btn-warning btn-sm" id="btnClear" type="button" onclick="clearSelectedDomenticItem()">Clear</button>
+                    </div>
+                </div>
+            </form>
+            <form action="@Url.Content("~/Operation/SaveGoodsreceiveform3")" method="post" id="frm" class="form-horizontal">
+                <div class="row" style="padding-top: 10px;">
+                    <div class="col-md-12">
+                        <table class="table table-bordered" id="tblInspectionDomestic">
+                            <thead style="background-color: steelblue; color: white; font-size: 12px;">
+                                <tr>
+                                    <th>Batch No.</th>
+                                    <th>Qty</th>
+                                    <th>UOM</th>
+                                    <th>Weight</th>
+                                    <th>Color</th>
+                                    <!--<th>Melting Min</th>
+                                        <th>Can't Melt</th>
+                                        <th>Clean After Melt</th>
+                                        <th>Not Clean</th>-->
+                                    <th>PH Level</th>
+                                    <!--<th>Remarks</th>-->
+                                    <th>#Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblDomesticBody">
+
+                                @for (var i = 0; i < Model.inspectionDomesticList.Count; i++)
+                                {
+                                <tr class="InspectionDomesticCss" id="InspectionDomestic_@(i)">
+                                    <td>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].BatchNo)
+                                        <span id="BatchNo_@(i)">@Model.inspectionDomesticList[i].BatchNo</span>
+                                    </td>
+                                    <td>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].Qty)
+                                        <span id="Qty_@(i)">@Model.inspectionDomesticList[i].Qty</span>
+                                    </td>
+                                    <td>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].UOM)
+                                        <span id="UOM_@(i)">@Model.inspectionDomesticList[i].UOM</span>
+                                    </td>
+                                    <td>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].BagWeight)
+                                        <span id="BagWeight_@(i)">@Model.inspectionDomesticList[i].BagWeight</span>
+                                    </td>
+                                    <td>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].Color)
+                                        <span id="Color_@(i)">@Model.inspectionDomesticList[i].Color</span>
+                                    </td>
+                                    <td>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].PHLevel)
+                                        <span id="PHLevel_@(i)">@Model.inspectionDomesticList[i].PHLevel</span>
+                                    </td>
+                                    <td>
+                                        
+                                        <div class="dropdown">
+                                            <button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                Action
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                <li><a class="cursorCss" onclick="tblEditDomestic('@i')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>
+                                                <li><a class="cursorCss" onclick="tblCancelDomestic('@i')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>
+                                            </ul>
+                                        </div>
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].Remarks)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].InspectionDate)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].ProductCode)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].MeltingMinute)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].IsMeltAll)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].IsClean)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].InspectedBy)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].ItemNo)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].ProductDescription)
+                                        @Html.HiddenFor(x => Model.inspectionDomesticList[i].Status)
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 pull-right">
+                        <button type="submit" class="btn btn-primary btn-sm" onclick="btnAddSsnToHdn()"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="backClick();"><i class="fa fa-undo" aria-hidden="true"></i>&nbsp; Back </button>
+                    </div>
+                </div>
+                @Html.HiddenFor(x => x.branchId)
+                @Html.HiddenFor(x => x.documentNo)
+                @Html.HiddenFor(x => x.poNo)
+
+            </form>
+        </fieldset>
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/modalform")
+    <script src="@Url.Content("~/Scripts/jquery.dataTables.js")"></script>
+    <script src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('.datepicker').datetimepicker({
+                useCurrent: false,
+                //maxDate: moment('@DateTime.Now.ToString("MM/dd/yyyy")'),
+                format: 'DD/MM/YYYY',
+                inline: false,
+                //autoclose: true
+            });
+
+            $('#dinspectorDate').datetimepicker({
+                format: 'DD/MM/YYYY'
+            }).on('changeDate', function (e) {
+                // Revalidate the start date field
+                $('#frmCheckSheet').formValidation('revalidateField', 'dinspectorDate');
+
+            });
+
+            $("#tblInspectionDomestic").DataTable({
+                'bFilter': false,
+                'bPaginate': false,
+                'bInfo': false,
+                'bSort': false,
+                'fnRowCallback': function (nRow, aData, iDisplayIndex) {
+                    //nRow.className = "gradeX odd";
+                    nRow.id = 'InspectionDomestic_' + iDisplayIndex;
+                    nRow.className = 'InspectionDomesticCss';
+                    return nRow;
+                }
+            });
+
+        });
+
+
+
+        function ValidateIt() {
+            $('#frmCheckSheet').validate({
+                rules: {
+                    dinspectorDate: {
+                        required: true
+                    },
+                    dinspectorName: {
+                        required: true
+                    },
+                    dproductName: {
+                        required: true
+                    },
+                    dbatchNo: {
+                        required: true
+                    },
+                    dQty: {
+                        required: true
+                    },
+                    dUom: {
+                        required: true
+                    },
+                    dWeight: {
+                        required: true
+                    }
+                }
+            });
+        }
+
+
+        var domesticFlag = -1;
+        function addDomesticItem() {
+            debugger;
+            ValidateIt();
+            if (!$('#frmCheckSheet').valid()) {
+                return false;
+            }
+            if (true) {
+
+                var obj = {
+                    dbatchNo: $('#dbatchNo').val(),
+                    dQty: $('#dQty').val(),
+                    dUom: $('#dUom').val(),
+                    dColor: $('#dColor').val(),
+                    dWeight: $('#dWeight').val(),
+                    dMeltingMin: $('#dMeltingMin').val(),
+                    dCantMelt: $('#dCantMelt').is(':checked'),
+                    dCleanAfter: $('#dCleanAfter').val(),
+                    dNotClean: $('#dNotClean').is(':checked'),
+                    dPhlevel: $('#dPhlevel').val(),
+                    dRemarks: $('#dRemarks').val(),
+                    dInsDate: $('#dinspectorDate').val(),
+                    dinspectorName: $('#dinspectorName').val(),
+                    dproductName: $('#dproductName').val(),
+                    dproductDesc: $('#dproductName').val()
+                }
+                if (domesticFlag == -1) {
+                    var rowCount = $('.InspectionDomesticCss').length;
+
+
+                    var rowData = [
+                        '<input id="inspectionDomesticList_' + rowCount + '__BatchNo" name="inspectionDomesticList[' + rowCount + '].BatchNo" type="hidden" value="' + obj.dbatchNo + '">' +
+                        '<span id="BatchNo_' + rowCount + '">' + obj.dbatchNo + '</span>',
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__Qty" name="inspectionDomesticList[' + rowCount + '].Qty" type="hidden" value="' + obj.dQty + '">' +
+                        '<span id="Qty_' + rowCount + '">' + obj.dQty + '</span>',
+                        '<input id="inspectionDomesticList_' + rowCount + '__UOM" name="inspectionDomesticList[' + rowCount + '].UOM" type="hidden" value="' + obj.dUom + '">' +
+                        '<span id="UOM_' + rowCount + '">' + obj.dUom + '</span>',
+                        '<input id="inspectionDomesticList_' + rowCount + '__BagWeight" name="inspectionDomesticList[' + rowCount + '].BagWeight" type="hidden" value="' + obj.dWeight + '">' +
+                        '<span id="BagWeight_' + rowCount + '">' + obj.dWeight + '</span>',
+                        '<input id="inspectionDomesticList_' + rowCount + '__Color" name="inspectionDomesticList[' + rowCount + '].Color" type="hidden" value="' + obj.dColor + '">' +
+                        '<span id="Color_' + rowCount + '">' + obj.dColor + '</span>',
+                        '<input id="inspectionDomesticList_' + rowCount + '__PHLevel" name="inspectionDomesticList[' + rowCount + '].PHLevel" type="hidden" value="' + obj.dPhlevel + '">' +
+                        '<span id="PHLevel_' + rowCount + '">' + obj.dPhlevel + '</span>',
+                        
+                        '<div class="dropdown">' +
+                            '<button class="btn btn-warning btn-sm dropdown-toggle" style="border-radius: 0px !important;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">' +
+	                        'Action' +
+	                        '<span class="caret"></span>' +
+                            '</button>' +
+                            '<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">' +
+	                        '<li><a class="cursorCss" onclick="tblEditDomestic('+ rowCount +')"><i class="fa fa-pencil"></i>&nbsp;Edit</a></li>' +
+	                        '<li><a class="cursorCss" onclick="tblCancelDomestic('+ rowCount +')"><i class="fa fa-trash-o"></i>&nbsp;Delete</a></li>' +
+                            '</ul>' +
+                        '</div>' +
+                        '<input id="inspectionDomesticList_' + rowCount + '__Remarks" name="inspectionDomesticList[' + rowCount + '].Remarks" type="hidden" value="' + obj.dRemarks + '">' +
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__InspectionDate" name="inspectionDomesticList[' + rowCount + '].InspectionDate" type="hidden" value="' + obj.dInsDate + '">' +
+                        '<input id="inspectionDomesticList_' + rowCount + '__ProductCode" name="inspectionDomesticList[' + rowCount + '].ProductCode" type="hidden" value="' + '@Request.QueryString["productCode"]' +'">' +
+                        '<input id="inspectionDomesticList_' + rowCount + '__MeltingMinute" name="inspectionDomesticList[' + rowCount + '].MeltingMinute" type="hidden" value="' + obj.dMeltingMin + '">' +
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__IsMeltAll" name="inspectionDomesticList[' + rowCount + '].IsMeltAll" type="hidden" value="True">' +
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__IsClean" name="inspectionDomesticList[' + rowCount + '].IsClean" type="hidden" value="True">' +
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__InspectedBy" name="inspectionDomesticList[' + rowCount + '].InspectedBy" type="hidden" value="' + obj.dinspectorName + '">' +
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__ItemNo" name="inspectionDomesticList[' + rowCount + '].ItemNo" type="hidden" value="' + (rowCount + 1) + '">' +
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__ProductDescription" name="inspectionDomesticList[' + rowCount + '].ProductDescription" type="hidden" value="' + obj.dproductDesc + '">',
+                        '<input data-val="true" id="inspectionDomesticList_' + rowCount + '__Status" name="inspectionDomesticList[' + rowCount + '].Status" type="hidden" value="' + '@Boolean.TrueString' + '">'
+                    ];
+                    $('#tblInspectionDomestic').dataTable().fnAddData(rowData);
+                }
+                else {
+                    $('#inspectionDomesticList_' + domesticFlag + '__InspectionDate').val($('#dinspectorDate').val());
+                    $('#inspectionDomesticList_' + domesticFlag + '__InspectedBy').val($('#dinspectorName').val());
+                    $('#inspectionDomesticList_' + domesticFlag + '__BatchNo').val($('#dbatchNo').val());
+                    $('#BatchNo_' + domesticFlag).text($('#dbatchNo').val());
+
+                    $('#inspectionDomesticList_' + domesticFlag + '__Qty').val($('#dQty').val());
+                    $('#Qty_' + domesticFlag).text($('#dQty').val());
+
+                    $('#inspectionDomesticList_' + domesticFlag + '__UOM').val($('#dUom').val());
+                    $('#UOM_' + domesticFlag).text($('#dUom').val());
+
+                    $('#inspectionDomesticList_' + domesticFlag + '__Color').val($('#dColor').val());
+                    $('#Color_' + domesticFlag).text($('#dColor').val());
+
+
+                    $('#inspectionDomesticList_' + domesticFlag + '__BagWeight').val($('#dWeight').val());
+                    $('#BagWeight_' + domesticFlag).text($('#dWeight').val());
+
+                    $('#inspectionDomesticList_' + domesticFlag + '__MeltingMinute').val($('#dMeltingMin').val());
+
+                    var IsMeltAll = $('#dCantMelt').is(':checked');
+                    $('#inspectionDomesticList_' + domesticFlag + '__IsMeltAll').val(IsMeltAll);
+
+                    var IsClean = $('#dNotClean').is(':checked');
+                    $('#inspectionDomesticList_' + domesticFlag + '__IsClean').val(IsClean);
+
+                    $('#dCleanAfter').val('no value');
+                    $('#inspectionDomesticList_' + domesticFlag + '__PHLevel').val($('#dPhlevel').val());
+                    $('#PHLevel_' + domesticFlag).text($('#dPhlevel').val());
+
+                    $('#inspectionDomesticList_' + domesticFlag + '__Remarks').val($('#dRemarks').val());
+                    $('#inspectionDomesticList_' + domesticFlag + '__ProductDescription').val($('#dproductName').val());
+                }
+
+                domesticFlag = -1;
+                $('.form-control').val('');
+                $('#btnAdd').text('Add');
+                //validator.resetForm();
+            }
+        }
+
+        function tblEditDomestic(index) {
+            debugger;
+            domesticFlag = index;
+            $('#dinspectorDate').val($('#inspectionDomesticList_' + index + '__InspectionDate').val());
+            $('#dinspectorName').val($('#inspectionDomesticList_' + index + '__InspectedBy').val());
+            $('#dbatchNo').val($('#inspectionDomesticList_' + index + '__BatchNo').val());
+            $('#dQty').val($('#inspectionDomesticList_' + index + '__Qty').val())
+            $('#dUom').val($('#inspectionDomesticList_' + index + '__UOM').val());
+            $('#dColor').val($('#inspectionDomesticList_' + index + '__Color').val());
+            $('#dWeight').val($('#inspectionDomesticList_' + index + '__BagWeight').val());
+            $('#dMeltingMin').val($('#inspectionDomesticList_' + index + '__MeltingMinute').val());
+
+            var IsMeltAll = $('#inspectionDomesticList_' + index + '__IsMeltAll').val();
+            if (IsMeltAll.toLocaleLowerCase() == 'true')
+                $('#dCantMelt').prop('checked', 'checked');
+            else
+                $('#dCantMelt').removeAttr('checked');
+            
+            var IsClean = $('#inspectionDomesticList_' + index + '__IsClean').val();
+            if (IsClean.toLocaleLowerCase() == 'true')
+                $('#dNotClean').prop('checked', 'checked');
+            else
+                $('#dNotClean').removeAttr('checked');
+
+            $('#dCleanAfter').val('no value');
+            $('#dPhlevel').val($('#inspectionDomesticList_' + index + '__PHLevel').val());
+            $('#dRemarks').val($('#inspectionDomesticList_' + index + '__Remarks').val());
+
+            //$('#dproductName').val($('#inspectionDomesticList_' + domesticFlag + '__ProductDescription').val());
+            $('#btnAdd').text('Update');
+        }
+        var parentFlag = -1;
+        function btnAddSsnToHdn() {
+
+            debugger;
+            var insCount = parentFlag;
+            var isExists = $('#InspectionDomesticList_' + parentFlag).length > 0;
+            if (sessionStorage.getItem('SsnTempDomestic') != null && sessionStorage.getItem('SsnTempDomestic') != '') {
+                var jsonData = JSON.parse(sessionStorage.getItem('SsnTempDomestic'));
+                if (!isExists) {
+                    insCount = $('.insCss').length;
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'InspectionDomesticList_' + insCount,
+                        name: 'obj.InspectionDomesticList[' + insCount + ']',
+                        value: JSON.stringify(jsonData),
+                        'class': 'insCss'
+                    }).appendTo('#InspectionDomesticArea');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'InspectionDomesticList_' + insCount + '_inpectionDate',
+                        value: $('#dinspectorDate').val()
+                    }).appendTo('#InspectionDomesticArea');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'InspectionDomesticList_' + insCount + '_inspectorName',
+                        value: $('#dinspectorName').val()
+                    }).appendTo('#InspectionDomesticArea');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        id: 'InspectionDomesticList_' + insCount + '_productName',
+                        value: $('#dproductName').val()
+                    }).appendTo('#InspectionDomesticArea');
+                }
+                else {
+                    insCount = parentFlag;
+                    $('#InspectionDomesticList_' + insCount).val(JSON.stringify(jsonData));
+                    $('#InspectionDomesticList_' + insCount + '_inpectionDate').val($('#dinspectorDate').val());
+                    $('#InspectionDomesticList_' + insCount + '_inspectorName').val($('#dinspectorName').val());
+                    $('#InspectionDomesticList_' + insCount + '_productName').val($('#dproductName').val());
+
+                }
+            }
+
+            sessionStorage.removeItem('SsnTempDomestic');
+            parentFlag = -1;
+            $('#inspectionModal').modal('hide');
+            $('#dinspectorDate, #dinspectorName, #dproductName').val('');
+
+            var arr = GetInspectionDomesticData();
+            debugger;
+        }
+
+        function GetInspectionDomesticData() {
+            debugger;
+            var count = $('.insCss').length;
+            var arr = new Array();
+            for (var i = 0; i < count; i++) {
+                var jsonData = JSON.parse($('#InspectionDomesticList_' + i).val());
+                var productName = $('#InspectionDomesticList_' + i + '_productName').val();
+                var inspectorName = $('#InspectionDomesticList_' + i + '_inspectorName').val();
+                var _inspectionDate = $('#InspectionDomesticList_' + i + '_inpectionDate').val();
+                for (var j = 0; j < jsonData.length; j++) {
+                    var obj = {
+                        ProductCode: productName,
+                        InspectionDate: _inspectionDate,
+                        InspectedBy: inspectorName,
+                        BatchNo: jsonData[j].dbatchNo,
+                        Qty: jsonData[j].dQty,
+                        UOM: jsonData[j].dUom,
+                        BagNo: '',
+                        BagWeight: jsonData[j].dWeight,
+                        Color: jsonData[j].dColor,
+                        MeltingMinute: jsonData[j].dMeltingMin,
+                        IsMeltAll: jsonData[j].dCantMelt,
+                        IsClean: jsonData[j].dNotClean,
+                        PHLevel: jsonData[j].dPhlevel,
+                        Remarks: jsonData[j].dRemarks
+                    };
+
+                    arr.push(obj);
+                }
+            }
+            return arr;
+        }
+
+        function backClick() {
+            location.href = '@Url.Content("~/Operation/GoodsReceiveDomestic")' + '?documentNo=' + '@Request.QueryString["documentNo"]' + '&branchID=' + '@Request.QueryString["branchId"]';
+        }
+
+        function clearSelectedDomenticItem() {
+            $('.form-control').val('');
+            $('#dproductName').val('@Request.QueryString["proDesc"]');
+            $('#dCantMelt, #dNotClean').removeAttr('checked');
+            domesticFlag = -1;
+            $('#btnAdd').text('Add');
+        }
+
+        function tblCancelDomestic(index) {
+            $('#InspectionDomestic_' + index).css({
+                'color': 'red',
+                'display': 'none',
+                'text-decoration': 'line-through',
+                'font-style': 'italic'
+            });
+
+            $('#inspectionDomesticList_' + index + '__Status').val('@Boolean.FalseString');
+            
+        }
+    </script>
+}

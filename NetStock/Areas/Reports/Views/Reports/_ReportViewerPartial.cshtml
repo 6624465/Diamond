@@ -1,0 +1,48 @@
+﻿@using MvcReportViewer
+<style>
+    .modal-dialog, .modal-content {
+        width: 950px;
+    }
+
+    #ReportViewerContent .modal-header {
+        background-color: #00a7d0 !important;
+    }
+
+        #ReportViewerContent .modal-header h4 {
+            color: white;
+        }
+</style>
+
+@{
+    var settings = new ControlSettings { ShowToolBar = true, ShowParameterPrompts = false };
+    string url = Convert.ToString(ViewBag.Url);
+    string DNo = Convert.ToString(ViewBag.DocumentId);
+}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="lblHeader">Report Details</h4>
+
+</div>
+@{
+    if (DNo != "")
+    {
+        @Html.MvcReportViewer(
+    url,
+         new { DocumentNo = DNo, },
+    new { Height = 900, Width = 900, style = "border: none" }).ControlSettings(settings)
+
+    }
+    else
+    {
+        @Html.MvcReportViewer(
+    url,
+    new { Height = 900, Width = 900, style = "border: none" }).ControlSettings(settings)
+
+    }
+}
+
+
+<div class="modal-footer">
+    <button class="btn" data-dismiss="modal">Ok</button>
+</div>

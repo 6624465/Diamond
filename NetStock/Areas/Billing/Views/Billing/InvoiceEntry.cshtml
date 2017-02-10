@@ -1,0 +1,308 @@
+﻿@model NetStock.Contract.InvoiceHeader
+
+@{
+    ViewBag.Title = "Invoice";
+}
+
+@{
+
+    NetStock.Contract.Customer customer = new NetStock.Contract.Customer();
+    customer = new NetStock.BusinessFactory.CustomerBO().GetCustomer(new NetStock.Contract.Customer { CustomerCode = Model.CustomerCode });
+    customer.CountryList = NetStock.Utility.GetCountryList();
+}
+@Styles.Render("~/Content/dataTablecss")
+<style type="text/css">
+    .popover {
+        width:300px;
+    }
+</style>
+<link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+<div class="modal fade in" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+@functions {
+    MvcHtmlString GetFullAddress(string address) {
+        if(address.IndexOf(",") > 0) {
+            var list = address.Split(',').ToList();
+
+            var html = "";
+            for(var i = 0; i < list.Count; i++) {
+                html += list[i] + "<br/>";
+            }
+
+            return MvcHtmlString.Create(html);
+        }
+        return MvcHtmlString.Create(address);
+    }
+}
+
+@using (Html.BeginForm("SaveCompanyProfile", "Billing", FormMethod.Post))
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Customer Invoice</h3>
+        </div>
+        <div class="panel-body">
+            <fieldset class="form-horizontal">
+                <legend>@Model.InvoiceType.ToUpper() &nbsp;INVOICE</legend>
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Customer Name</span></label>
+                            <div class="col-sm-3">@Model.CustomerName</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Address</span></label>
+                            <div class="col-sm-5 well" id="fullAddress">
+                                @*@GetFullAddress(customer.CustomerAddress.FullAddress)*@
+                            </div>
+                            &nbsp;
+                            <a id="anchEditAddress" data-toggle="popover" title="Edit Address" data-content=""><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Terms</span></label>
+                            <div class="col-md-3">
+                                <span>@Html.CheckBoxFor(m => m.PendingPayment, new { id = "chkIsPayLater" })</span>
+                                <label for="chkIsPayLater">Payment Type</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3"></label>
+                            <div class="col-md-3">
+                                <span>@Html.CheckBoxFor(m => m.IsRequireDelivery)</span>
+                                <label for="IsRequireDelivery">Request Delivery</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Date</span></label>
+                            <div class="col-sm-3">@Model.InvoiceDate.ToString("dd/MM/yyyy")</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Document No.</span></label>
+                            <div class="col-sm-3">@Model.InvoiceNo</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Tax Amount</span></label>
+                            <div class="col-sm-3">@Model.TaxAmount</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3"><span class="pull-right">Total Amount</span></label>
+                            <div class="col-sm-3">@Model.TotalAmount</div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <table id="tblItem" class="table table-striped table-hover table-bordered table-responsive ">
+        <thead style="background-color: steelblue; color: white; font-size: 12px;">
+            <tr>
+                <th>Product </th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody style="font-size: 12px;">
+            @if (Model != null)
+            {
+                foreach (NetStock.Contract.InvoiceDetail item in Model.InvoiceDetails)
+                {
+                <tr>
+                    <td>&nbsp;&nbsp;@item.ProductDescription </td>
+                    <td>@item.Quantity </td>
+                    <td>@item.Price </td>
+                </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+
+
+    <div class="box-footer">
+        <div class="row  no-print">
+            <div class="col-xs-12">
+                <div class="btn-group dropup">
+
+                    @*the URL need to be the Datasource url*@
+
+                    @Html.ActionLink("พิมพ์", "InvoiceReport", "Reports", new { area = "Reports", invoiceNo = Model.InvoiceNo, URL = "/NetStockDiamondReports/CashBill" }, new { data_modal = "test", id = "btnViewReport", onclick = "PrintClick()", @class = "btn btn-small btn-primary" })
+
+
+                </div>
+                <a href="#" id="btnBack" class="btn btn-social btn-info pull-right">
+                    <i class="fa fa-arrow-circle-o-left"></i>
+                    Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: none" id="popOverData">        
+            @Html.HiddenFor(x => customer.CustomerCode)
+            <div class="form-group">
+                <span class="col-md-12">Address 1</span>
+                <div class="col-md-12">@Html.TextAreaFor(x => customer.CustomerAddress.Address1, new { @class = "form-control input-sm" })</div>
+            </div>
+            <div class="form-group" style="display:none;">
+                <label class="col-md-12">Address 2</label>
+                <div class="col-md-12">@Html.TextBoxFor(x => customer.CustomerAddress.Address2, new { @class = "form-control input-sm" })</div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-6">
+                    <span>City</span>
+                    @Html.TextBoxFor(x => customer.CustomerAddress.CityName, new { @class = "form-control input-sm" })
+                </div>
+                <div class="col-md-6">
+                    <span>State</span>
+                    @Html.TextBoxFor(x => customer.CustomerAddress.StateName, new { @class = "form-control input-sm" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-6">
+                    <span>Zip Code</span>
+                    @Html.TextBoxFor(x => customer.CustomerAddress.ZipCode, new { @class = "form-control input-sm" })
+                </div>
+                <div class="col-md-6">
+                    <span>Country</span>
+                    @Html.DropDownListFor(x => customer.CustomerAddress.CountryCode, new SelectList(customer.CountryList, "Value", "Text", ""), new { @class = "form-control input-sm" })
+                </div>
+            </div>
+            <div class="form-group" style="display:none;">
+                <div class="col-md-6">
+                    <label>Phone No.</label>
+                    @Html.TextBoxFor(x => customer.CustomerAddress.TelNo, new { @class = "form-control input-sm" })
+                </div>
+                <div class="col-md-6">
+                    <label>Fax</label>
+                    @Html.TextBoxFor(x => customer.CustomerAddress.FaxNo, new { @class = "form-control input-sm" })
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12">Email</span>
+                <div class="col-md-12">@Html.TextBoxFor(x => customer.CustomerAddress.Email, new { @class = "form-control input-sm" })</div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary btn-block" onclick="btnPopOverSave();"><i class="fa fa-floppy-o" aria-hidden="true"></i>&nbsp;Save</button>
+                </div>                                 
+            </div>        
+    </div>
+
+}
+
+@section scripts{
+    @Scripts.Render("~/bundles/modalform")
+    @Scripts.Render("~/bundles/dataTable")
+
+
+    <script src="~/ThemeAdminLTE-2.2.0/plugins/select2/select2.min.js"></script>
+    <script src="@Url.Content("~/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap-datetimepicker.js")"></script>
+    <script type="text/javascript">
+
+        $("#ddlCustomerCode").select2();
+
+
+        function PrintClick() {
+            //debugger;
+            var InvoiceNo = $("#txtInvoiceNo").val();
+            var ReportURL = ("/NetStockDiamondReports/CashBill");
+            var rooturl = '@Url.Action("InvoiceReport", "Reports", new { area = "Reports" })';
+            var url = rooturl + "?invoiceNo=" + InvoiceNo + "&URL=" + ReportURL;
+            $("#btnViewReport").attr("href", url);
+        }
+
+
+
+        $(document).ready(function () {
+            var dateNow = new Date();
+
+            $("#tblItem").DataTable({
+                'bFilter': false,
+                'bPaginate': false,
+                'bInfo': false,
+                'bSort': false,
+                'aoColumns': [
+                    { 'sWidth': '50%' },
+                    { 'sWidth': '25%' },
+                    { 'sWidth': '25%' }]
+            });
+
+            //$('#dtpDateFrom').datetimepicker({
+            //    format: "DD/MM/YYYY"
+            //});
+            //$('#dtpDateTo').datetimepicker({
+            //    format: "DD/MM/YYYY"
+            //});
+
+            $('#dtpDateFrom, #dtpDateTo').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YYYY',
+                inline: false
+            });
+
+            $("#chkIsPayLater").click(function () {
+                $('#txtPaymentDays').attr("disabled", !$(this).is(':checked'));
+            });
+            
+            
+            $('#anchEditAddress').data('content', $('#popOverData').html());
+            
+            $('#anchEditAddress').popover({
+                html: true,
+                trigger: 'click',
+                placement: 'right'
+            });
+
+            
+
+
+
+            //$('#anchEditAddress').on('inserted.bs.popover', function () {
+
+            //    // do something…
+            //});
+        });
+
+        function btnPopOverSave() {
+            
+            var customerObj = {
+                CustomerCode: $('#customer_CustomerCode').val(),
+                CustomerAddress: {
+                    Address1: $('#customer_CustomerAddress_Address1').val(),
+                    Address2: $('#customer_CustomerAddress_Address2').val(),
+                    CityName: $('#customer_CustomerAddress_CityName').val(),
+                    StateName: $('#customer_CustomerAddress_StateName').val(),
+                    ZipCode: $('#customer_CustomerAddress_ZipCode').val(),
+                    CountryCode: $('#customer_CustomerAddress_CountryCode').val(),
+                    TelNo: $('#customer_CustomerAddress_TelNo').val(),
+                    FaxNo: $('#customer_CustomerAddress_FaxNo').val(),
+                    TelNo: $('#customer_CustomerAddress_TelNo').val(),
+                    Email: $('#customer_CustomerAddress_Email').val(),
+                }
+            };
+
+            $.ajax({
+                url: '@Url.Content("~/MasterData/UpdateCustomerAddress")',
+                method: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(customerObj),
+                success: function (res) {
+                    $('#fullAddress').html(res);
+
+                    $('#anchEditAddress').popover('hide');
+                }
+            });
+        }
+
+    </script>
+
+}

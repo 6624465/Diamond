@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title - NetStock &nbsp; POS &amp; Stock Maintenance Application</title>
+    <link href="@Url.Content("~/Content/font-awesome-4.5.0/css/font-awesome.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/bootstrap.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/AdminLTE.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/_all-skins.min.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/blue.css")" rel="stylesheet" />
+    
+    
+    <style type="text/css">
+        .class_checkbox {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            *display: inline;
+            vertical-align: middle;
+            margin: 0;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            background: url(../images/blue.png) no-repeat;
+            border: none;
+            cursor: pointer;
+        }
+
+            .class_checkbox.checked {
+                display: inline-block;
+                *display: inline;
+                vertical-align: middle;
+                margin: 0;
+                padding: 0;
+                width: 18px;
+                height: 18px;
+                background-position: -40px 0 !important;
+                border: none;
+                cursor: pointer;
+                background-position: -80px 0;
+            }
+
+        .rdoCss {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            *display: inline;
+            vertical-align: middle;
+            margin: 0;
+            padding: 0;
+            width: 18px;
+            height: 18px;
+            background: url(../images/blue.png) no-repeat;
+            border: none;
+            cursor: pointer;
+            background-position: -120px 0 !important;
+        }
+
+            .rdoCss.checked {
+                display: inline-block;
+                *display: inline;
+                vertical-align: middle;
+                margin: 0;
+                padding: 0;
+                width: 18px;
+                height: 18px;
+                background-position: -40px 0 !important;
+                border: none;
+                cursor: pointer;
+                background-position: -140px 0 !important;
+            }
+
+        .select2-selection, .select2-selection--single {
+            padding-top: 5px !important;
+            border-bottom-width: 1px !important;
+            border-top-width: 1px !important;
+            padding-left: 0px !important;
+            border-color: #D2D6DE !important;
+            height: 30px !important;
+            line-height: 30px !important;
+        }
+
+        /*@@font-face {
+          font-family: 'FontAwesome';
+          src: url('../fonts/fontawesome-webfont.eot?v=4.5.0');
+          src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.5.0') format('embedded-opentype'),
+               url('../fonts/fontawesome-webfont.woff2?v=4.5.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.5.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.5.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.5.0#fontawesomeregular') format('svg');
+          font-weight: normal;
+          font-style: normal;
+        }*/
+
+        @@font-face {
+            font-family: 'proximanovalight';
+            src: url('../fonts/proximanovalight.eot');
+            src: local('proximanovalight'), url('../fonts/proximanovalight.woff') format('woff'), url('../fonts/proximanovalight.ttf') format('truetype');
+        }
+
+        body {
+            font-family: 'proximanovalight';
+        }
+
+        .fontsforweb_fontid_12950 {
+            font-family: 'proximanovalight' !important;
+        }
+
+        select {
+            padding-bottom: 0px;
+            padding-left: 0px;
+            height: 30px;
+            width: 216px;
+            padding-top: 0px;
+            padding-right: 0px;
+            border-right-width: 1px;
+            border-left-width: 1px;
+        }
+        .modal-header{
+            background-color:#3c8dbc;
+        }
+
+        .modal-title {
+            color:#fff;
+        }
+        
+    </style>
+    <style type="text/css">
+        input[type=text].error, input[type=password].error, textarea.error, select.error {
+            border: 1px solid red;
+        }
+
+        label.error {
+            display: none !important;
+        }
+    </style>
+    @RenderSection("css", required: false)
+    <!-- End of layout top -->
+</head>
+
+<body class="skin-blue sidebar-collapse sidebar-mini">
+    <div class="wrapper">
+        <header class="main-header">
+            <a href="index2.html" class="logo">
+                <span class="logo-mini"><b>Net Stock</b></span>
+                <span class="logo-lg"><i class="fa fa-diamond" aria-hidden="true"></i>&nbsp;Net Stock</span>
+            </a>
+            <nav class="navbar navbar-static-top" role="navigation">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <span style="padding-top:15px;color:#fff;" class="pull-left">Loggedin Branch <b style="font-size:15px;">@Utility.SsnBranchText</b></span>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">                        
+                        <li>
+                            <a href="@Url.Action("OrderEntry", "Operation", new { area = "Operation", orderNo = "NEW" }, null)"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;New Sales</a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("GoodsReceiveList", "Operation", new { area = "Operation" }, null)"><i class="fa fa-truck" aria-hidden="true"></i>&nbsp;Goods Receive</a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("StockInquiry", "Operation", new { area = "Operation" }, null)"><i class="fa fa-stack-exchange" aria-hidden="true"></i>&nbsp;Stock Inquiry</a>
+                        </li>
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="hidden-xs">
+                                    <img src="@Url.Content("~/images/avatar.png")" class="user-image" alt="User Image" />@Utility.DEFAULTUSER
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="user-header">
+                                    <img src="@Url.Content("~/images/avatar.png")" class="img-circle" alt="User Image" />
+                                    <p>
+                                        @Utility.DEFAULTUSER - Administrator
+                                        <small>-</small>
+                                    </p>
+                                </li>
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a href="@Url.Action("LogOff", "Account", new { area = "" })" class="btn btn-default btn-flat">Sign out</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>                        
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <ul class="sidebar-menu">
+                    <li class="treeview">
+                        <a>
+                            <i class="fa fa-dashboard"></i><span>DashBoard</span> <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <a href="@Url.Action("Index", "Dashboard", new { area = "Dashboard" }, null)">
+                                    <i class="fa fa-calculator"></i>Activity Summary
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-asterisk" aria-hidden="true"></i><span>Master Data</span> <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li class="active"><a href="@Url.Action("CompanyProfile", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-building-o" aria-hidden="true"></i>&nbsp;Company</a></li>
+                            <li><a href="@Url.Action("UOMList", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-cube fa-lg "></i>&nbsp;U O M </a></li>
+                            <li><a href="@Url.Action("CurrencyList", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-money" aria-hidden="true"></i>&nbsp;Currency </a></li>
+                            <li><a href="@Url.Action("IncoTermList", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;Inco Terms</a></li>
+                            <li><a href="@Url.Action("ProductCategoryList", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-product-hunt" aria-hidden="true"></i>&nbsp;Product Category</a></li>
+                            <li><a href="@Url.Action("LocationList", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-map-marker" aria-hidden="true"></i>&nbsp;Location</a></li>
+                            <li><a href="@Url.Action("PaymentTypeList", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-credit-card-alt" aria-hidden="true"></i>&nbsp;Payment Type</a></li>
+                            <li><a href="@Url.Action("Products", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-briefcase" aria-hidden="true"></i>&nbsp;Products</a></li>
+                            <li><a href="@Url.Action("Suppliers", "MasterData", new { area = "MasterData" }, null)">&nbsp;<i class="fa fa-male" aria-hidden="true"></i>&nbsp;Supplier</a></li>
+                            <li><a href="@Url.Action("Customers", "MasterData", new { area = "MasterData" }, null)"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;Customer</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-fighter-jet" aria-hidden="true"></i><span>Quotation</span> <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="@Url.Action("StandardRateProfile", "Quotation", new { area = "Quotation", quotationNo = "STANDARD", isLink = true }, null)"><i class="fa fa-link"></i>&nbsp;Standard Quotation</a></li>
+                            <li><a href="@Url.Action("CustomerQuotationList", "Quotation", new { area = "Quotation" }, null)"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;Customer Tariff</a></li>
+                            <li><a href="@Url.Action("SupplierQuotationList", "Quotation", new { area = "Quotation" }, null)">&nbsp;<i class="fa fa-male" aria-hidden="true"></i>&nbsp;Supplier Tariff</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-exchange" aria-hidden="true"></i><span>Transaction</span> <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="@Url.Action("ShipmentIndentList", "Operation", new { area = "Operation" }, null)"><i class="fa fa-ship" aria-hidden="true"></i>&nbsp;Shipment Indent</a></li>
+                            <li><a href="@Url.Action("PurchaseOrderList", "Operation", new { area = "Operation" }, null)"><i class="fa fa-shopping-cart" aria-hidden="true"></i>&nbsp;Purchase Order</a></li>
+                            <li><a href="@Url.Action("GoodsReceiveList", "Operation", new { area = "Operation" }, null)"><i class="fa fa-truck" aria-hidden="true"></i>&nbsp;Goods Receive</a></li>
+                            <li><a href="@Url.Action("Orders", "Operation", new { area = "Operation" }, null)">&nbsp;<i class="fa fa-sticky-note" aria-hidden="true"></i>&nbsp;Sales Entry (Forecast)</a></li>
+                            <li><a href="@Url.Action("OrdersIssueList", "Operation", new { area = "Operation" }, null)">&nbsp;<i class="fa fa-sticky-note" aria-hidden="true"></i>&nbsp;Sales Entry</a></li>
+                            <li><a href="@Url.Action("GoodsIssueList", "Operation", new { area = "Operation" }, null)">&nbsp;<i class="fa fa-truck" aria-hidden="true"></i>&nbsp;Goods Issue</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-credit-card-alt" aria-hidden="true"></i><span>Billing</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="@Url.Action("InvoiceList", "Billing", new { area = "Billing" }, null)"><i class="fa fa-list" aria-hidden="true"></i>&nbsp;Invoice</a></li>
+                            <li><a href="@Url.Action("InvoiceApproval", "Billing", new { area = "Billing" }, null)"><i class="fa fa-check" aria-hidden="true"></i>&nbsp;Invoice Approval</a></li>
+                            <li><a href="@Url.Action("UnbilledInvoices", "Billing", new { area = "Billing" }, null)"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Unbilled Invoices</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-search" aria-hidden="true"></i><span>Inquiry</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="@Url.Action("StockInquiry", "Operation", new { area = "Operation" }, null)"><i class="fa fa-stack-exchange" aria-hidden="true"></i>&nbsp;Stock Inquiry</a></li>
+                            <li><a href="@Url.Action("InvoiceInquiry", "Billing", new { area = "Billing" }, null)">&nbsp;<i class="fa fa-info" aria-hidden="true"></i>&nbsp;Invoice Inquiry</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-pie-chart" aria-hidden="true"></i><span>Reports</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="@Url.Action("ShipmentIndent", "Reports", new { area = "Reports" }, null)"><i class="fa fa-list-ol" aria-hidden="true"></i>&nbsp;Shipment Indent List</a></li>
+                            <li><a href="@Url.Action("ShipmentSchedule", "Reports", new { area = "Reports" }, null)"><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;Shipment Schedule </a></li>
+                            <li><a href="@Url.Action("StockPlan", "Reports", new { area = "Reports" }, null)"><i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;Stock Plan</a></li>
+                            <li><a href="@Url.Action("DailySalesReport", "Reports", new { area = "Reports" }, null)"><i class="fa fa-bar-chart" aria-hidden="true"></i>&nbsp;Daily Sales</a></li>
+                            <li><a href="@Url.Action("ProfitAndLossReport", "Reports", new { area = "Reports" }, null)"><i class="fa fa-balance-scale" aria-hidden="true"></i>&nbsp;Profit &amp; Loss</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-sliders" aria-hidden="true"></i><span>Set Up</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li><a href="@Url.Action("UserList", "User", new { area = "User" }, null)"><i class="fa fa-users" aria-hidden="true"></i>&nbsp;Users</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+        <div class="content-wrapper">
+            <section class="content">
+                @RenderBody()
+            </section>
+        </div>
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> 1.0.0
+            </div>
+            <p>&copy; @DateTime.Now.Year - <a href="#">Virgo-Leo Solutions</a> </p>
+        </footer>
+    </div>
+
+    @Html.Partial("_ShowAlertPartial")
+    @Html.Partial("_ShowConfirmDialog")
+
+    <script src="@Url.Content("~/Scripts/jquery-1.10.2.js")"></script>
+    <script src="@Url.Content("~/Scripts/jquery.validate.js")"></script>   
+    <script src="@Url.Content("~/Scripts/bootstrap.js")"></script>
+    <script src="@Url.Content("~/Scripts/app.js")"></script>
+    <script type="text/javascript">
+        var RawUrl = '@Request.Url';
+        var ErrorUrl = '@Url.Content("~/Account/Login")';
+        var dateFormatStr = '';
+        if (RawUrl.indexOf('http://localhost') == 0)
+            dateFormatStr = 'MM/DD/YY';
+        else
+            dateFormatStr = 'MM/DD/YYYY';        
+    </script>
+    <script src="@Url.Content("~/Scripts/js/layout.js")"></script>
+
+
+    @RenderSection("scripts", required: false)
+    @*<script type="text/javascript">
+        $(function () {
+            $('.dataTables_paginate ul').addClass('pagination-sm');
+        });
+    </script>*@
+
+    <!-- AdminLTE App -->
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,106 @@
+﻿@model NetStock.Contract.CustomerProduct
+
+
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="lblHeader">Add/Edit Product Code</h4>
+
+</div>
+
+
+
+@using (Html.BeginForm())
+{
+
+
+    <div class="modal-body form-horizontal" id="modalbody">
+
+        <div class="form-group">
+            <div>
+                @*@Html.LabelFor(m => m.ProductCode, new { @class = "control-label input-sm col-md-3" })*@
+                <label class="control-label input-sm col-md-3">Supplier's Product Code</label>
+                <div class="col-md-8">
+                    @(Model.ProductCode == null ?
+                    @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control input-sm"}) :
+                    @Html.TextBoxFor(m => m.ProductCode, new { @class = "form-control input-sm", @readonly = "readonly"  }))
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.MatchProductCode, new { @class = "col-md-3 control-label input-sm" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(m => m.MatchProductCode, Model.MatchProductList, "Select Product", new {@id="ddlProductCode", @class = "form-control input-sm " })
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.BarCode, new { @class = "col-md-3 control-label input-sm" })
+                <div class="col-md-8">
+                    @(Model.BarCode == null ? @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm "  }) :
+                     @Html.TextBoxFor(m => m.BarCode, new { @class = "form-control input-sm ", @readonly = "readonly"  }))
+
+                </div>
+            </div>
+        </div>
+
+        @*<div class="form-group">
+            <div>
+                @Html.LabelFor(m => m.CostPrice, new { @class = "col-md-3 control-label input-sm" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(m => m.CostPrice, new { @class = "form-control input-sm "  })
+                </div>
+            </div>
+        </div>*@
+
+    </div>
+
+    <div class="modal-footer" id="closemodal">
+        <button class="btn" data-dismiss="modal">Cancel</button>
+        @*<input class="btn btn-primary" type="submit" value="Save" onclick="Save()" />*@
+        <input class="btn btn-primary" type="button" onclick="AddDataToTable()" value="Save" />
+    </div>
+
+
+    <script type="text/javascript">
+         
+         
+        $("input ,select, textarea,hidden, a,.ui-igcombo").not($(":button,a")).keypress(function (evt) {
+            if (evt.keyCode == 13) {
+                evt.preventDefault();
+                return false;
+            }
+        });
+
+        
+    </script>
+
+    /*
+
+<script>
+    function Save()
+    {
+        //txtMatchProductCode,txtProductCode,txtBarCode,txtCostPrice
+        //alert($("#txtCostPrice").val());
+        var finaldata = $("#txtMatchProductCode").val() + "$" + $("#txtProductCode").val() + "$" + $("#txtBarCode").val() + "$" + $("#txtCostPrice").val() + "$"    ;
+        $.ajax({
+            type: 'POST',
+            //datatype: 'json',
+            data: { data: finaldata },
+            url: '../MasterData/SaveProd',
+            async: false,
+            success: function (response) {
+                alert('success');
+                $("#modalbody").modal('hide');
+            }, error: function (e)
+            { alert("error" + e); }
+
+        });
+    }
+</script>
+ * */
+}
